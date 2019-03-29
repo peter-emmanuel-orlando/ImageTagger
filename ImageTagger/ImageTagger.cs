@@ -16,6 +16,6 @@ namespace ImageTagger
         {
             InitializeComponent();
         }
-
+        
     }
 }
