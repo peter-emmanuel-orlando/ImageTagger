@@ -10,11 +10,12 @@ using System.Windows.Forms;
 
 namespace ImageTagger
 {
-    public partial class Form1 : Form
+    public partial class ImageTagger : Form
     {
-        public Form1()
+        public ImageTagger()
         {
             InitializeComponent();
         }
+
     }
 }
