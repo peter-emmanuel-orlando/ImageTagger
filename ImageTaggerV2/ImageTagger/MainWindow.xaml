@@ -12,11 +12,10 @@
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition Height="20"/>
-            <RowDefinition Height="40"/>
             <RowDefinition/>
             <RowDefinition Height="20"/>
         </Grid.RowDefinitions>
-        <Grid Grid.Row="2" Background="#3F529DB0" Panel.ZIndex="9999999">
+        <Grid Grid.Row="1" Background="#3F529DB0" Panel.ZIndex="9999999">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition MinWidth="140" Width="0*"/>
                 <ColumnDefinition MinWidth="5"/>
@@ -39,7 +38,7 @@
                     <Label Content="Label" Height="40" VerticalAlignment="Top"/>
                     <TextBox Text="TextBox" FontSize="20" MaxLines="1"/>
                 </DockPanel>
-                <Grid Background="#33F2FF00" DockPanel.Dock="Top" Height="300">
+                <Grid Background="#33F2FF00" DockPanel.Dock="Top">
                     <Image Source="Resources/64b6fbdc3036fe793216621435b981d3.jpg"/>
                     <Grid Background="#33BF3737" Panel.ZIndex="1">
                         <Grid.RowDefinitions>
@@ -67,7 +66,14 @@
                 </Grid>
             </DockPanel>
         </Grid>
-        <DockPanel LastChildFill="False" Grid.Row="3" Background="#667400FF"/>
-        <DockPanel LastChildFill="False" Background="#4CF4FF00"/>
+        <DockPanel LastChildFill="False" Grid.Row="2" Background="#667400FF"/>
+        <DockPanel Background="#4CF4FF00">
+            <Menu>
+                <MenuItem Background="#FFF0DBFF" Header="test">
+                    <MenuItem Background="#FFFFD3D3" Header="innerTest1"/>
+                    <MenuItem Header="test2"/>
+                </MenuItem>
+            </Menu>
+        </DockPanel>
     </Grid>
 </Window>
