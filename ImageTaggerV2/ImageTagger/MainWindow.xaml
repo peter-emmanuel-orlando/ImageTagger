@@ -13,15 +13,49 @@
             <RowDefinition/>
             <RowDefinition Height="30"/>
         </Grid.RowDefinitions>
-        <Grid Grid.Row="2" Background="#3F529DB0">
+        <Grid Grid.Row="2" Background="#3F529DB0" Panel.ZIndex="9999999">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition MinWidth="49" Width="200"/>
-                <ColumnDefinition/>
+                <ColumnDefinition MinWidth="140" Width="0*"/>
+                <ColumnDefinition MinWidth="5"/>
             </Grid.ColumnDefinitions>
-            <Rectangle Fill="#FFF4F4F5" Stroke="Black"/>
-            <GridSplitter HorizontalAlignment="Left" Width="3" Background="#00000000" Grid.Column="1"/>
-            <Grid Grid.Column="1" Background="#33BF3737" Panel.ZIndex="1"/>
+            <GridSplitter HorizontalAlignment="Left" Width="5" Background="#3FF400FF" Grid.Column="1" Panel.ZIndex="9999999" VerticalContentAlignment="Stretch"/>
+            <Grid Grid.Column="1" Background="#33BF3737" Panel.ZIndex="1">
+                <Grid.RowDefinitions>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+            </Grid>
             <Image Grid.Column="1" Source="Resources/64b6fbdc3036fe793216621435b981d3.jpg"/>
+            <WrapPanel Grid.ColumnSpan="2" HorizontalAlignment="Left" Height="100" Margin="161,136,0,0" VerticalAlignment="Top" Width="100"/>
+            <ScrollViewer VerticalScrollBarVisibility="Auto">
+                <WrapPanel Background="#6630D6BB">
+                    <Image Height="100" Width="100" Source="Resources/64b6fbdc3036fe793216621435b981d3.jpg" Stretch="UniformToFill" Margin="20,20,0,0"/>
+                    <Image Height="100" Width="100" Source="Resources/64b6fbdc3036fe793216621435b981d3.jpg" Stretch="UniformToFill" Margin="20,20,0,0"/>
+                    <Image Height="100" Width="100" Source="Resources/64b6fbdc3036fe793216621435b981d3.jpg" Stretch="UniformToFill" Margin="20,20,0,0"/>
+                    <Image Height="100" Width="100" Source="Resources/64b6fbdc3036fe793216621435b981d3.jpg" Stretch="UniformToFill" Margin="20,20,0,0"/>
+                    <Image Height="100" Width="100" Source="Resources/64b6fbdc3036fe793216621435b981d3.jpg" Stretch="UniformToFill" Margin="20,20,0,0"/>
+                    <Image Height="100" Width="100" Source="Resources/64b6fbdc3036fe793216621435b981d3.jpg" Stretch="UniformToFill" Margin="20,20,0,0"/>
+                    <Image Height="100" Width="100" Source="Resources/64b6fbdc3036fe793216621435b981d3.jpg" Stretch="UniformToFill" Margin="20,20,0,0"/>
+                    <Image Height="100" Width="100" Source="Resources/64b6fbdc3036fe793216621435b981d3.jpg" Stretch="UniformToFill" Margin="20,20,0,0"/>
+                </WrapPanel>
+            </ScrollViewer>
         </Grid>
     </Grid>
 </Window>
