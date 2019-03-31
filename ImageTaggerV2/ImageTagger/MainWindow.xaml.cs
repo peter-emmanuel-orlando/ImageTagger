@@ -119,11 +119,14 @@ namespace ImageTagger
                 " e.ExtentHeight:" +
                 e.ExtentHeight +
                 " e.ExtentHeightChange:" +
-                e.ExtentHeightChange
+                e.ExtentHeightChange +
+                " scrollableHeight:" +
+                (e.OriginalSource as ScrollViewer).ScrollableHeight
               );
-            if (e.VerticalChange > 0 || e.ExtentHeightChange != 0)
+            var scrollableHeight = (e.OriginalSource as ScrollViewer).ScrollableHeight;
+            if (e.VerticalChange > 0 || scrollableHeight == 0)
             {
-                if (e.VerticalOffset + e.ViewportHeight == e.ExtentHeight)
+                if (e.VerticalOffset + e.ViewportHeight == e.ExtentHeight || scrollableHeight == 0)
                 {
                     Debug.WriteLine("At the bottom of the list!");
                     if(loadedImages.Count() < imageFileNames.Count())
@@ -140,10 +143,20 @@ namespace ImageTagger
                             }
                             catch (Exception) { }
                         }
+                        var selectedIndex = imgGrid.SelectedIndex;
                         imgGrid.ItemsSource = loadedImages.ToArray();
+                        ListBoxItem myListBoxItem =
+                            (ListBoxItem)(imgGrid.ItemContainerGenerator.ContainerFromItem(imgGrid.Items[selectedIndex]));
+                        //myListBoxItem.Focus();
+                        return;
                     }
                 }
             }
+        }
+
+        private void ScrollViewer_RequestBringIntoView(object sender, RequestBringIntoViewEventArgs e)
+        {
+            //e.Handled = true;
         }
     }
 }
