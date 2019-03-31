@@ -22,16 +22,20 @@
             </Grid.ColumnDefinitions>
             <GridSplitter HorizontalAlignment="Left" Width="5" Background="#3FF400FF" Grid.Column="1" Panel.ZIndex="9999999" VerticalContentAlignment="Stretch"/>
             <ScrollViewer VerticalScrollBarVisibility="Hidden">
-                <WrapPanel Background="#6630D6BB">
-                    <Image Height="100" Width="100" Source="Resources/64b6fbdc3036fe793216621435b981d3.jpg" Stretch="UniformToFill" Margin="20,20,0,0"/>
-                    <Image Height="100" Width="100" Source="Resources/64b6fbdc3036fe793216621435b981d3.jpg" Stretch="UniformToFill" Margin="20,20,0,0"/>
-                    <Image Height="100" Width="100" Source="Resources/64b6fbdc3036fe793216621435b981d3.jpg" Stretch="UniformToFill" Margin="20,20,0,0"/>
-                    <Image Height="100" Width="100" Source="Resources/64b6fbdc3036fe793216621435b981d3.jpg" Stretch="UniformToFill" Margin="20,20,0,0"/>
-                    <Image Height="100" Width="100" Source="Resources/64b6fbdc3036fe793216621435b981d3.jpg" Stretch="UniformToFill" Margin="20,20,0,0"/>
-                    <Image Height="100" Width="100" Source="Resources/64b6fbdc3036fe793216621435b981d3.jpg" Stretch="UniformToFill" Margin="20,20,0,0"/>
-                    <Image Height="100" Width="100" Source="Resources/64b6fbdc3036fe793216621435b981d3.jpg" Stretch="UniformToFill" Margin="20,20,0,0"/>
-                    <Image Height="100" Width="100" Source="Resources/64b6fbdc3036fe793216621435b981d3.jpg" Stretch="UniformToFill" Margin="20,20,0,0"/>
-                </WrapPanel>
+                <ListBox ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Disabled" VerticalContentAlignment="Stretch" HorizontalContentAlignment="Stretch" IsEnabled="False">
+                    <ItemsControl Name="imgGrid">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate >
+                                <WrapPanel />
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Image Height="100" Width="100" Source="{Binding ImgSource}" Stretch="UniformToFill" Margin="20,20,0,0"/>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ListBox>
             </ScrollViewer>
             <DockPanel Background="#FFFEFFEC" Grid.Column="1">
                 <DockPanel Background="#66008CFF" VerticalAlignment="Top" DockPanel.Dock="Top">
@@ -39,7 +43,7 @@
                     <TextBox Text="TextBox" FontSize="20" MaxLines="1"/>
                 </DockPanel>
                 <Grid Background="#33F2FF00" DockPanel.Dock="Top">
-                    <Image Source="Resources/64b6fbdc3036fe793216621435b981d3.jpg"/>
+                    <Image x:Name="MainImageDisplay" Source="Resources/64b6fbdc3036fe793216621435b981d3.jpg"/>
                     <Grid Background="#33BF3737" Panel.ZIndex="1">
                         <Grid.RowDefinitions>
                             <RowDefinition/>
