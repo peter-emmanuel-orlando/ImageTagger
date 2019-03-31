@@ -21,20 +21,6 @@
                 <ColumnDefinition MinWidth="5"/>
             </Grid.ColumnDefinitions>
             <GridSplitter HorizontalAlignment="Left" Width="5" Background="#3FF400FF" Grid.Column="1" Panel.ZIndex="9999999" VerticalContentAlignment="Stretch"/>
-            <ScrollViewer VerticalScrollBarVisibility="Hidden">
-                <ListBox x:Name="imgGrid" ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Disabled" VerticalContentAlignment="Top" Background="#FF00E8FF" ScrollViewer.CanContentScroll="False">
-                    <ListBox.ItemsPanel>
-                        <ItemsPanelTemplate >
-                            <WrapPanel  IsItemsHost="True" />
-                        </ItemsPanelTemplate>
-                    </ListBox.ItemsPanel>
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate>
-                            <Image Height="100" Width="100" Source="{Binding ImgSource}" Stretch="UniformToFill" Margin="20,20,0,0"/>
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                </ListBox>
-            </ScrollViewer>
             <DockPanel Background="#FFFEFFEC" Grid.Column="1">
                 <DockPanel Background="#66008CFF" VerticalAlignment="Top" DockPanel.Dock="Top">
                     <Label Content="Label" Height="40" VerticalAlignment="Top"/>
@@ -67,6 +53,18 @@
                     </Grid>
                 </Grid>
             </DockPanel>
+            <ListBox x:Name="imgGrid" ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Hidden" VerticalContentAlignment="Top" Background="#FF00E8FF" ScrollViewer.CanContentScroll="False">
+                <ListBox.ItemsPanel>
+                    <ItemsPanelTemplate >
+                        <WrapPanel  IsItemsHost="True" />
+                    </ItemsPanelTemplate>
+                </ListBox.ItemsPanel>
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <Image Height="100" Width="100" Source="{Binding ImgSource}" Stretch="UniformToFill" Margin="20,20,0,0"/>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
         </Grid>
         <DockPanel LastChildFill="False" Grid.Row="2" Background="#667400FF"/>
         <DockPanel Background="#4CF4FF00">
