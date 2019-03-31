@@ -11,6 +11,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using Debug = System.Diagnostics.Debug;
 using Path = System.IO.Path;
 
 namespace ImageTagger
@@ -45,7 +46,7 @@ namespace ImageTagger
             int max = 25;
             foreach (var filename in tmp)
             {
-                System.Diagnostics.Debug.WriteLine(filename);
+                Debug.WriteLine(filename);
                 try
                 {
                     imageSquares.Add(new ImageSquare(filename));
@@ -111,6 +112,13 @@ namespace ImageTagger
                     result.Add(fileName);
             }
             return result;
+        }
+
+        private void SetAsMainImage(object sender, SelectionChangedEventArgs e)
+        {
+            //var img = sender as Image;
+            Debug.WriteLine("selected: " + (e.AddedItems[0] as ImageSquare).ImgSource.UriSource);
+            mainImageDisplay.Source = (e.AddedItems[0] as ImageSquare).ImgSource;
         }
     }
 }

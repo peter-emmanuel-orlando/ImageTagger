@@ -27,8 +27,8 @@
                     <TextBox Text="TextBox" FontSize="20" MaxLines="1"/>
                 </DockPanel>
                 <Grid Background="#33F2FF00" DockPanel.Dock="Top">
-                    <Image x:Name="MainImageDisplay" Source="Resources/64b6fbdc3036fe793216621435b981d3.jpg"/>
-                    <Grid Background="#33BF3737" Panel.ZIndex="1">
+                    <Image x:Name="mainImageDisplay" Source="{Binding ImgSource}"/>
+                    <Grid x:Name="tagGrid" Background="#33BF3737" Panel.ZIndex="1">
                         <Grid.RowDefinitions>
                             <RowDefinition/>
                             <RowDefinition/>
@@ -53,7 +53,7 @@
                     </Grid>
                 </Grid>
             </DockPanel>
-            <ListBox x:Name="imgGrid" ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Hidden" VerticalContentAlignment="Top" Background="#FF00E8FF" ScrollViewer.CanContentScroll="False">
+            <ListBox x:Name="imgGrid" ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Hidden" VerticalContentAlignment="Top" Background="#FF00E8FF" ScrollViewer.CanContentScroll="False" SelectionChanged="SetAsMainImage">
                 <ListBox.ItemsPanel>
                     <ItemsPanelTemplate >
                         <WrapPanel  IsItemsHost="True" />
@@ -61,7 +61,7 @@
                 </ListBox.ItemsPanel>
                 <ListBox.ItemTemplate>
                     <DataTemplate>
-                        <Image Height="100" Width="100" Source="{Binding ImgSource}" Stretch="UniformToFill" Margin="20,20,0,0"/>
+                        <Image Height="100" Width="100" Source="{Binding ImgSource}" Stretch="UniformToFill" Margin="10,10,10,10" />
                     </DataTemplate>
                 </ListBox.ItemTemplate>
             </ListBox>
