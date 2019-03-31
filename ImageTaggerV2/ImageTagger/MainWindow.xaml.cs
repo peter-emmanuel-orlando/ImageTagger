@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.WindowsAPICodePack.Shell;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -6,11 +7,9 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Data;
 using System.Windows.Documents;
-using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
@@ -34,12 +33,12 @@ namespace ImageTagger
         private bool checkForEmptyTags = true;
         private bool randomizeImages = false;
 
-        private string sourceDirectory = @"C:\Users\YumeMura\Downloads";
-        private readonly List<string> imageFileNames = new List<string>();
-        private readonly List<ImageSquare> loadedImages = new List<ImageSquare>();
+        protected string sourceDirectory = @"C:\Users\YumeMura\Downloads"; //  @"C:\Users\YumeMura\Desktop\unsamples";
+        protected readonly List<string> imageFileNames = new List<string>();
+        protected readonly List<ImageInfo> loadedImages = new List<ImageInfo>();
 
-        private const string locFileName = @"lastSession.loc";
-        private const string genericLocFile = @"SourceDirectory:SourcePlaceHolder|DestinationDirectory:DestinationPlaceHolder";
+        protected const string locFileName = @"lastSession.loc";
+        protected const string genericLocFile = @"SourceDirectory:SourcePlaceHolder|DestinationDirectory:DestinationPlaceHolder";
 
 
         public MainWindow()
@@ -48,7 +47,7 @@ namespace ImageTagger
             imageFileNames.Clear();
             imageFileNames = GetImageFilenames(sourceDirectory, true);
             loadedImages.Clear();
-            loadedImages = new List<ImageSquare>();
+            loadedImages = new List<ImageInfo>();
             int count = 0;
             int max = 25;
             foreach (var filename in imageFileNames)
@@ -56,7 +55,7 @@ namespace ImageTagger
                 Debug.WriteLine(filename);
                 try
                 {
-                    loadedImages.Add(new ImageSquare(filename));
+                    loadedImages.Add(new ImageInfo(filename));
                     count++;
                 }
                 catch (System.NotSupportedException)
@@ -68,6 +67,32 @@ namespace ImageTagger
             imgGrid.ItemsSource = loadedImages.ToArray();
             if(count > 0)
                 imgGrid.SelectedIndex = 0;
+        }
+
+
+        private string GetImageTags(string imagePath)
+        {
+            var result = "";
+
+            Debug.WriteLine("tags at: " + imagePath);
+            if (File.Exists(imagePath))
+            {
+                var sFile = ShellFile.FromParsingName(imagePath);
+                var tagsList = sFile.Properties.System.Keywords.Value;
+                if (tagsList != null)
+                {
+                    foreach (var tagText in tagsList)
+                    {
+                        result += tagText + "; ";
+                    }
+                }
+                try
+                {
+                }
+                catch (Exception) { }
+            }
+
+            return result;
         }
 
         /*
@@ -96,81 +121,6 @@ namespace ImageTagger
             }
             if (randomize) result.Shuffle();
             return result;
-        }
-
-        private void HandleImageGridSelectionChange(object sender, SelectionChangedEventArgs e)
-        {
-            if(e.AddedItems.Count > 0)
-            {
-                Debug.WriteLine("selected: " + (e.AddedItems[0] as ImageSquare).ImgSource.UriSource);
-                mainImageDisplay.Source = (e.AddedItems[0] as ImageSquare).ImgSource;
-            }
-        }
-
-        private void HandleImageGridScrollChange(object sender, ScrollChangedEventArgs e)
-        {
-            Debug.WriteLine(
-                " e.VerticalChange:" +
-                e.VerticalChange + 
-                "e.ViewportHeight:" +
-                e.ViewportHeight +
-                " e.VerticalOffset:" +
-                e.VerticalOffset +
-                " e.ExtentHeight:" +
-                e.ExtentHeight +
-                " e.ExtentHeightChange:" +
-                e.ExtentHeightChange +
-                " scrollableHeight:" +
-                (e.OriginalSource as ScrollViewer).ScrollableHeight
-              );
-            var scrollableHeight = (e.OriginalSource as ScrollViewer).ScrollableHeight;
-            if (e.VerticalChange > 0 || scrollableHeight == 0)
-            {
-                if (e.VerticalOffset + e.ViewportHeight == e.ExtentHeight || scrollableHeight == 0)
-                {
-                    Debug.WriteLine("At the bottom of the list!");
-                    LoadMoreImages();
-                }
-            }
-        }
-
-        private void LoadMoreImages()
-        {
-            if (loadedImages.Count() < imageFileNames.Count())
-            {
-                var loadedCount = loadedImages.Count();
-                var fileNameCount = imageFileNames.Count();
-                for (int i = loadedCount; i < Math.Min(10 + loadedCount, fileNameCount); i++)
-                {
-                    try
-                    {
-                        //Debug.WriteLine("trying to add file to list:" + imageFileNames[i]);
-                        var newSquare = new ImageSquare(imageFileNames[i]);
-                        loadedImages.Add(newSquare);
-                    }
-                    catch (Exception) { }
-                }
-                var selectedIndex = imgGrid.SelectedIndex;
-                imgGrid.ItemsSource = loadedImages.ToArray();
-                //this is a kinda janky workaround. what i need to do is handle arrow keypresses and move focus manually
-                ListBoxItem myListBoxItem = (ListBoxItem)(imgGrid.ItemContainerGenerator.ContainerFromItem(imgGrid.Items[selectedIndex]));
-                //imgGrid.ScrollIntoView(myListBoxItem);
-                myListBoxItem.Focus();
-
-                myListBoxItem.KeyDown += LastImage_KeyDown;
-                return;
-            }
-        }
-
-        private void LastImage_KeyDown(object sender, KeyEventArgs e)
-        {
-            //var container = e.OriginalSource as ListBoxItem;
-            //container.Focus();
-            //e.Handled = true;
-            //var item = imgGrid.ItemContainerGenerator.ItemFromContainer(container);
-            //var index = imgGrid.Items.IndexOf(item);
-            //imgGrid.SelectedIndex = index + 1;
-            //Debug.WriteLine(index);
         }
     }
 }

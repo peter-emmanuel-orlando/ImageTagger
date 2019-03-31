@@ -35,6 +35,15 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Microsoft.WindowsAPICodePack, Version=1.1.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.WindowsAPICodePack-Core.1.1.0.2\lib\Microsoft.WindowsAPICodePack.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.WindowsAPICodePack.Shell, Version=1.1.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.WindowsAPICodePack-Shell.1.1.0.0\lib\Microsoft.WindowsAPICodePack.Shell.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.WindowsAPICodePack.ShellExtensions, Version=1.1.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.WindowsAPICodePack-Shell.1.1.0.0\lib\Microsoft.WindowsAPICodePack.ShellExtensions.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
@@ -89,6 +98,7 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+    <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
@@ -102,23 +112,6 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\64b6fbdc3036fe793216621435b981d3.jpg" />
-  </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="WindowsAPICodePack-Core">
-      <Version>1.1.2</Version>
-    </PackageReference>
-    <PackageReference Include="WindowsAPICodePack-ExtendedLinguisticServices">
-      <Version>1.1.1</Version>
-    </PackageReference>
-    <PackageReference Include="WindowsAPICodePack-Sensors">
-      <Version>1.1.1</Version>
-    </PackageReference>
-    <PackageReference Include="WindowsAPICodePack-Shell">
-      <Version>1.1.1</Version>
-    </PackageReference>
-    <PackageReference Include="WindowsAPICodePack-ShellExtensions">
-      <Version>1.1.1</Version>
-    </PackageReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

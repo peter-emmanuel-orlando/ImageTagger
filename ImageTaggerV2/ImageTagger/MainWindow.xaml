@@ -24,7 +24,7 @@
             <DockPanel Background="#FFFEFFEC" Grid.Column="1">
                 <DockPanel Background="#66008CFF" VerticalAlignment="Top" DockPanel.Dock="Top">
                     <Label Content="Label" Height="40" VerticalAlignment="Top"/>
-                    <TextBox Text="TextBox" FontSize="20" MaxLines="1"/>
+                    <TextBox x:Name="tagsDisplay" Text="TextBox" FontSize="20" MaxLines="1"/>
                 </DockPanel>
                 <Grid Background="#33F2FF00" DockPanel.Dock="Top">
                     <Image x:Name="mainImageDisplay" Source="{Binding ImgSource}"/>
