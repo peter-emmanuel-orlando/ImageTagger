@@ -129,34 +129,48 @@ namespace ImageTagger
                 if (e.VerticalOffset + e.ViewportHeight == e.ExtentHeight || scrollableHeight == 0)
                 {
                     Debug.WriteLine("At the bottom of the list!");
-                    if(loadedImages.Count() < imageFileNames.Count())
-                    {
-                        var loadedCount = loadedImages.Count();
-                        var fileNameCount = imageFileNames.Count();
-                        for (int i = loadedCount; i < Math.Min(10 + loadedCount, fileNameCount ); i++)
-                        {
-                            try
-                            {
-                                //Debug.WriteLine("trying to add file to list:" + imageFileNames[i]);
-                                var newSquare = new ImageSquare(imageFileNames[i]);
-                                loadedImages.Add(newSquare);
-                            }
-                            catch (Exception) { }
-                        }
-                        var selectedIndex = imgGrid.SelectedIndex;
-                        imgGrid.ItemsSource = loadedImages.ToArray();
-                        ListBoxItem myListBoxItem =
-                            (ListBoxItem)(imgGrid.ItemContainerGenerator.ContainerFromItem(imgGrid.Items[selectedIndex]));
-                        //myListBoxItem.Focus();
-                        return;
-                    }
+                    LoadMoreImages();
                 }
             }
         }
 
-        private void ScrollViewer_RequestBringIntoView(object sender, RequestBringIntoViewEventArgs e)
+        private void LoadMoreImages()
         {
+            if (loadedImages.Count() < imageFileNames.Count())
+            {
+                var loadedCount = loadedImages.Count();
+                var fileNameCount = imageFileNames.Count();
+                for (int i = loadedCount; i < Math.Min(10 + loadedCount, fileNameCount); i++)
+                {
+                    try
+                    {
+                        //Debug.WriteLine("trying to add file to list:" + imageFileNames[i]);
+                        var newSquare = new ImageSquare(imageFileNames[i]);
+                        loadedImages.Add(newSquare);
+                    }
+                    catch (Exception) { }
+                }
+                var selectedIndex = imgGrid.SelectedIndex;
+                imgGrid.ItemsSource = loadedImages.ToArray();
+                //this is a kinda janky workaround. what i need to do is handle arrow keypresses and move focus manually
+                ListBoxItem myListBoxItem = (ListBoxItem)(imgGrid.ItemContainerGenerator.ContainerFromItem(imgGrid.Items[selectedIndex]));
+                //imgGrid.ScrollIntoView(myListBoxItem);
+                myListBoxItem.Focus();
+
+                myListBoxItem.KeyDown += LastImage_KeyDown;
+                return;
+            }
+        }
+
+        private void LastImage_KeyDown(object sender, KeyEventArgs e)
+        {
+            //var container = e.OriginalSource as ListBoxItem;
+            //container.Focus();
             //e.Handled = true;
+            //var item = imgGrid.ItemContainerGenerator.ItemFromContainer(container);
+            //var index = imgGrid.Items.IndexOf(item);
+            //imgGrid.SelectedIndex = index + 1;
+            //Debug.WriteLine(index);
         }
     }
 }
