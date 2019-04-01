@@ -33,7 +33,7 @@ namespace ImageTagger
         private bool checkForEmptyTags = true;
         private bool randomizeImages = false;
 
-        protected string sourceDirectory = @"C:\Users\YumeMura\Downloads"; //  @"C:\Users\YumeMura\Desktop\unsamples";
+        protected string sourceDirectory = /*@"C:\Users\YumeMura\Downloads"; //*/  @"C:\Users\YumeMura\Desktop\unsamples";
         protected readonly List<string> imageFileNames = new List<string>();
         protected readonly List<ImageInfo> loadedImages = new List<ImageInfo>();
 

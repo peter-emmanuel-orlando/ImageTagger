@@ -19,7 +19,7 @@ namespace ImageTagger
 
                 var newTags = GetImageTags(newImageInfo.ImgPath);
                 Debug.WriteLine("new tags: " + newTags);
-                tagsDisplay.Text = newTags;
+                //tagsDisplay.Text = newTags;
             }
         }
 

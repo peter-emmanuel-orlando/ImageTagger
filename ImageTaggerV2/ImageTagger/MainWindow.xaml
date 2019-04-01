@@ -23,8 +23,54 @@
             <GridSplitter HorizontalAlignment="Left" Width="5" Background="#3FF400FF" Grid.Column="1" Panel.ZIndex="9999999" VerticalContentAlignment="Stretch"/>
             <DockPanel Background="#FFFEFFEC" Grid.Column="1">
                 <DockPanel Background="#66008CFF" VerticalAlignment="Top" DockPanel.Dock="Top">
-                    <Label Content="Label" Height="40" VerticalAlignment="Top"/>
-                    <TextBox x:Name="tagsDisplay" Text="TextBox" FontSize="20" MaxLines="1"/>
+                    <Label Content="Label"/>
+                    <ScrollViewer VerticalScrollBarVisibility="Disabled" HorizontalScrollBarVisibility="Visible" Background="#33FF8D8D" Height="146"  >
+                        <ListBox x:Name="imgTags" ScrollViewer.HorizontalScrollBarVisibility="Hidden" ScrollViewer.VerticalScrollBarVisibility="Disabled" VerticalContentAlignment="Top" Background="#FF00E8FF" ScrollViewer.CanContentScroll="False">
+                            <!-- listbox.template portion essentially changes the controls to be the same as listbox, but without the scrollviewer in it. -->
+                            <!-- see answer here: https://stackoverflow.com/questions/2976240/how-can-make-scrollviewer-scroll-when-mouse-is-over-any-content -->
+                            <ListBox.Template>
+                                <ControlTemplate TargetType="ListBox">
+                                    <Border BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderBrush}">
+                                        <ItemsPresenter/>
+                                    </Border>
+                                </ControlTemplate>
+                            </ListBox.Template>
+                            <ListBox.ItemsPanel>
+                                <ItemsPanelTemplate >
+                                    <DockPanel  IsItemsHost="True" LastChildFill="False" />
+                                </ItemsPanelTemplate>
+                            </ListBox.ItemsPanel>
+                            <Button Content="Label"/>
+                            <Button Content="Label"/>
+                            <Button Content="Label"/>
+                            <Button Content="Label"/>
+                            <Button Content="Label"/>
+                            <Button Content="Label"/>
+                            <Button Content="Label"/>
+                            <Button Content="Label"/>
+                            <Button Content="Label"/>
+                            <Button Content="Label"/>
+                            <Button Content="Label"/>
+                            <Button Content="Label"/>
+                            <Button Content="Label"/>
+                            <Button Content="Label"/>
+                            <Button Content="Label"/>
+                            <Button Content="Label"/>
+                            <Button Content="Label"/>
+                            <Button Content="Label"/>
+                            <Button Content="Label"/>
+                            <Button Content="Label"/>
+                            <Button Content="Label"/>
+                            <Button Content="Label"/>
+                            <Button Content="Label"/>
+                            <!--<ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <Image Height="100" Width="100" Source="{Binding ImgSource}" Stretch="UniformToFill" Margin="10,10,10,10" />
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>-->
+                            
+                        </ListBox>
+                    </ScrollViewer>
                 </DockPanel>
                 <Grid Background="#33F2FF00" DockPanel.Dock="Top">
                     <Image x:Name="mainImageDisplay" Source="{Binding ImgSource}"/>
@@ -53,7 +99,7 @@
                     </Grid>
                 </Grid>
             </DockPanel>
-            <ScrollViewer  ScrollChanged="HandleImageGridScrollChange" HorizontalScrollBarVisibility="Visible" VerticalScrollBarVisibility="Hidden"  >
+            <ScrollViewer  ScrollChanged="HandleImageGridScrollChange"  >
                 <ListBox x:Name="imgGrid" ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Hidden" VerticalContentAlignment="Top" Background="#FF00E8FF" ScrollViewer.CanContentScroll="False" SelectionChanged="HandleImageGridSelectionChange">
                     <!-- listbox.template portion essentially changes the controls to be the same as listbox, but without the scrollviewer in it. -->
                     <!-- see answer here: https://stackoverflow.com/questions/2976240/how-can-make-scrollviewer-scroll-when-mouse-is-over-any-content -->
