@@ -1,15 +1,34 @@
-﻿using ImageTagger_Model;
+﻿using ImageTagger_DataModels;
+using System;
+using System.Collections.ObjectModel;
+using System.Diagnostics;
+using System.Windows.Controls;
+using System.Windows.Data;
 
 namespace ImageTagger
 {
 
-    public partial class MainWindow
+    public class MainImageDisplay
     {
-        private ImageInfo mainImageInfo{get; set;}
-        private void InitializeMainImageDisplay()
+        MainWindow main { get; }
+        public Image ImageDisplay
         {
-            mainImageDisplay.Source = mainImageInfo;
+            get
+            {
+                return main.mainImageDisplay;
+            }
+        }
+        private ImageInfo mainImageInfo { get; set; } = new ImageInfo(@"C:\Users\YumeMura\Desktop\unsamples\1zBMSv4xEA4.jpg");
 
+        public MainImageDisplay(MainWindow main)
+        {
+            this.main = main;
+            ImageDisplay.Source = mainImageInfo;
+        }
+
+        public void ChangeImage(ImageInfo newInfo)
+        {
+            ImageDisplay.Source = newInfo;
         }
     }
 }

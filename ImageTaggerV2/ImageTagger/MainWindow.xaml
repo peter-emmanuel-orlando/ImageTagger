@@ -44,7 +44,7 @@
                             <ListBox.ItemTemplate>
                                 <DataTemplate>
                                     <Border BorderBrush="Black" BorderThickness="1">
-                                        <CheckBox Content="{Binding TagName}" IsChecked="True" Unchecked="TagsDisplay_CheckBox_Unchecked"/>
+                                        <CheckBox Content="{Binding TagName}" IsChecked="True" Unchecked="CheckBox_Unchecked"/>
                                     </Border>
                                 </DataTemplate>
                             </ListBox.ItemTemplate>
@@ -79,8 +79,8 @@
                     </Grid>
                 </Grid>
             </DockPanel>
-            <ScrollViewer  ScrollChanged="ScrollViewer_ScrollChanged"  >
-                <ListBox x:Name="imgGrid" ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Hidden" VerticalContentAlignment="Top" Background="#FF00E8FF" ScrollViewer.CanContentScroll="False" SelectionChanged="ImgGrid_SelectionChanged">
+            <ScrollViewer x:Name="imageGrid_ScrollViewer"  >
+                <ListBox x:Name="imageGrid" ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Hidden" VerticalContentAlignment="Top" Background="#FF00E8FF" ScrollViewer.CanContentScroll="False">
                     <!-- listbox.template portion essentially changes the controls to be the same as listbox, but without the scrollviewer in it. -->
                     <!-- see answer here: https://stackoverflow.com/questions/2976240/how-can-make-scrollviewer-scroll-when-mouse-is-over-any-content -->
                     <ListBox.Template>
@@ -97,7 +97,7 @@
                     </ListBox.ItemsPanel>
                     <ListBox.ItemTemplate>
                         <DataTemplate>
-                            <Image Height="100" Width="100" Source="{Binding ImgSource}" Stretch="UniformToFill" Margin="10,10,10,10" />
+                            <Image Height="100" Width="100" Source="{Binding ImgSource}" Stretch="UniformToFill" Margin="10,10,10,10"  />
                         </DataTemplate>
                     </ListBox.ItemTemplate>
                 </ListBox>

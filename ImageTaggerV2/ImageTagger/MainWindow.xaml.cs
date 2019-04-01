@@ -1,4 +1,4 @@
-﻿using ImageTagger_Model;
+﻿using ImageTagger_DataModels;
 using Microsoft.WindowsAPICodePack.Shell;
 using System;
 using System.Collections.Generic;
@@ -43,23 +43,25 @@ namespace ImageTagger
 
 
 
-        private ObservableCollection<string> ImageFileNames { get; } = new ObservableCollection<string>();
-        private ObservableCollection<ImageInfo> ImageGrid_ImageInfos { get; } = new ObservableCollection<ImageInfo>();
+        public ObservableCollection<string> ImageFileNames { get; } = new ObservableCollection<string>();
+
+        public ImageGridDisplay ImageGridDisplay { get; }
+        public ImageTagsDisplay ImageTagsDisplay { get; }
+        public MainImageDisplay ImageDisplay { get; }
 
         public MainWindow()
         { 
             InitializeComponent();
             InitializeSelf();
+            ImageDisplay = new MainImageDisplay(this);
+            ImageTagsDisplay = new ImageTagsDisplay(this);
+            ImageGridDisplay = new ImageGridDisplay(this);
         }
 
         private void InitializeSelf()
         {
             ImageFileNames.Clear();
             GetImageFilenames(sourceDirectory, randomizeImages).ForEach((item) => { ImageFileNames.Add(item); });
-            InitializeImageGrid();
-            InitializeImageTagsDisplay();
-            InitializeMainImageDisplay();
-
         }
 
 
@@ -116,16 +118,6 @@ namespace ImageTagger
             }
             if (randomize) result.Shuffle();
             return result;
-        }
-
-        private void TagsDisplay_CheckBox_Unchecked(object sender, RoutedEventArgs e)
-        {
-            //i HATE this implementation. Seems hella inefficient
-            string tagName = (e.OriginalSource as CheckBox).Content + "";
-            Debug.WriteLine(tagName);
-            var currentTags = new List<ImageTag>(tagsDisplay.Items.Cast<ImageTag>());
-            currentTags.Remove(new ImageTag(tagName));
-            tagsDisplay.ItemsSource = currentTags;
         }
     }
 }

@@ -60,6 +60,7 @@
     <Compile Include="ImageTag.cs" />
     <Compile Include="ImageTagsDisplay.cs" />
     <Compile Include="MainImageDisplay.cs" />
+    <Compile Include="MyExtensions.cs" />
     <Compile Include="ThreadSafeRandom.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>

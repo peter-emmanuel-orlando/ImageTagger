@@ -2,7 +2,7 @@
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
-namespace ImageTagger_Model
+namespace ImageTagger_DataModels// <-- change to nested namespaces
 {
     public class ImageInfo
     {
