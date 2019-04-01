@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
 namespace ImageTagger_Model
@@ -34,6 +35,11 @@ namespace ImageTagger_Model
             }
         }
         public BitmapImage ImgSource { get; private set; }
+
+        public static implicit operator ImageSource (ImageInfo iInfo)
+        {
+            return iInfo.ImgSource;
+        }
 
 
         //public int Width { get; set; }

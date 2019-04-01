@@ -2,6 +2,7 @@
 using Microsoft.WindowsAPICodePack.Shell;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -33,46 +34,36 @@ namespace ImageTagger
         private string destinationDirectory = "";
         private readonly string TagsDisplayPlaceholder = "[type tags for image]";
         private bool checkForEmptyTags = true;
-        private bool randomizeImages = false;
 
+        private bool randomizeImages = false;
         protected string sourceDirectory = /*@"C:\Users\YumeMura\Downloads"; //*/  @"C:\Users\YumeMura\Desktop\unsamples";
-        protected readonly List<string> imageFileNames = new List<string>();
-        protected readonly List<ImageInfo> loadedImages = new List<ImageInfo>();
 
         protected const string locFileName = @"lastSession.loc";
         protected const string genericLocFile = @"SourceDirectory:SourcePlaceHolder|DestinationDirectory:DestinationPlaceHolder";
 
 
+
+        private ObservableCollection<string> ImageFileNames { get; } = new ObservableCollection<string>();
+        private ObservableCollection<ImageInfo> ImageGrid_ImageInfos { get; } = new ObservableCollection<ImageInfo>();
+
         public MainWindow()
         { 
             InitializeComponent();
-            imageFileNames.Clear();
-            imageFileNames = GetImageFilenames(sourceDirectory, true);
-            loadedImages.Clear();
-            loadedImages = new List<ImageInfo>();
-            int count = 0;
-            int max = 25;
-            foreach (var filename in imageFileNames)
-            {
-                Debug.WriteLine(filename);
-                try
-                {
-                    loadedImages.Add(new ImageInfo(filename));
-                    count++;
-                }
-                catch (System.NotSupportedException)
-                {
-                    System.Diagnostics.Debug.WriteLine("was not able to use file: " + filename );
-                }
-                if (count >= max) break;
-            }
-            imgGrid.ItemsSource = loadedImages.ToArray();
-            if(count > 0)
-                imgGrid.SelectedIndex = 0;
+            InitializeSelf();
+        }
+
+        private void InitializeSelf()
+        {
+            ImageFileNames.Clear();
+            GetImageFilenames(sourceDirectory, randomizeImages).ForEach((item) => { ImageFileNames.Add(item); });
+            InitializeImageGrid();
+            InitializeImageTagsDisplay();
+            InitializeMainImageDisplay();
+
         }
 
 
-        private HashSet<ImageTag> GetImageTags(string imagePath)
+        public HashSet<ImageTag> GetImageTags(string imagePath)
         {
             var result = new HashSet<ImageTag>();
 

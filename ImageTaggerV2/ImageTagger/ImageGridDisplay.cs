@@ -1,5 +1,6 @@
 ﻿using ImageTagger_Model;
 using System;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -7,19 +8,35 @@ using Debug = System.Diagnostics.Debug;
 
 namespace ImageTagger
 {
-    public class ImageGridDisplay
-    {
-        MainWindow main;
-
-        public ImageGridDisplay(MainWindow main)
-        {
-            this.main = main;
-        }
-    }
 
 
     public partial class MainWindow
     {
+        private void InitializeImageGrid()
+        {
+            imgGrid.ItemsSource = ImageGrid_ImageInfos;
+
+            int count = 0;
+            int max = 25;
+            ImageGrid_ImageInfos.Clear();
+            foreach (var filename in ImageFileNames)
+            {
+                Debug.WriteLine(filename);
+                try
+                {
+                    ImageGrid_ImageInfos.Add(new ImageInfo(filename));
+                    count++;
+                }
+                catch (System.NotSupportedException)
+                {
+                    System.Diagnostics.Debug.WriteLine("was not able to use file: " + filename);
+                }
+                if (count >= max) break;
+            }
+            if (count > 0)
+                imgGrid.SelectedIndex = 0;
+        }
+
         private void ImgGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (e.AddedItems.Count > 0)
@@ -27,10 +44,15 @@ namespace ImageTagger
                 var newImageInfo = (e.AddedItems[0] as ImageInfo);
                 Debug.WriteLine("selected: " + newImageInfo.ImgPath);
 
-                mainImageDisplay.Source = newImageInfo.ImgSource;
+                mainImageInfo = null;
+                mainImageInfo = newImageInfo;
 
                 var newTags = GetImageTags(newImageInfo.ImgPath);
-                tagsDisplay.ItemsSource = newTags;
+                mainImageTags.Clear();
+                foreach(var tag in newTags)
+                {
+                    mainImageTags.Add(tag);
+                }
             }
         }
 
@@ -63,22 +85,21 @@ namespace ImageTagger
 
         private void LoadMoreImages()
         {
-            if (loadedImages.Count() < imageFileNames.Count())
+            if (ImageGrid_ImageInfos.Count() < ImageFileNames.Count())
             {
-                var loadedCount = loadedImages.Count();
-                var fileNameCount = imageFileNames.Count();
+                var loadedCount = ImageGrid_ImageInfos.Count();
+                var fileNameCount = ImageFileNames.Count();
                 for (int i = loadedCount; i < Math.Min(10 + loadedCount, fileNameCount); i++)
                 {
                     try
                     {
                         //Debug.WriteLine("trying to add file to list:" + imageFileNames[i]);
-                        var newSquare = new ImageInfo(imageFileNames[i]);
-                        loadedImages.Add(newSquare);
+                        var newSquare = new ImageInfo(ImageFileNames[i]);
+                        ImageGrid_ImageInfos.Add(newSquare);
                     }
                     catch (Exception) { }
                 }
                 var selectedIndex = imgGrid.SelectedIndex;
-                imgGrid.ItemsSource = loadedImages.ToArray();
                 //this is a kinda janky workaround. what i need to do is handle arrow keypresses and move focus manually
                 ListBoxItem myListBoxItem = (ListBoxItem)(imgGrid.ItemContainerGenerator.ContainerFromItem(imgGrid.Items[selectedIndex]));
                 //imgGrid.ScrollIntoView(myListBoxItem);
