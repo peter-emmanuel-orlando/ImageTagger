@@ -2,7 +2,7 @@
 
 namespace ImageTagger_Model
 {
-    public class ImageTag : IComparable<ImageTag>
+    public struct ImageTag : IComparable<ImageTag>
     {
         public ImageTag(string tagName)
         {

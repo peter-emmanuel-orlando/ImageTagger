@@ -44,7 +44,7 @@
                             <ListBox.ItemTemplate>
                                 <DataTemplate>
                                     <Border BorderBrush="Black" BorderThickness="1">
-                                        <CheckBox Content="{Binding TagName}" IsChecked="True"/>
+                                        <CheckBox Content="{Binding TagName}" IsChecked="True" Unchecked="TagsDisplay_CheckBox_Unchecked"/>
                                     </Border>
                                 </DataTemplate>
                             </ListBox.ItemTemplate>

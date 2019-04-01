@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Data;
 using System.Windows.Documents;
@@ -71,9 +72,9 @@ namespace ImageTagger
         }
 
 
-        private List<ImageTag> GetImageTags(string imagePath)
+        private HashSet<ImageTag> GetImageTags(string imagePath)
         {
-            var result = new List<ImageTag>();
+            var result = new HashSet<ImageTag>();
 
             Debug.WriteLine("tags at: " + imagePath);
             if (File.Exists(imagePath))
@@ -86,7 +87,9 @@ namespace ImageTagger
                     {
                         foreach (var tagText in tagsList)
                         {
-                            result.Add(new ImageTag(tagText));
+                            var newTag = new ImageTag(tagText);//perhaps automatically do to lower?
+                            if (!result.Contains(newTag))
+                                result.Add(newTag);
                         }
                     }
                 }
@@ -122,6 +125,16 @@ namespace ImageTagger
             }
             if (randomize) result.Shuffle();
             return result;
+        }
+
+        private void TagsDisplay_CheckBox_Unchecked(object sender, RoutedEventArgs e)
+        {
+            //i HATE this implementation. Seems hella inefficient
+            string tagName = (e.OriginalSource as CheckBox).Content + "";
+            Debug.WriteLine(tagName);
+            var currentTags = new List<ImageTag>(tagsDisplay.Items.Cast<ImageTag>());
+            currentTags.Remove(new ImageTag(tagName));
+            tagsDisplay.ItemsSource = currentTags;
         }
     }
 }
