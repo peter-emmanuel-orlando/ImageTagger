@@ -7,9 +7,20 @@ using Debug = System.Diagnostics.Debug;
 
 namespace ImageTagger
 {
+    public class ImageGridDisplay
+    {
+        MainWindow main;
+
+        public ImageGridDisplay(MainWindow main)
+        {
+            this.main = main;
+        }
+    }
+
+
     public partial class MainWindow
     {
-        private void HandleImageGridSelectionChange(object sender, SelectionChangedEventArgs e)
+        private void ImgGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (e.AddedItems.Count > 0)
             {
@@ -23,7 +34,7 @@ namespace ImageTagger
             }
         }
 
-        private void HandleImageGridScrollChange(object sender, ScrollChangedEventArgs e)
+        private void ScrollViewer_ScrollChanged(object sender, ScrollChangedEventArgs e)
         {
             Debug.WriteLine(
                 " e.VerticalChange:" +
