@@ -56,6 +56,8 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="ImageGrid.cs" />
+    <Compile Include="ImageTag.cs" />
+    <Compile Include="ImageTagsDisplay.cs" />
     <Compile Include="ThreadSafeRandom.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>

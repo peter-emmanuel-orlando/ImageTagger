@@ -24,8 +24,8 @@
             <DockPanel Background="#FFFEFFEC" Grid.Column="1">
                 <DockPanel Background="#66008CFF" VerticalAlignment="Top" DockPanel.Dock="Top">
                     <Label Content="Label"/>
-                    <ScrollViewer VerticalScrollBarVisibility="Disabled" HorizontalScrollBarVisibility="Visible" Background="#33FF8D8D" Height="146"  >
-                        <ListBox x:Name="imgTags" ScrollViewer.HorizontalScrollBarVisibility="Hidden" ScrollViewer.VerticalScrollBarVisibility="Disabled" VerticalContentAlignment="Top" Background="#FF00E8FF" ScrollViewer.CanContentScroll="False">
+                    <ScrollViewer VerticalScrollBarVisibility="Disabled" HorizontalScrollBarVisibility="Hidden" Background="#33FF8D8D"  >
+                        <ListBox x:Name="tagsDisplay" ScrollViewer.HorizontalScrollBarVisibility="Hidden" ScrollViewer.VerticalScrollBarVisibility="Disabled" VerticalContentAlignment="Center" Background="#FF00E8FF" ScrollViewer.CanContentScroll="False">
                             <!-- listbox.template portion essentially changes the controls to be the same as listbox, but without the scrollviewer in it. -->
                             <!-- see answer here: https://stackoverflow.com/questions/2976240/how-can-make-scrollviewer-scroll-when-mouse-is-over-any-content -->
                             <ListBox.Template>
@@ -40,35 +40,15 @@
                                     <DockPanel  IsItemsHost="True" LastChildFill="False" />
                                 </ItemsPanelTemplate>
                             </ListBox.ItemsPanel>
-                            <Button Content="Label"/>
-                            <Button Content="Label"/>
-                            <Button Content="Label"/>
-                            <Button Content="Label"/>
-                            <Button Content="Label"/>
-                            <Button Content="Label"/>
-                            <Button Content="Label"/>
-                            <Button Content="Label"/>
-                            <Button Content="Label"/>
-                            <Button Content="Label"/>
-                            <Button Content="Label"/>
-                            <Button Content="Label"/>
-                            <Button Content="Label"/>
-                            <Button Content="Label"/>
-                            <Button Content="Label"/>
-                            <Button Content="Label"/>
-                            <Button Content="Label"/>
-                            <Button Content="Label"/>
-                            <Button Content="Label"/>
-                            <Button Content="Label"/>
-                            <Button Content="Label"/>
-                            <Button Content="Label"/>
-                            <Button Content="Label"/>
-                            <!--<ListBox.ItemTemplate>
+
+                            <ListBox.ItemTemplate>
                                 <DataTemplate>
-                                    <Image Height="100" Width="100" Source="{Binding ImgSource}" Stretch="UniformToFill" Margin="10,10,10,10" />
+                                    <Border BorderBrush="Black" BorderThickness="1">
+                                        <CheckBox Content="{Binding TagName}" IsChecked="True"/>
+                                    </Border>
                                 </DataTemplate>
-                            </ListBox.ItemTemplate>-->
-                            
+                            </ListBox.ItemTemplate>
+
                         </ListBox>
                     </ScrollViewer>
                 </DockPanel>
