@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ImageTagger_Model;
+using System;
 using System.Linq;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -18,8 +19,7 @@ namespace ImageTagger
                 mainImageDisplay.Source = newImageInfo.ImgSource;
 
                 var newTags = GetImageTags(newImageInfo.ImgPath);
-                Debug.WriteLine("new tags: " + newTags);
-                //tagsDisplay.Text = newTags;
+                tagsDisplay.ItemsSource = newTags;
             }
         }
 

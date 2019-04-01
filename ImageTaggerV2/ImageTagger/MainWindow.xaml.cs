@@ -1,4 +1,5 @@
-﻿using Microsoft.WindowsAPICodePack.Shell;
+﻿using ImageTagger_Model;
+using Microsoft.WindowsAPICodePack.Shell;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -70,26 +71,26 @@ namespace ImageTagger
         }
 
 
-        private string GetImageTags(string imagePath)
+        private List<ImageTag> GetImageTags(string imagePath)
         {
-            var result = "";
+            var result = new List<ImageTag>();
 
             Debug.WriteLine("tags at: " + imagePath);
             if (File.Exists(imagePath))
             {
-                var sFile = ShellFile.FromParsingName(imagePath);
-                var tagsList = sFile.Properties.System.Keywords.Value;
-                if (tagsList != null)
-                {
-                    foreach (var tagText in tagsList)
-                    {
-                        result += tagText + "; ";
-                    }
-                }
                 try
                 {
+                    var sFile = ShellFile.FromParsingName(imagePath);
+                    var tagsList = sFile.Properties.System.Keywords.Value;
+                    if (tagsList != null)
+                    {
+                        foreach (var tagText in tagsList)
+                        {
+                            result.Add(new ImageTag(tagText));
+                        }
+                    }
                 }
-                catch (Exception) { }
+                catch (Exception e) {throw e; }
             }
 
             return result;
