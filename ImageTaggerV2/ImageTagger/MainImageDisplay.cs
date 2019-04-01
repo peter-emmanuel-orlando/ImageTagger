@@ -28,7 +28,8 @@ namespace ImageTagger
 
         public void ChangeImage(ImageInfo newInfo)
         {
-            ImageDisplay.Source = newInfo;
+            mainImageInfo = newInfo;
+            ImageDisplay.Source = mainImageInfo;
         }
     }
 }

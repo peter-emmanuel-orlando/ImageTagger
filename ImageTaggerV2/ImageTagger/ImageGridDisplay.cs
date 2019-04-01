@@ -64,8 +64,7 @@ namespace ImageTagger
                 main.ImageDisplay.ChangeImage(newImageInfo);
 
                 var newTags = main.GetImageTags(newImageInfo.ImgPath);
-                main.ImageTagsDisplay.mainImageTags.Clear();
-                main.ImageTagsDisplay.mainImageTags.Add(newTags);
+                main.ImageTagsDisplay.TagSource = newImageInfo;
             }
         }
 

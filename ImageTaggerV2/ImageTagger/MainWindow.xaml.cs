@@ -65,6 +65,7 @@ namespace ImageTagger
         }
 
 
+
         public HashSet<ImageTag> GetImageTags(string imagePath)
         {
             var result = new HashSet<ImageTag>();
