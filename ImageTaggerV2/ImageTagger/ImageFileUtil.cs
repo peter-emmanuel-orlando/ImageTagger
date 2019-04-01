@@ -3,33 +3,36 @@ using Microsoft.WindowsAPICodePack.Shell;
 using Microsoft.WindowsAPICodePack.Shell.PropertySystem;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Windows;
 
 namespace ImageTagger
 {
-    public class ImageFileUtil
+    public static class ImageFileUtil
     {
 
-        private bool ApplyTagsToImage(string imagePath, IEnumerable<ImageTag> tags)
+        public static bool ApplyTagsToImage(string imagePath, IEnumerator<ImageTag> tags)
         {
             try
             {
                 var tagString = "";
-                foreach (var tag in tags)
+                while (tags.MoveNext())
                 {
+                    var tag = tags.Current;
                     if (tag.TagName != "")
                         tagString += tag.TagName + "; ";
                 }
-                //var tags = TagsDisplay.Text.Replace(TagsDisplayPlaceholder, "").Replace(" ", "").Split(';');
                 var sFile = ShellFile.FromParsingName(imagePath);
                 var w = sFile.Properties.GetPropertyWriter();
-                w.WriteProperty(SystemProperties.System.Keywords, tags);
+                w.WriteProperty(SystemProperties.System.Keywords, tagString);
                 w.Close();
+                Debug.WriteLine("applied tags to file successfully");
                 return true;
             }
             catch (Exception e)
             {
                 MessageBox.Show("failed to apply changes! Error message:[ " + e + " ]");
+                Debug.WriteLine("unsuccessfully applied tags to file");
                 return false;
             }
         }

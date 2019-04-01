@@ -120,5 +120,10 @@ namespace ImageTagger
             if (randomize) result.Shuffle();
             return result;
         }
+
+        private void TagsDisplay_LostFocus(object sender, RoutedEventArgs e)
+        {
+            ImageFileUtil.ApplyTagsToImage(ImageTagsDisplay.TagSource.ImgPath, ImageTagsDisplay.Tags);
+        }
     }
 }

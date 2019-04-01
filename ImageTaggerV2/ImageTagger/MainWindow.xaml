@@ -24,8 +24,9 @@
             <DockPanel Background="#FFFEFFEC" Grid.Column="1">
                 <DockPanel Background="#66008CFF" VerticalAlignment="Top" DockPanel.Dock="Top">
                     <Label Content="Label"/>
+                    <!--<Button />-->
                     <ScrollViewer VerticalScrollBarVisibility="Disabled" HorizontalScrollBarVisibility="Hidden" Background="#33FF8D8D"  >
-                        <ListBox x:Name="tagsDisplay" ScrollViewer.HorizontalScrollBarVisibility="Hidden" ScrollViewer.VerticalScrollBarVisibility="Disabled" VerticalContentAlignment="Center" Background="#FF00E8FF" ScrollViewer.CanContentScroll="False">
+                        <ListBox x:Name="tagsDisplay" ScrollViewer.HorizontalScrollBarVisibility="Hidden" ScrollViewer.VerticalScrollBarVisibility="Disabled" VerticalContentAlignment="Center" Background="#FF00E8FF" ScrollViewer.CanContentScroll="False" LostFocus="TagsDisplay_LostFocus">
                             <!-- listbox.template portion essentially changes the controls to be the same as listbox, but without the scrollviewer in it. -->
                             <!-- see answer here: https://stackoverflow.com/questions/2976240/how-can-make-scrollviewer-scroll-when-mouse-is-over-any-content -->
                             <ListBox.Template>
@@ -37,7 +38,7 @@
                             </ListBox.Template>
                             <ListBox.ItemsPanel>
                                 <ItemsPanelTemplate >
-                                    <DockPanel  IsItemsHost="True" LastChildFill="False" />
+                                    <StackPanel  IsItemsHost="True" Orientation="Horizontal" />
                                 </ItemsPanelTemplate>
                             </ListBox.ItemsPanel>
 
@@ -54,7 +55,37 @@
                 </DockPanel>
                 <Grid Background="#33F2FF00" DockPanel.Dock="Top">
                     <Image x:Name="mainImageDisplay" Source="{Binding ImgSource}"/>
-                    <Grid x:Name="tagGrid" Background="#33BF3737" Panel.ZIndex="1">
+                    <ListBox x:Name="tagSuggestionDisplay" Background="#FF00E8FF">
+                        <!-- listbox.template portion essentially changes the controls to be the same as listbox, but without the scrollviewer in it. -->
+                        <!-- see answer here: https://stackoverflow.com/questions/2976240/how-can-make-scrollviewer-scroll-when-mouse-is-over-any-content -->
+                        <ListBox.Template>
+                            <ControlTemplate TargetType="ListBox">
+                                <Border BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderBrush}">
+                                    <ItemsPresenter/>
+                                </Border>
+                            </ControlTemplate>
+                        </ListBox.Template>
+                        <ListBox.ItemsPanel>
+                            <ItemsPanelTemplate >
+                                <Canvas  IsItemsHost="True" />
+                            </ItemsPanelTemplate>
+                        </ListBox.ItemsPanel>
+
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <Border BorderBrush="Black" BorderThickness="1">
+                                    <CheckBox Content="{Binding TagName}" IsChecked="True" Unchecked="CheckBox_Unchecked"/>
+                                </Border>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                        <Border BorderBrush="Black" BorderThickness="1" HorizontalAlignment="Left" VerticalAlignment="Top">
+                            <TextBox TextWrapping="Wrap" Text="TextBox" MinWidth="60" MinHeight="30" VerticalContentAlignment="Center" HorizontalContentAlignment="Center"/>
+                        </Border>
+
+                    </ListBox>
+
+
+                    <Grid x:Name="tagGrid" Background="#33BF3737" Panel.ZIndex="1" Margin="10,294,-10.4,-293.6">
                         <Grid.RowDefinitions>
                             <RowDefinition/>
                             <RowDefinition/>
@@ -77,6 +108,9 @@
                             <ColumnDefinition/>
                         </Grid.ColumnDefinitions>
                     </Grid>
+                    <Border BorderBrush="Black" BorderThickness="1" HorizontalAlignment="Left" VerticalAlignment="Top">
+                        <TextBox TextWrapping="Wrap" Text="TextBox" MinWidth="60" MinHeight="30" VerticalContentAlignment="Center" HorizontalContentAlignment="Center"/>
+                    </Border>
                 </Grid>
             </DockPanel>
             <ScrollViewer x:Name="imageGrid_ScrollViewer"  >

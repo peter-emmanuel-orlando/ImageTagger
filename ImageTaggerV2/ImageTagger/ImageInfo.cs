@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Net.Cache;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
@@ -25,7 +26,11 @@ namespace ImageTagger_DataModels// <-- change to nested namespaces
                 var uri = new Uri(imgPath);
                 try
                 {
-                    var imgBitMap = new BitmapImage(uri);
+                    var imgBitMap = new BitmapImage();
+                    imgBitMap.BeginInit();
+                    imgBitMap.UriSource = uri;
+                    imgBitMap.CacheOption = BitmapCacheOption.OnLoad;
+                    imgBitMap.EndInit();
                     ImgSource = imgBitMap;
                 }
                 catch (System.NotSupportedException e)
