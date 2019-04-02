@@ -16,6 +16,10 @@ namespace ImageTagger_DataModels
             TagName = tagName;
         }
 
+        public bool IsEmpty()
+        {
+            return TagName == null || TagName == "";
+        }
 
         public int CompareTo(ImageTag other)
         {

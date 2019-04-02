@@ -46,9 +46,10 @@ namespace ImageTagger
 
         public ObservableCollection<string> ImageFileNames { get; } = new ObservableCollection<string>();
 
+        public MainImageDisplay ImageDisplay { get; }
         public ImageGridDisplay ImageGridDisplay { get; }
         public ImageTagsDisplay ImageTagsDisplay { get; }
-        public MainImageDisplay ImageDisplay { get; }
+        public AddNewTagComponent AddNewTagComponent { get; }
 
         public MainWindow()
         { 
@@ -57,6 +58,7 @@ namespace ImageTagger
             ImageDisplay = new MainImageDisplay(this);
             ImageTagsDisplay = new ImageTagsDisplay(this);
             ImageGridDisplay = new ImageGridDisplay(this);
+            AddNewTagComponent = new AddNewTagComponent(this);
         }
 
         private void InitializeSelf()
@@ -123,47 +125,5 @@ namespace ImageTagger
         }
 
 
-        private void TagsDisplay_KeyDown(object sender, KeyEventArgs e)
-        {
-            if (e.Key == Key.Enter)
-            {
-                ImageFileUtil.ApplyTagsToImage(ImageTagsDisplay.TagSource.ImgPath, ImageTagsDisplay.Tags);
-                //ImageTagsDisplay.Refresh();
-            }
-        }
-
-        private void TagsDisplay_LostFocus(object sender, RoutedEventArgs e)
-        {
-            ImageFileUtil.ApplyTagsToImage(ImageTagsDisplay.TagSource.ImgPath, ImageTagsDisplay.Tags);
-            //ImageTagsDisplay.Refresh();
-        }
-
-
-        private void TextBox_KeyDown(object sender, System.Windows.Input.KeyEventArgs e)
-        {
-            if(e.Key == Key.Enter)
-            {
-                Debug.WriteLine("would have added tag: " + addNewTag_TextBox.Text);
-                ImageTagsDisplay.Add(new ImageTag(addNewTag_TextBox.Text));
-                ImageFileUtil.ApplyTagsToImage(ImageDisplay.mainImageInfo, ImageTagsDisplay.Tags);
-                addNewTag_TextBox.Clear();
-            }
-        }
-
-        private void Button_Click(object sender, RoutedEventArgs e)
-        {
-            Debug.WriteLine("would have added tag: " + addNewTag_TextBox.Text);
-            ImageTagsDisplay.Add(new ImageTag(addNewTag_TextBox.Text));
-            ImageFileUtil.ApplyTagsToImage(ImageDisplay.mainImageInfo, ImageTagsDisplay.Tags);
-            addNewTag_TextBox.Clear();
-        }
-
-        private void AddNewTag_TextBox_LostFocus(object sender, RoutedEventArgs e)
-        {
-            if(!addNewTag_AcceptButton.IsFocused)
-            {
-                addNewTag_TextBox.Clear();
-            }
-        }
     }
 }

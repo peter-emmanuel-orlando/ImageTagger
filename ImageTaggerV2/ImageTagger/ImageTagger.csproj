@@ -55,6 +55,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="AddNewTagComponent.cs" />
     <Compile Include="ImageFileUtil.cs" />
     <Compile Include="ImageGridDisplay.cs" />
     <Compile Include="ImageInfo.cs" />

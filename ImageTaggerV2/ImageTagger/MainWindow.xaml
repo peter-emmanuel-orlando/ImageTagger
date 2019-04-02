@@ -26,7 +26,7 @@
                     <Label Content="Label"/>
                     <!--<Button />-->
                     <ScrollViewer VerticalScrollBarVisibility="Disabled" HorizontalScrollBarVisibility="Hidden" Background="#33FF8D8D"  >
-                        <ListBox x:Name="tagsDisplay" ScrollViewer.HorizontalScrollBarVisibility="Hidden" ScrollViewer.VerticalScrollBarVisibility="Disabled" VerticalContentAlignment="Center" Background="#FF00E8FF" ScrollViewer.CanContentScroll="False" LostFocus="TagsDisplay_LostFocus" KeyDown="TagsDisplay_KeyDown">
+                        <ListBox x:Name="tagsDisplay" ScrollViewer.HorizontalScrollBarVisibility="Hidden" ScrollViewer.VerticalScrollBarVisibility="Disabled" VerticalContentAlignment="Center" Background="#FF00E8FF" ScrollViewer.CanContentScroll="False">
                             <!-- listbox.template portion essentially changes the controls to be the same as listbox, but without the scrollviewer in it. -->
                             <!-- see answer here: https://stackoverflow.com/questions/2976240/how-can-make-scrollviewer-scroll-when-mouse-is-over-any-content -->
                             <ListBox.Template>
@@ -55,7 +55,7 @@
                 </DockPanel>
                 <Grid Background="#33F2FF00" DockPanel.Dock="Top">
                     <Image x:Name="mainImageDisplay" Source="{Binding ImgSource}"/>
-                    <ListBox x:Name="tagSuggestionDisplay" Background="#0000E8FF" VerticalContentAlignment="Top" Padding="40" Panel.ZIndex="1">
+                    <ListBox x:Name="tagSuggestionDisplay" Background="#0000E8FF" VerticalContentAlignment="Top" Padding="40">
                         <!-- listbox.template portion essentially changes the controls to be the same as listbox, but without the scrollviewer in it. -->
                         <!-- see answer here: https://stackoverflow.com/questions/2976240/how-can-make-scrollviewer-scroll-when-mouse-is-over-any-content -->
                         <ListBox.Template>
@@ -81,10 +81,10 @@
 
                     </ListBox>
                     <DockPanel VerticalAlignment="Top" HorizontalAlignment="Right" Panel.ZIndex="3">
-                        <Border BorderBrush="Black" BorderThickness="1" HorizontalAlignment="Right" Panel.ZIndex="3">
-                            <TextBox x:Name="addNewTag_TextBox" TextWrapping="Wrap" Text="TextBox" MinWidth="60" MinHeight="20" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" KeyDown="TextBox_KeyDown" LostFocus="AddNewTag_TextBox_LostFocus"/>
+                        <Border BorderBrush="Black" BorderThickness="1" HorizontalAlignment="Right">
+                            <TextBox x:Name="addNewTag_TextBox" TextWrapping="Wrap" Text="TextBox" MinWidth="60" MinHeight="20" VerticalContentAlignment="Center" HorizontalContentAlignment="Center"/>
                         </Border>
-                        <Button x:Name="addNewTag_AcceptButton" HorizontalAlignment="Right" Content="✓" Click="Button_Click" />
+                        <Button x:Name="addNewTag_AcceptButton" HorizontalAlignment="Right" Content="✓" />
                     </DockPanel>
                 </Grid>
             </DockPanel>
