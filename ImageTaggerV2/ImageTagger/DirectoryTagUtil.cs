@@ -3,6 +3,8 @@ using Microsoft.WindowsAPICodePack.Shell;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
+using System.Linq;
+using System;
 
 namespace ImageTagger
 {
@@ -102,5 +104,39 @@ namespace ImageTagger
                 }
             }
         }
+        public static List<TagSuggestion> GetSuggestedTags(string imgFilePath)
+        {
+            var r = new Random(DateTime.UtcNow.Millisecond);
+            var tmp = GetTags("loaded").Select((tagText) =>
+            {
+                return new TagSuggestion( new ImageTag(tagText), r.NextDouble());
+            });
+            var result = new List<TagSuggestion>(tmp);
+            result.Shuffle();
+            return result;
+        }
+
+
+
+
+
+
+
+
+
+    }
+}
+
+
+public class TagSuggestion
+{
+
+    public ImageTag tag { get; }
+    public double confidenceLevel { get; }
+
+    public TagSuggestion(ImageTag tag, double confidenceLevel)
+    {
+        this.confidenceLevel = confidenceLevel;
+        this.tag = tag;
     }
 }

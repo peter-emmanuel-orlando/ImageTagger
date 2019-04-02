@@ -54,12 +54,11 @@ namespace ImageTagger
             var maxOffsetY = TagSuggestion.ActualHeight - 70;
 
             SuggestedTags.Clear();
-            var list = new List<string>(DirectoryTagUtil.GetTags("loaded"));
-            list.Shuffle();
+            var list = DirectoryTagUtil.GetSuggestedTags(main.ImageDisplay.mainImageInfo.ImgPath);
             var r =  new Random(DateTime.UtcNow.Millisecond);
-            foreach ( string tagName in list)
+            foreach ( var suggestion in list)
             {
-                SuggestedTags.Add(new SuggestedTag(tagName, new Thickness(r.NextDouble() * maxOffsetX, r.NextDouble() * maxOffsetY, 0, 0)));
+                SuggestedTags.Add(new SuggestedTag(suggestion.tag.TagName, new Thickness(r.NextDouble() * maxOffsetX, r.NextDouble() * maxOffsetY, 0, 0)));
             }
         }
 
