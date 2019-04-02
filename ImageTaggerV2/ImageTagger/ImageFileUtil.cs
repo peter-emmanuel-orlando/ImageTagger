@@ -11,6 +11,7 @@ using WinForms = System.Windows.Forms;
 
 namespace ImageTagger
 {
+
     public static class ImageFileUtil
     {
 
