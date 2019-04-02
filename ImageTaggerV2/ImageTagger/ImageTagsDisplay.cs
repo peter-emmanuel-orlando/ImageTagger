@@ -33,7 +33,6 @@ namespace ImageTagger
                 mainImageTags.Add(main.GetImageTags(value.ImgPath));
             }
         }
-        private readonly ImageTag NoTagsPlaceholder = new ImageTag("[no tags yet...]");
 
         public ImageTagsDisplay(MainWindow main)
         {
@@ -41,6 +40,15 @@ namespace ImageTagger
             TagsDisplay.ItemsSource = mainImageTags;
             TagsDisplay.KeyDown += TagsDisplay_KeyDown;
             TagsDisplay.LostFocus += TagsDisplay_LostFocus;
+            mainImageTags.CollectionChanged += HandleCollectionChanged;
+        }
+
+        private void HandleCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        {
+            if (mainImageTags.Count == 0)
+                main.noTagsMessage.Opacity = 1;
+            else
+                main.noTagsMessage.Opacity = 0;
         }
 
         private void TagsDisplay_KeyDown(object sender, KeyEventArgs e)

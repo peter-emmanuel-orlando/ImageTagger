@@ -2,6 +2,7 @@
 using System;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using Debug = System.Diagnostics.Debug;
@@ -27,6 +28,7 @@ namespace ImageTagger
             ImageGrid.ItemsSource = Images;
             ImageGrid.SelectionChanged += ImgGrid_SelectionChanged;
             main.imageGrid_ScrollViewer.ScrollChanged += ScrollViewer_ScrollChanged;
+            ImageGrid.Loaded += HandleGridLoaded;
             Initialize();
         }
 
@@ -51,7 +53,19 @@ namespace ImageTagger
                 if (count >= max) break;
             }
             if (count > 0)
+            {
                 ImageGrid.SelectedIndex = 0;
+            }
+        }
+
+        private void HandleGridLoaded(object sender, RoutedEventArgs e)
+        {
+            if (ImageGrid.Items.Count > 0)
+            {
+                ImageGrid.SelectedIndex = 0;
+                ListBoxItem myListBoxItem = (ListBoxItem)(ImageGrid.ItemContainerGenerator.ContainerFromItem(ImageGrid.Items[0]));
+                myListBoxItem.Focus();
+            }
         }
 
         private void ImgGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -63,7 +77,6 @@ namespace ImageTagger
 
                 main.ImageDisplay.ChangeImage(newImageInfo);
 
-                var newTags = main.GetImageTags(newImageInfo.ImgPath);
                 main.ImageTagsDisplay.TagSource = newImageInfo;
             }
         }

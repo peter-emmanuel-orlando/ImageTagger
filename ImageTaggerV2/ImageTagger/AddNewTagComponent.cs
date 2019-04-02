@@ -13,7 +13,6 @@ namespace ImageTagger
         public Button AddNewTag_AcceptButton { get { return main.addNewTag_AcceptButton; } }
         public ImageTagsDisplay ImageTagsDisplay { get { return main.ImageTagsDisplay; } }
         public MainImageDisplay ImageDisplay { get { return main.ImageDisplay; } }
-        private readonly string TagsDisplayPlaceholder = "[type tags for image]";
 
         public AddNewTagComponent(MainWindow main)
         {
@@ -23,6 +22,7 @@ namespace ImageTagger
             AddNewTag_TextBox.LostFocus += HandleTextBoxLostFocus;
             AddNewTag_TextBox.TextChanged += HandleTextChanged;
             AddNewTag_TextBox.GotFocus += HandleTextBoxGotFocus;
+            AddNewTag_TextBox.MouseLeftButtonUp += HandleTextBoxClick;
         }
 
 
@@ -40,33 +40,37 @@ namespace ImageTagger
             AddNewTag_TextBox.Focus();
         }
 
+        private void HandleTextBoxClick(object sender, RoutedEventArgs e)
+        {
+            AddNewTag_TextBox.SelectAll();
+        }
+
         private void HandleTextBoxLostFocus(object sender, RoutedEventArgs e)
         {
             if (!AddNewTag_AcceptButton.IsFocused)
             {
                 AddTags();
             }
-            if (AddNewTag_TextBox.Text == "") AddNewTag_TextBox.Text = TagsDisplayPlaceholder;
+            if (AddNewTag_TextBox.Text == "") AddNewTag_TextBox.Opacity = 0;
         }
 
         private void HandleTextBoxGotFocus(object sender, RoutedEventArgs e)
         {
-            if (AddNewTag_TextBox.Text == TagsDisplayPlaceholder)
-                AddNewTag_TextBox.Text = "";
+            AddNewTag_TextBox.Opacity = 1;
             AddNewTag_TextBox.SelectAll();
         }
 
         private void HandleTextChanged(object sender, TextChangedEventArgs e)
         {
-            if (!AddNewTag_TextBox.IsFocused && AddNewTag_TextBox.Text == "") AddNewTag_TextBox.Text = TagsDisplayPlaceholder;
+            if ( AddNewTag_TextBox.Text == "" && !AddNewTag_TextBox.IsFocused ) AddNewTag_TextBox.Background.Opacity = 1;
         }
-
+        
 
 
         private void AddTags()
         {
             var currentText = AddNewTag_TextBox.Text;
-            if(currentText != "" && currentText != TagsDisplayPlaceholder)
+            if(currentText != "")
             {
                 ImageTagsDisplay.Add(new ImageTag(currentText));
                 ImageTagsDisplay.ApplyTagsToMainImage();
