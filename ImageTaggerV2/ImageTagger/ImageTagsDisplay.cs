@@ -33,6 +33,7 @@ namespace ImageTagger
                 mainImageTags.Add(main.GetImageTags(value.ImgPath));
             }
         }
+        private readonly ImageTag NoTagsPlaceholder = new ImageTag("[no tags yet...]");
 
         public ImageTagsDisplay(MainWindow main)
         {

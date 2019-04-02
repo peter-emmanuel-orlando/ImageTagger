@@ -13,6 +13,7 @@ namespace ImageTagger
         public Button AddNewTag_AcceptButton { get { return main.addNewTag_AcceptButton; } }
         public ImageTagsDisplay ImageTagsDisplay { get { return main.ImageTagsDisplay; } }
         public MainImageDisplay ImageDisplay { get { return main.ImageDisplay; } }
+        private readonly string TagsDisplayPlaceholder = "[type tags for image]";
 
         public AddNewTagComponent(MainWindow main)
         {
@@ -20,6 +21,8 @@ namespace ImageTagger
             AddNewTag_TextBox.KeyDown += HandleKeyDown;
             AddNewTag_AcceptButton.Click += HandleButtonClick;
             AddNewTag_TextBox.LostFocus += HandleTextBoxLostFocus;
+            AddNewTag_TextBox.TextChanged += HandleTextChanged;
+            AddNewTag_TextBox.GotFocus += HandleTextBoxGotFocus;
         }
 
 
@@ -43,13 +46,32 @@ namespace ImageTagger
             {
                 AddTags();
             }
+            if (AddNewTag_TextBox.Text == "") AddNewTag_TextBox.Text = TagsDisplayPlaceholder;
         }
+
+        private void HandleTextBoxGotFocus(object sender, RoutedEventArgs e)
+        {
+            if (AddNewTag_TextBox.Text == TagsDisplayPlaceholder)
+                AddNewTag_TextBox.Text = "";
+            AddNewTag_TextBox.SelectAll();
+        }
+
+        private void HandleTextChanged(object sender, TextChangedEventArgs e)
+        {
+            if (!AddNewTag_TextBox.IsFocused && AddNewTag_TextBox.Text == "") AddNewTag_TextBox.Text = TagsDisplayPlaceholder;
+        }
+
+
 
         private void AddTags()
         {
-            ImageTagsDisplay.Add(new ImageTag(AddNewTag_TextBox.Text));
-            ImageTagsDisplay.ApplyTagsToMainImage();
-            AddNewTag_TextBox.Clear();
+            var currentText = AddNewTag_TextBox.Text;
+            if(currentText != "" && currentText != TagsDisplayPlaceholder)
+            {
+                ImageTagsDisplay.Add(new ImageTag(currentText));
+                ImageTagsDisplay.ApplyTagsToMainImage();
+                AddNewTag_TextBox.Clear();
+            }
         }
     }
 }

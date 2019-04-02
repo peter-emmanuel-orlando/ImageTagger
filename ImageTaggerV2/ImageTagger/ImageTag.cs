@@ -10,6 +10,7 @@ namespace ImageTagger_DataModels
     {
         
         public string TagName { get; }
+        public static readonly ImageTag NoTagsPlaceholder = new ImageTag("[no tags yet...]");
 
         public ImageTag(string tagName)
         {

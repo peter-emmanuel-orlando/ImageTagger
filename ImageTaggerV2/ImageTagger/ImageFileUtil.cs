@@ -24,7 +24,7 @@ namespace ImageTagger
                 while (tags.MoveNext())
                 {
                     var tag = tags.Current;
-                    if (tag.TagName != "")
+                    if (tag.TagName != "" && tag.TagName != ImageTag.NoTagsPlaceholder.TagName)
                         tagString += tag.TagName + "; ";
                 }
                 var sFile = ShellFile.FromParsingName(imagePath);

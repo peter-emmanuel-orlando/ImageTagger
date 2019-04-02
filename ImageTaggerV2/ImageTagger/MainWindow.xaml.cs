@@ -33,7 +33,6 @@ namespace ImageTagger
 
         private string programDirectory = "";
         private string destinationDirectory = "";
-        private readonly string TagsDisplayPlaceholder = "[type tags for image]";
         private bool checkForEmptyTags = true;
 
         private bool randomizeImages = false;
@@ -123,7 +122,5 @@ namespace ImageTagger
             if (randomize) result.Shuffle();
             return result;
         }
-
-
     }
 }
