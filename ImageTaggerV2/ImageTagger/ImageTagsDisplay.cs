@@ -10,10 +10,9 @@ using System.Windows.Input;
 
 namespace ImageTagger
 {
-
     public class ImageTagsDisplay
     {
-
+        //need to make rules for tags
         MainWindow main { get; }
         public ListBox TagsDisplay { get { return main.tagsDisplay; } }
         public MainImageDisplay ImageDisplay { get { return main.ImageDisplay; } }

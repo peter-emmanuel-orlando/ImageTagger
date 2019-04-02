@@ -68,6 +68,7 @@
     <Compile Include="MenuDisplay.cs" />
     <Compile Include="MyExtensions.cs" />
     <Compile Include="PersistanceUtil.cs" />
+    <Compile Include="TagFormatUtil.cs" />
     <Compile Include="TagSuggestionDisplay.cs" />
     <Compile Include="ThreadSafeRandom.cs" />
     <Page Include="MainWindow.xaml">
