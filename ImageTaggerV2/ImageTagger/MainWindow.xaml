@@ -71,14 +71,14 @@
                         </ListBox.Template>
                         <ListBox.ItemsPanel>
                             <ItemsPanelTemplate >
-                                <DockPanel  IsItemsHost="True" />
+                                <Grid  IsItemsHost="True" />
                             </ItemsPanelTemplate>
                         </ListBox.ItemsPanel>
 
                         <ListBox.ItemTemplate>
                             <DataTemplate>
-                                <Border BorderBrush="Black" BorderThickness="1" HorizontalAlignment="Left" VerticalAlignment="Top">
-                                    <Button MinWidth="60" MinHeight="20" Content="{Binding TagText}"/>
+                                <Border BorderBrush="Black" BorderThickness="1" HorizontalAlignment="Left" VerticalAlignment="Top" >
+                                    <Button MinWidth="60" MinHeight="20" Content="{Binding TagName}" MaxWidth="60" MaxHeight="30"/>
                                 </Border>
                             </DataTemplate>
                         </ListBox.ItemTemplate>
@@ -90,6 +90,10 @@
                             <TextBox x:Name="addNewTag_TextBox" TextWrapping="Wrap" MinWidth="60" MinHeight="20" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" Background="#FFFAFAFA" Foreground="Black" Opacity="0"/>
                         </Grid>
                         <Button x:Name="addNewTag_AcceptButton" HorizontalAlignment="Right" Content="✓" />
+                    </DockPanel>
+                    
+                    <DockPanel VerticalAlignment="Bottom" HorizontalAlignment="Center" Panel.ZIndex="3" DockPanel.Dock="Bottom" MinWidth="70" >
+                        <Button x:Name="reloadTagSuggestions" Content="Reload Suggestions"/>
                     </DockPanel>
                 </Grid>
             </DockPanel>
