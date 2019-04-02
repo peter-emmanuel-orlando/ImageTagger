@@ -46,14 +46,27 @@ namespace ImageTagger
             
         }
 
+        private static bool IsCharValid(char c)
+        {
+            return char.IsLetterOrDigit(c) || c == '-' || c == '_';
+        }
 
+        public static bool ContainsInvalidCharacters(string tagText)
+        {
+            foreach (var c in tagText)
+            {
+                var isValid = IsCharValid(c);
+                if (!isValid) return true;
+            }
+            return false;
+        }
 
         private static string FilterChars(string tagText, out List<char> rejectedChars)
         {
             var rejectedCharsTmp = new List<char>();
             var filtered = tagText.Where(c =>
             {
-                var isValid = char.IsLetterOrDigit(c) || c == '-' || c == '_';
+                var isValid = IsCharValid(c);
                 if (!isValid) rejectedCharsTmp.Add(c);
                 return isValid;
             }).ToArray();

@@ -24,8 +24,15 @@ namespace ImageTagger
             AddNewTag_TextBox.TextChanged += HandleTextChanged;
             AddNewTag_TextBox.GotFocus += HandleTextBoxGotFocus;
             AddNewTag_TextBox.MouseLeftButtonUp += HandleTextBoxClick;
+            AddNewTag_TextBox.PreviewTextInput += HandlePreviewTextInput;
 
             main.PreviewMainWindowUnload += UnsubscribeFromAllEvents;
+        }
+
+        private void HandlePreviewTextInput(object sender, TextCompositionEventArgs e)
+        {
+            var isInvalid = TagFormatUtil.ContainsInvalidCharacters(e.Text);
+            if (isInvalid) e.Handled = true;
         }
 
         private void UnsubscribeFromAllEvents(object sender, EventArgs e)
@@ -78,6 +85,7 @@ namespace ImageTagger
         private void HandleTextChanged(object sender, TextChangedEventArgs e)
         {
             if ( AddNewTag_TextBox.Text == "" && !AddNewTag_TextBox.IsFocused ) AddNewTag_TextBox.Background.Opacity = 1;
+            
         }
         
 

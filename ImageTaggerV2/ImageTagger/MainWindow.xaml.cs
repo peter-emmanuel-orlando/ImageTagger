@@ -48,7 +48,7 @@ namespace ImageTagger
             List<char> tmp;
             var fixedTag = TagFormatUtil.Fix("ASDFAsrQreF$t#$^H^$WrsTdfGweG WtHRYH3% #5hEY 5H Y", TagCasing.KebabCase, out tmp);
             Debug.WriteLine(fixedTag);
-            Thread.Sleep(99999999);
+            //Thread.Sleep(99999999);
             InitializeComponent();
             PersistanceUtil.LoadLocations();
             ImageFiles.FilesLoaded += HandleFilesReloaded;
