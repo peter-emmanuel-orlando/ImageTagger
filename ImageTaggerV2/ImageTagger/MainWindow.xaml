@@ -77,7 +77,7 @@
 
                         <ListBox.ItemTemplate>
                             <DataTemplate>
-                                <Border BorderBrush="Black" BorderThickness="1" HorizontalAlignment="Left" VerticalAlignment="Top" >
+                                <Border BorderBrush="Black" BorderThickness="1" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="{Binding Margins}">
                                     <Button MinWidth="60" MinHeight="20" Content="{Binding TagName}" MaxWidth="60" MaxHeight="30"/>
                                 </Border>
                             </DataTemplate>

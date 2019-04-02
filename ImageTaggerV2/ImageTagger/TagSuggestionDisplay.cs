@@ -16,16 +16,14 @@ namespace ImageTagger
 
     public class SuggestedTag
     {
-        public string TagName { get; }
-        public int OffsetX { get; }
-        public int OffsetY { get; }
-
-        public SuggestedTag(string tagName, int offsetX, int offsetY)
+        public SuggestedTag(string tagName, Thickness margins)
         {
             TagName = tagName;
-            OffsetX = offsetX;
-            OffsetY = offsetY;
+            Margins = margins;
         }
+
+        public string TagName { get; }
+        public Thickness Margins { get; }
     }
 
     public class TagSuggestionDisplay
@@ -61,7 +59,7 @@ namespace ImageTagger
             var r =  new Random(DateTime.UtcNow.Millisecond);
             foreach ( string tagName in list)
             {
-                SuggestedTags.Add(new SuggestedTag(tagName, (int)(r.Next() * maxOffsetX), (int)(r.Next() * maxOffsetY)));
+                SuggestedTags.Add(new SuggestedTag(tagName, new Thickness(r.NextDouble() * maxOffsetX, r.NextDouble() * maxOffsetY, 0, 0)));
             }
         }
 
