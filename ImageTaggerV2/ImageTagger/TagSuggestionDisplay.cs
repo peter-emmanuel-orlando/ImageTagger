@@ -40,7 +40,6 @@ namespace ImageTagger
             main.PreviewMainWindowUnload += UnsubscribeFromAllEvents;
 
             main.reloadTagSuggestions.Click += HandleChangeSuggestionsClickEvent;
-            ChangeSuggestions();
         }
 
         private void HandleChangeSuggestionsClickEvent(object sender, RoutedEventArgs e)

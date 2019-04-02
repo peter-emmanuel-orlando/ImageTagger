@@ -59,7 +59,7 @@
                 </DockPanel>
                 <Grid Background="#33F2FF00" DockPanel.Dock="Top">
                     <Image x:Name="mainImageDisplay" Source="{Binding ImgSource}"/>
-                    <ListBox x:Name="tagSuggestionDisplay" Background="#0000E8FF" VerticalContentAlignment="Top" Padding="40">
+                    <ListBox x:Name="tagSuggestionDisplay" Background="#0000E8FF" VerticalContentAlignment="Top" Padding="40" Margin="0,256,-0.4,0.4" VerticalAlignment="Bottom">
                         <!-- listbox.template portion essentially changes the controls to be the same as listbox, but without the scrollviewer in it. -->
                         <!-- see answer here: https://stackoverflow.com/questions/2976240/how-can-make-scrollviewer-scroll-when-mouse-is-over-any-content -->
                         <ListBox.Template>
@@ -91,9 +91,10 @@
                         </Grid>
                         <Button x:Name="addNewTag_AcceptButton" HorizontalAlignment="Right" Content="✓" />
                     </DockPanel>
-                    
+
                     <DockPanel VerticalAlignment="Bottom" HorizontalAlignment="Center" Panel.ZIndex="3" DockPanel.Dock="Bottom" MinWidth="70" >
-                        <Button x:Name="reloadTagSuggestions" Content="Reload Suggestions"/>
+                        <Button x:Name="reloadTagSuggestions" Content="Load Suggestions"/>
+                        <Button x:Name="clearTagSuggestions" Content="Clear Suggestions"/>
                     </DockPanel>
                 </Grid>
             </DockPanel>
