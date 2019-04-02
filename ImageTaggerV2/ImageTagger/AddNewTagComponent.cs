@@ -45,6 +45,7 @@ namespace ImageTagger
             AddNewTag_TextBox.TextChanged -= HandleTextChanged;
             AddNewTag_TextBox.GotFocus -= HandleTextBoxGotFocus;
             AddNewTag_TextBox.MouseLeftButtonUp -= HandleTextBoxClick;
+            AddNewTag_TextBox.PreviewTextInput -= HandlePreviewTextInput;
         }
 
 

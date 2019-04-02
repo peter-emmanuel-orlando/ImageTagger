@@ -8,9 +8,20 @@ namespace ImageTagger
 {
     public static class DirectoryTagUtil
     {
-        public static readonly Dictionary<string, HashSet<string>> tags = new Dictionary<string, HashSet<string>>();
+        private static readonly Dictionary<string, HashSet<string>> tags = new Dictionary<string, HashSet<string>>();
 
-        public static Dictionary<string, HashSet<string>> Tags => tags; //<-- needs to return a new dict
+        public static HashSet<string> GetTagCategories()
+        {
+            return new HashSet<string>(tags.Keys);
+        }
+
+        public static HashSet<string> GetTags(string category)
+        {
+            if (tags.ContainsKey(category))
+                return new HashSet<string>(tags[category]);
+            else
+                return new HashSet<string>();
+        }
 
         static DirectoryTagUtil()
         {
