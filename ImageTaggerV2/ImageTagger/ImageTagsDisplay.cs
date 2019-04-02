@@ -59,7 +59,7 @@ namespace ImageTagger
             mainImageTags.Clear();
         }
 
-        public void Revert()
+        public void Refresh()
         {
             TagSource = tagSource;
         }

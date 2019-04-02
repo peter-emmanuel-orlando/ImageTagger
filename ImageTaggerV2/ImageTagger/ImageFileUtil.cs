@@ -11,6 +11,11 @@ namespace ImageTagger
     public static class ImageFileUtil
     {
 
+        public static bool ApplyTagsToImage(ImageInfo imageInfo, IEnumerator<ImageTag> tags) 
+        {
+            return ApplyTagsToImage(imageInfo.ImgPath, tags);
+        }
+
         public static bool ApplyTagsToImage(string imagePath, IEnumerator<ImageTag> tags)
         {
             try

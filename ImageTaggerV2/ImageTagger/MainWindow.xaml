@@ -26,7 +26,7 @@
                     <Label Content="Label"/>
                     <!--<Button />-->
                     <ScrollViewer VerticalScrollBarVisibility="Disabled" HorizontalScrollBarVisibility="Hidden" Background="#33FF8D8D"  >
-                        <ListBox x:Name="tagsDisplay" ScrollViewer.HorizontalScrollBarVisibility="Hidden" ScrollViewer.VerticalScrollBarVisibility="Disabled" VerticalContentAlignment="Center" Background="#FF00E8FF" ScrollViewer.CanContentScroll="False" LostFocus="TagsDisplay_LostFocus">
+                        <ListBox x:Name="tagsDisplay" ScrollViewer.HorizontalScrollBarVisibility="Hidden" ScrollViewer.VerticalScrollBarVisibility="Disabled" VerticalContentAlignment="Center" Background="#FF00E8FF" ScrollViewer.CanContentScroll="False" LostFocus="TagsDisplay_LostFocus" KeyDown="TagsDisplay_KeyDown">
                             <!-- listbox.template portion essentially changes the controls to be the same as listbox, but without the scrollviewer in it. -->
                             <!-- see answer here: https://stackoverflow.com/questions/2976240/how-can-make-scrollviewer-scroll-when-mouse-is-over-any-content -->
                             <ListBox.Template>
@@ -80,9 +80,12 @@
                         </ListBox.ItemTemplate>
 
                     </ListBox>
-                    <Border BorderBrush="Black" BorderThickness="1" HorizontalAlignment="Right" VerticalAlignment="Top" Panel.ZIndex="3" Margin="10,5,5,0">
-                        <TextBox TextWrapping="Wrap" Text="TextBox" MinWidth="60" MinHeight="20" VerticalContentAlignment="Center" HorizontalContentAlignment="Center"/>
-                    </Border>
+                    <DockPanel VerticalAlignment="Top" HorizontalAlignment="Right" Panel.ZIndex="3">
+                        <Border BorderBrush="Black" BorderThickness="1" HorizontalAlignment="Right" Panel.ZIndex="3">
+                            <TextBox x:Name="addNewTag_TextBox" TextWrapping="Wrap" Text="TextBox" MinWidth="60" MinHeight="20" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" KeyDown="TextBox_KeyDown" LostFocus="AddNewTag_TextBox_LostFocus"/>
+                        </Border>
+                        <Button x:Name="addNewTag_AcceptButton" HorizontalAlignment="Right" Content="✓" Click="Button_Click" />
+                    </DockPanel>
                 </Grid>
             </DockPanel>
             <ScrollViewer x:Name="imageGrid_ScrollViewer"  >

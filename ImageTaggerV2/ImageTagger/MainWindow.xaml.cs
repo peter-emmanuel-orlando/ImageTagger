@@ -13,6 +13,7 @@ using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Data;
 using System.Windows.Documents;
+using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
@@ -121,9 +122,48 @@ namespace ImageTagger
             return result;
         }
 
+
+        private void TagsDisplay_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter)
+            {
+                ImageFileUtil.ApplyTagsToImage(ImageTagsDisplay.TagSource.ImgPath, ImageTagsDisplay.Tags);
+                //ImageTagsDisplay.Refresh();
+            }
+        }
+
         private void TagsDisplay_LostFocus(object sender, RoutedEventArgs e)
         {
             ImageFileUtil.ApplyTagsToImage(ImageTagsDisplay.TagSource.ImgPath, ImageTagsDisplay.Tags);
+            //ImageTagsDisplay.Refresh();
+        }
+
+
+        private void TextBox_KeyDown(object sender, System.Windows.Input.KeyEventArgs e)
+        {
+            if(e.Key == Key.Enter)
+            {
+                Debug.WriteLine("would have added tag: " + addNewTag_TextBox.Text);
+                ImageTagsDisplay.Add(new ImageTag(addNewTag_TextBox.Text));
+                ImageFileUtil.ApplyTagsToImage(ImageDisplay.mainImageInfo, ImageTagsDisplay.Tags);
+                addNewTag_TextBox.Clear();
+            }
+        }
+
+        private void Button_Click(object sender, RoutedEventArgs e)
+        {
+            Debug.WriteLine("would have added tag: " + addNewTag_TextBox.Text);
+            ImageTagsDisplay.Add(new ImageTag(addNewTag_TextBox.Text));
+            ImageFileUtil.ApplyTagsToImage(ImageDisplay.mainImageInfo, ImageTagsDisplay.Tags);
+            addNewTag_TextBox.Clear();
+        }
+
+        private void AddNewTag_TextBox_LostFocus(object sender, RoutedEventArgs e)
+        {
+            if(!addNewTag_AcceptButton.IsFocused)
+            {
+                addNewTag_TextBox.Clear();
+            }
         }
     }
 }
