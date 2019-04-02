@@ -43,12 +43,12 @@ namespace ImageTagger
             TagsDisplay.LostFocus += TagsDisplay_LostFocus;
             mainImageTags.CollectionChanged += HandleCollectionChanged;
 
-            main.PreviewMainWindowInitialized += UnsubscribeFromAllEvents;
+            main.PreviewMainWindowUnload += UnsubscribeFromAllEvents;
         }
 
         private void UnsubscribeFromAllEvents(object sender, EventArgs e)
         {
-            main.PreviewMainWindowInitialized -= UnsubscribeFromAllEvents;
+            main.PreviewMainWindowUnload -= UnsubscribeFromAllEvents;
             // unsubscribe from anything else here
             TagsDisplay.KeyDown -= TagsDisplay_KeyDown;
             TagsDisplay.LostFocus -= TagsDisplay_LostFocus;
@@ -78,7 +78,28 @@ namespace ImageTagger
 
         public void ApplyTagsToMainImage()
         {
-            ImageFileUtil.ApplyTagsToImage(ImageDisplay.mainImageInfo, Tags);
+            var success = ImageFileUtil.ApplyTagsToImage(ImageDisplay.mainImageInfo, Tags);
+            if(mainImageTags.Count > 0 && success && main.destinationDirectory != main.sourceDirectory)
+            {
+                MoveToDestination(ImageDisplay.mainImageInfo, main.destinationDirectory);
+            }
+        }
+
+        private bool MoveToDestination(ImageInfo imgInfo, string newDirectory)
+        {
+            string newPath = "";
+            var success = ImageFileUtil.MoveImageFile(imgInfo.ImgPath, newDirectory, out newPath);
+            if (success)
+            {
+                //change file path to new filepath
+                var fileNameIndex = main.ImageFileNames.IndexOf(imgInfo.ImgPath);
+                if(fileNameIndex != -1) main.ImageFileNames[fileNameIndex] = newPath;
+                //change imageInfo path to new filepath
+                imgInfo.ImgPath = newPath;
+                //call changeimage to trigger reload
+                ImageDisplay.ChangeImage(ImageDisplay.mainImageInfo);
+            }
+            return success;
         }
 
         public bool Add(ImageTag item)

@@ -7,6 +7,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Windows;
+using WinForms = System.Windows.Forms;
 
 namespace ImageTagger
 {
@@ -58,18 +59,21 @@ namespace ImageTagger
             Descending
         }
         */
+        public static string[] acceptedFileTypes { get { return new string[] { ".jpg", ".jpeg" }; } }//, "jpeg", "gif", "png", };
 
         public static List<string> GetImageFilenames(string sourcePath, bool randomize = false)
         {
             var result = new List<string>();
-            var fileTypes = new string[] { ".jpg" };//, "jpeg", "gif", "png", };
-            //try ccatch this
-            foreach (var fileName in Directory.EnumerateFiles(sourcePath, "*.*", SearchOption.AllDirectories))
+            if(sourcePath != null)
             {
-                if (fileTypes.Contains(Path.GetExtension(fileName)))
-                    result.Add(fileName);
+                //try ccatch this
+                foreach (var fileName in Directory.EnumerateFiles(sourcePath, "*.*", SearchOption.AllDirectories))
+                {
+                    if (acceptedFileTypes.Contains(Path.GetExtension(fileName)))
+                        result.Add(fileName);
+                }
+                if (randomize) result.Shuffle();
             }
-            if (randomize) result.Shuffle();
             return result;
         }
 
@@ -101,6 +105,35 @@ namespace ImageTagger
             }
 
             return result;
+        }
+
+        public static bool GetDirectoryFromDialog(out string result, string initialLocation = "")
+        {
+            result = initialLocation;
+            var fbd = new WinForms.FolderBrowserDialog();
+            fbd.SelectedPath = initialLocation;
+            var success = fbd.ShowDialog() == WinForms.DialogResult.OK;
+            if (success)
+                result = fbd.SelectedPath;
+            return success;
+        }
+        public static bool MoveImageFile(string imgPath, string newDirectory, out string newPath)
+        {
+            newPath = imgPath;
+            var success = !string.IsNullOrEmpty(imgPath) &&
+                !string.IsNullOrWhiteSpace(imgPath) &&
+                !string.IsNullOrEmpty(newDirectory) &&
+                !string.IsNullOrWhiteSpace(newDirectory);
+            if(success)
+            {
+                //try-catch this
+                (new FileInfo(newDirectory)).Directory.Create();
+                var possibleNewPath = Path.Combine(newDirectory, Path.GetFileName(imgPath));
+                Debug.WriteLine("moved " + imgPath + " to " + possibleNewPath);
+                File.Move(imgPath, Path.Combine(imgPath, possibleNewPath));
+                newPath = possibleNewPath;
+            }
+            return success;
         }
     }
 }

@@ -13,13 +13,13 @@ using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Data;
 using System.Windows.Documents;
-using WinForms = System.Windows.Forms;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using Debug = System.Diagnostics.Debug;
 using Path = System.IO.Path;
+using System.ComponentModel;
 
 namespace ImageTagger
 {
@@ -33,8 +33,8 @@ namespace ImageTagger
 
 
         private string programDirectory = Directory.GetCurrentDirectory();
-        protected string sourceDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyPictures);
-        private string destinationDirectory = "";
+        public string sourceDirectory { get; private set; } = Environment.GetFolderPath(Environment.SpecialFolder.MyPictures);
+        public string destinationDirectory { get; private set; } = Environment.GetFolderPath(Environment.SpecialFolder.MyPictures);
         private bool checkForEmptyTags = true;
 
         private bool randomizeImages = false;
@@ -43,7 +43,7 @@ namespace ImageTagger
         protected const string genericLocFile = @"SourceDirectory:SourcePlaceHolder|DestinationDirectory:DestinationPlaceHolder";
 
         ///this is the generic, come back and fix
-        public event EventHandler PreviewMainWindowInitialized;
+        public event EventHandler PreviewMainWindowUnload;
 
         public ObservableCollection<string> ImageFileNames { get; } = new ObservableCollection<string>();
 
@@ -58,14 +58,14 @@ namespace ImageTagger
             InitializeSelf();
         }
 
-        protected void OnPreviewMainWindowInitialized(object sender, EventArgs e)
+        protected void OnUnload(object sender, EventArgs e)
         {
-            PreviewMainWindowInitialized?.Invoke(sender, e);
+            PreviewMainWindowUnload?.Invoke(sender, e);
         }
 
         private void InitializeSelf()
         {
-            OnPreviewMainWindowInitialized(this, new EventArgs());
+            OnUnload(this, new EventArgs());
 
             ImageFileNames.Clear();
             ImageFileUtil.GetImageFilenames(sourceDirectory, randomizeImages).ForEach((item) => { ImageFileNames.Add(item); });
@@ -77,16 +77,30 @@ namespace ImageTagger
         }
 
 
-        private void MenuItem_Click(object sender, RoutedEventArgs e)
+        private void SetSource_MenuItem_Click(object sender, RoutedEventArgs e)
         {
-            WinForms.FolderBrowserDialog fbd = new WinForms.FolderBrowserDialog();
-            fbd.SelectedPath = sourceDirectory;
-            var result = fbd.ShowDialog();
-            if ( result == WinForms.DialogResult.OK )
+            var result = "";
+            var success = ImageFileUtil.GetDirectoryFromDialog(out result, sourceDirectory);
+            if(success)
             {
-                sourceDirectory = fbd.SelectedPath;
+                sourceDirectory = result;
                 InitializeSelf();
             }
+        }
+
+        private void SetDestination_MenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            var result = "";
+            var success = ImageFileUtil.GetDirectoryFromDialog(out result, destinationDirectory);
+            if (success)
+            {
+                destinationDirectory = result;
+            }
+        }
+
+        protected override void OnClosing(CancelEventArgs e)
+        {
+            base.OnClosing(e);
         }
     }
 }

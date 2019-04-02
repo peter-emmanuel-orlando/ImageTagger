@@ -23,7 +23,7 @@ namespace ImageTagger
         public MainImageDisplay(MainWindow main)
         {
             this.main = main;
-            main.PreviewMainWindowInitialized += UnsubscribeFromAllEvents;
+            main.PreviewMainWindowUnload += UnsubscribeFromAllEvents;
             ImageDisplay.Source = mainImageInfo;
         }
 
@@ -35,7 +35,7 @@ namespace ImageTagger
 
         private void UnsubscribeFromAllEvents(object sender, EventArgs e)
         {
-            main.PreviewMainWindowInitialized -= UnsubscribeFromAllEvents;
+            main.PreviewMainWindowUnload -= UnsubscribeFromAllEvents;
             // unsubscribe from anything else here
         }
     }

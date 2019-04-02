@@ -25,12 +25,12 @@ namespace ImageTagger
             AddNewTag_TextBox.GotFocus += HandleTextBoxGotFocus;
             AddNewTag_TextBox.MouseLeftButtonUp += HandleTextBoxClick;
 
-            main.PreviewMainWindowInitialized += UnsubscribeFromAllEvents;
+            main.PreviewMainWindowUnload += UnsubscribeFromAllEvents;
         }
 
         private void UnsubscribeFromAllEvents(object sender, EventArgs e)
         {
-            main.PreviewMainWindowInitialized -= UnsubscribeFromAllEvents;
+            main.PreviewMainWindowUnload -= UnsubscribeFromAllEvents;
             // unsubscribe from anything else here
             AddNewTag_TextBox.KeyDown -= HandleKeyDown;
             AddNewTag_AcceptButton.Click -= HandleButtonClick;

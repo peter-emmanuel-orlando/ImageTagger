@@ -120,18 +120,18 @@
         <DockPanel LastChildFill="False" Grid.Row="2" Background="#667400FF"/>
         <DockPanel Background="#4CF4FF00">
             <Menu>
-                <MenuItem Background="#FFF0DBFF" Header="File">
-                    <MenuItem Header="Source" Click="MenuItem_Click">
+                <MenuItem x:Name="file_MenuItem" Background="#FFF0DBFF" Header="File">
+                    <MenuItem x:Name="setSource_MenuItem" Header="Source" Click="SetSource_MenuItem_Click">
                         <MenuItem.Icon>
                             <Image Source="Resources/64b6fbdc3036fe793216621435b981d3.jpg" />
                         </MenuItem.Icon>
                     </MenuItem>
-                    <MenuItem Header="Destination" IsEnabled="False">
+                    <MenuItem x:Name="setDestination_MenuItem"  Header="Destination" Click="SetDestination_MenuItem_Click">
                         <MenuItem.Icon>
                             <Image Source="Resources/64b6fbdc3036fe793216621435b981d3.jpg" />
                         </MenuItem.Icon>
                     </MenuItem>
-                    <MenuItem Header="Filter By Tags" IsEnabled="False">
+                    <MenuItem x:Name="setFilterByTags_MenuItem"  Header="Filter By Tags" IsEnabled="False">
                         <MenuItem.Icon>
                             <Image Source="Resources/64b6fbdc3036fe793216621435b981d3.jpg" />
                         </MenuItem.Icon>

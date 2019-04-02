@@ -31,12 +31,12 @@ namespace ImageTagger
             ImageGrid.Loaded += HandleGridLoaded;
             Initialize();
 
-            main.PreviewMainWindowInitialized += UnsubscribeFromAllEvents;
+            main.PreviewMainWindowUnload += UnsubscribeFromAllEvents;
         }
 
         private void UnsubscribeFromAllEvents(object sender, EventArgs e)
         {
-            main.PreviewMainWindowInitialized -= UnsubscribeFromAllEvents;
+            main.PreviewMainWindowUnload -= UnsubscribeFromAllEvents;
             // unsubscribe from anything else here
             ImageGrid.SelectionChanged -= ImgGrid_SelectionChanged;
             main.imageGrid_ScrollViewer.ScrollChanged -= ScrollViewer_ScrollChanged;
