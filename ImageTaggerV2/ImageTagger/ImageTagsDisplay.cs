@@ -81,25 +81,8 @@ namespace ImageTagger
             var success = ImageFileUtil.ApplyTagsToImage(ImageDisplay.mainImageInfo, Tags);
             if(mainImageTags.Count > 0 && success && PersistanceUtil.DestinationDirectory != PersistanceUtil.SourceDirectory)
             {
-                MoveToDestination(ImageDisplay.mainImageInfo, PersistanceUtil.DestinationDirectory);
+                ImageFileUtil.MoveToDestination(ImageDisplay.mainImageInfo, PersistanceUtil.DestinationDirectory);
             }
-        }
-
-        private bool MoveToDestination(ImageInfo imgInfo, string newDirectory)
-        {
-            string newPath = "";
-            var success = ImageFileUtil.MoveImageFile(imgInfo.ImgPath, newDirectory, out newPath);
-            if (success)
-            {
-                //change file path to new filepath
-                var fileNameIndex = main.ImageFileNames.IndexOf(imgInfo.ImgPath);
-                if(fileNameIndex != -1) main.ImageFileNames[fileNameIndex] = newPath;
-                //change imageInfo path to new filepath
-                imgInfo.ImgPath = newPath;
-                //call changeimage to trigger reload
-                ImageDisplay.ChangeImage(ImageDisplay.mainImageInfo);
-            }
-            return success;
         }
 
         public bool Add(ImageTag item)

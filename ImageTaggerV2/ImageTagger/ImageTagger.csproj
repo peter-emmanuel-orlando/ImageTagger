@@ -57,6 +57,7 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="AddNewTagComponent.cs" />
+    <Compile Include="ImageFiles.cs" />
     <Compile Include="ImageFileUtil.cs" />
     <Compile Include="ImageGridDisplay.cs" />
     <Compile Include="ImageInfo.cs" />
@@ -64,8 +65,10 @@
     <Compile Include="ImageTagsDisplay.cs" />
     <Compile Include="DirectoryTagUtil.cs" />
     <Compile Include="MainImageDisplay.cs" />
+    <Compile Include="MenuDisplay.cs" />
     <Compile Include="MyExtensions.cs" />
     <Compile Include="PersistanceUtil.cs" />
+    <Compile Include="TagSuggestionDisplay.cs" />
     <Compile Include="ThreadSafeRandom.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>

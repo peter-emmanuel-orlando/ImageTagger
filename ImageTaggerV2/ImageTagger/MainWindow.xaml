@@ -121,12 +121,19 @@
         <DockPanel Background="#4CF4FF00">
             <Menu>
                 <MenuItem x:Name="file_MenuItem" Background="#FFF0DBFF" Header="File">
-                    <MenuItem x:Name="setSource_MenuItem" Header="Source" Click="SetSource_MenuItem_Click">
+                    <MenuItem x:Name="setSource_MenuItem" Header="Source" >
                         <MenuItem.Icon>
                             <Image Source="Resources/64b6fbdc3036fe793216621435b981d3.jpg" />
                         </MenuItem.Icon>
                     </MenuItem>
-                    <MenuItem x:Name="setDestination_MenuItem"  Header="Destination" Click="SetDestination_MenuItem_Click">
+                    <MenuItem x:Name="setDestination_MenuItem"  Header="Destination" >
+                        <MenuItem.Icon>
+                            <Image Source="Resources/64b6fbdc3036fe793216621435b981d3.jpg" />
+                        </MenuItem.Icon>
+                    </MenuItem>
+                </MenuItem>
+                <MenuItem x:Name="settings_MenuItem" Background="#FFF0DBFF" Header="Settings">
+                    <MenuItem x:Name="randomize_MenuItem"  Header="Randomize" IsCheckable="True" StaysOpenOnClick="True" >
                         <MenuItem.Icon>
                             <Image Source="Resources/64b6fbdc3036fe793216621435b981d3.jpg" />
                         </MenuItem.Icon>

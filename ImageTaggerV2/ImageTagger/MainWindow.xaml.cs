@@ -23,15 +23,8 @@ using System.ComponentModel;
 
 namespace ImageTagger
 {
-    /// <summary>
-    /// Interaction logic for MainWindow.xaml
-    /// </summary>
-    /// 
     public partial class MainWindow : Window
     {
-
-
-
         private string programDirectory = Directory.GetCurrentDirectory();
         private bool checkForEmptyTags = true;
 
@@ -43,58 +36,39 @@ namespace ImageTagger
         ///this is the generic, come back and fix
         public event EventHandler PreviewMainWindowUnload;
 
-        public ObservableCollection<string> ImageFileNames { get; } = new ObservableCollection<string>();
-
         public MainImageDisplay ImageDisplay { get; private set; }
         public ImageGridDisplay ImageGridDisplay { get; private set; }
         public ImageTagsDisplay ImageTagsDisplay { get; private set; }
         public AddNewTagComponent AddNewTagComponent { get; private set; }
+        public MenuDisplay MenuDisplayComponent { get; private set; }
+        public TagSuggestionDisplay TagSuggestionDisplay { get; private set; }
 
         public MainWindow()
         { 
             InitializeComponent();
-            InitializeSelf();
+            PersistanceUtil.LoadLocations();
+            ImageFiles.FilesLoaded += HandleFilesReloaded;
+            ImageFiles.Load();
         }
 
-        protected void OnUnload(object sender, EventArgs e)
-        {
-            PreviewMainWindowUnload?.Invoke(sender, e);
-        }
 
-        private void InitializeSelf()
+        private void HandleFilesReloaded(object sender, EventArgs e)
         {
             OnUnload(this, new EventArgs());
 
-            ImageFileNames.Clear();
             PersistanceUtil.LoadLocations();
-            ImageFileUtil.GetImageFilenames(PersistanceUtil.SourceDirectory, randomizeImages).ForEach((item) => { ImageFileNames.Add(item); });
             DirectoryTagUtil.Load();
             ImageDisplay = new MainImageDisplay(this);
             ImageTagsDisplay = new ImageTagsDisplay(this);
             ImageGridDisplay = new ImageGridDisplay(this);
             AddNewTagComponent = new AddNewTagComponent(this);
+            MenuDisplayComponent = new MenuDisplay(this);
+            TagSuggestionDisplay = new TagSuggestionDisplay(this);
         }
 
-
-        private void SetSource_MenuItem_Click(object sender, RoutedEventArgs e)
+        protected void OnUnload(object sender, EventArgs e)
         {
-            var result = "";
-            var success = ImageFileUtil.GetDirectoryFromDialog(out result, PersistanceUtil.SourceDirectory);
-            if(success)
-            {
-                PersistanceUtil.ChangeSource(result);
-                InitializeSelf();
-            }
-        }
-
-        private void SetDestination_MenuItem_Click(object sender, RoutedEventArgs e)
-        {
-            var result = "";
-            var success = ImageFileUtil.GetDirectoryFromDialog(out result, PersistanceUtil.DestinationDirectory);
-            if (success)
-            {
-                PersistanceUtil.ChangeDestination(result);
-            }
+            PreviewMainWindowUnload?.Invoke(sender, e);
         }
 
         protected override void OnClosing(CancelEventArgs e)

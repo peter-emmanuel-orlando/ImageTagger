@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Net.Cache;
@@ -43,9 +44,23 @@ namespace ImageTagger_DataModels// <-- change to nested namespaces
         }
         public BitmapImage ImgSource { get; private set; }
 
+
+
         public static implicit operator ImageSource (ImageInfo iInfo)
         {
             return iInfo.ImgSource;
+        }
+
+        public override bool Equals(object obj)
+        {
+            var info = obj as ImageInfo;
+            return info != null &&
+                   imgPath == info.imgPath;
+        }
+
+        public override int GetHashCode()
+        {
+            return 485363467 + EqualityComparer<string>.Default.GetHashCode(imgPath);
         }
 
 

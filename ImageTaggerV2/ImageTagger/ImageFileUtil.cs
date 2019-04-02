@@ -71,24 +71,9 @@ namespace ImageTagger
 
             return result;
         }
-
-        /*
-        public enum FileSortMethod
-        {
-            Name = 0,
-            Date,
-            Random
-        }
-
-        public enum FileSortDirection
-        {
-            Ascending = 0,
-            Descending
-        }
-        */
         public static string[] acceptedFileTypes { get { return new string[] { ".jpg", ".jpeg" }; } }//, "jpeg", "gif", "png", };
 
-        public static List<string> GetImageFilenames(string sourcePath, bool randomize = false)
+        public static List<string> GetImageFilenames(string sourcePath)
         {
             var result = new List<string>();
             if(sourcePath != null)
@@ -99,7 +84,6 @@ namespace ImageTagger
                     if (acceptedFileTypes.Contains(Path.GetExtension(fileName)))
                         result.Add(fileName);
                 }
-                if (randomize) result.Shuffle();
             }
             return result;
         }
@@ -114,7 +98,23 @@ namespace ImageTagger
                 result = fbd.SelectedPath;
             return success;
         }
-        public static bool MoveImageFile(string imgPath, string newDirectory, out string newPath)
+
+
+
+        public static bool MoveToDestination(ImageInfo imgInfo, string newDirectory)
+        {
+            string newPath = "";
+            var success = MoveImageFile(imgInfo.ImgPath, newDirectory, out newPath);
+            if (success)
+            {
+                //change file path to new filepath
+                var fileNameIndex = ImageFiles.IndexOf(imgInfo.ImgPath);
+                if (fileNameIndex != -1) ImageFiles.Set(fileNameIndex, newPath);
+            }
+            return success;
+        }
+
+        private static bool MoveImageFile(string imgPath, string newDirectory, out string newPath)
         {
             newPath = imgPath;
             var success = !string.IsNullOrEmpty(imgPath) &&
