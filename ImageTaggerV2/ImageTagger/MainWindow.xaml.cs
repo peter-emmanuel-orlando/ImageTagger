@@ -13,6 +13,7 @@ using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Data;
 using System.Windows.Documents;
+using WinForms = System.Windows.Forms;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Navigation;
@@ -31,96 +32,61 @@ namespace ImageTagger
 
 
 
-        private string programDirectory = "";
+        private string programDirectory = Directory.GetCurrentDirectory();
+        protected string sourceDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyPictures);
         private string destinationDirectory = "";
         private bool checkForEmptyTags = true;
 
         private bool randomizeImages = false;
-        protected string sourceDirectory = /*@"C:\Users\YumeMura\Downloads"; //*/  @"C:\Users\YumeMura\Desktop\unsamples";
 
         protected const string locFileName = @"lastSession.loc";
         protected const string genericLocFile = @"SourceDirectory:SourcePlaceHolder|DestinationDirectory:DestinationPlaceHolder";
 
-
+        ///this is the generic, come back and fix
+        public event EventHandler PreviewMainWindowInitialized;
 
         public ObservableCollection<string> ImageFileNames { get; } = new ObservableCollection<string>();
 
-        public MainImageDisplay ImageDisplay { get; }
-        public ImageGridDisplay ImageGridDisplay { get; }
-        public ImageTagsDisplay ImageTagsDisplay { get; }
-        public AddNewTagComponent AddNewTagComponent { get; }
+        public MainImageDisplay ImageDisplay { get; private set; }
+        public ImageGridDisplay ImageGridDisplay { get; private set; }
+        public ImageTagsDisplay ImageTagsDisplay { get; private set; }
+        public AddNewTagComponent AddNewTagComponent { get; private set; }
 
         public MainWindow()
         { 
             InitializeComponent();
             InitializeSelf();
+        }
+
+        protected void OnPreviewMainWindowInitialized(object sender, EventArgs e)
+        {
+            PreviewMainWindowInitialized?.Invoke(sender, e);
+        }
+
+        private void InitializeSelf()
+        {
+            OnPreviewMainWindowInitialized(this, new EventArgs());
+
+            ImageFileNames.Clear();
+            ImageFileUtil.GetImageFilenames(sourceDirectory, randomizeImages).ForEach((item) => { ImageFileNames.Add(item); });
+
             ImageDisplay = new MainImageDisplay(this);
             ImageTagsDisplay = new ImageTagsDisplay(this);
             ImageGridDisplay = new ImageGridDisplay(this);
             AddNewTagComponent = new AddNewTagComponent(this);
         }
 
-        private void InitializeSelf()
+
+        private void MenuItem_Click(object sender, RoutedEventArgs e)
         {
-            ImageFileNames.Clear();
-            GetImageFilenames(sourceDirectory, randomizeImages).ForEach((item) => { ImageFileNames.Add(item); });
-        }
-
-
-
-        public HashSet<ImageTag> GetImageTags(string imagePath)
-        {
-            var result = new HashSet<ImageTag>();
-
-            Debug.WriteLine("tags at: " + imagePath);
-            if (File.Exists(imagePath))
+            WinForms.FolderBrowserDialog fbd = new WinForms.FolderBrowserDialog();
+            fbd.SelectedPath = sourceDirectory;
+            var result = fbd.ShowDialog();
+            if ( result == WinForms.DialogResult.OK )
             {
-                try
-                {
-                    var sFile = ShellFile.FromParsingName(imagePath);
-                    var tagsList = sFile.Properties.System.Keywords.Value;
-                    if (tagsList != null)
-                    {
-                        foreach (var tagText in tagsList)
-                        {
-                            var newTag = new ImageTag(tagText);//perhaps automatically do to lower?
-                            if (!result.Contains(newTag))
-                                result.Add(newTag);
-                        }
-                    }
-                }
-                catch (Exception e) {throw e; }
+                sourceDirectory = fbd.SelectedPath;
+                InitializeSelf();
             }
-
-            return result;
-        }
-
-        /*
-        public enum FileSortMethod
-        {
-            Name = 0,
-            Date,
-            Random
-        }
-
-        public enum FileSortDirection
-        {
-            Ascending = 0,
-            Descending
-        }
-        */
-
-        private List<string> GetImageFilenames(string sourcePath, bool randomize = false)
-        {
-            var result = new List<string>();
-            var fileTypes = new string[] { ".jpg" };//, "jpeg", "gif", "png", };
-            foreach (var fileName in Directory.EnumerateFiles(sourcePath, "*.*", SearchOption.AllDirectories))
-            {
-                if (fileTypes.Contains( Path.GetExtension(fileName)))
-                    result.Add(fileName);
-            }
-            if (randomize) result.Shuffle();
-            return result;
         }
     }
 }

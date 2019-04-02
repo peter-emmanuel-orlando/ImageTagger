@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Diagnostics;
+using System.IO;
 using System.Net.Cache;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
@@ -22,21 +24,21 @@ namespace ImageTagger_DataModels// <-- change to nested namespaces
             }
             set
             {
-                imgPath = value;
-                var uri = new Uri(imgPath);
-                try
-                {
-                    var imgBitMap = new BitmapImage();
-                    imgBitMap.BeginInit();
-                    imgBitMap.UriSource = uri;
-                    imgBitMap.CacheOption = BitmapCacheOption.OnLoad;
-                    imgBitMap.EndInit();
-                    ImgSource = imgBitMap;
-                }
-                catch (System.NotSupportedException e)
-                {
-                    throw new NotSupportedException("this image type is not supported)", e);
-                }
+                    imgPath = value;
+                    var uri = new Uri(imgPath);
+                    try
+                    {
+                        var imgBitMap = new BitmapImage();
+                        imgBitMap.BeginInit();
+                        imgBitMap.UriSource = uri;
+                        imgBitMap.CacheOption = BitmapCacheOption.OnLoad;
+                        imgBitMap.EndInit();
+                        ImgSource = imgBitMap;
+                    }
+                    catch (Exception e)
+                    {
+                        Debug.WriteLine(e);
+                    }
             }
         }
         public BitmapImage ImgSource { get; private set; }

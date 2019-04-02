@@ -30,6 +30,17 @@ namespace ImageTagger
             main.imageGrid_ScrollViewer.ScrollChanged += ScrollViewer_ScrollChanged;
             ImageGrid.Loaded += HandleGridLoaded;
             Initialize();
+
+            main.PreviewMainWindowInitialized += UnsubscribeFromAllEvents;
+        }
+
+        private void UnsubscribeFromAllEvents(object sender, EventArgs e)
+        {
+            main.PreviewMainWindowInitialized -= UnsubscribeFromAllEvents;
+            // unsubscribe from anything else here
+            ImageGrid.SelectionChanged -= ImgGrid_SelectionChanged;
+            main.imageGrid_ScrollViewer.ScrollChanged -= ScrollViewer_ScrollChanged;
+            ImageGrid.Loaded -= HandleGridLoaded;
         }
 
         private void Initialize()
@@ -55,15 +66,17 @@ namespace ImageTagger
             if (count > 0)
             {
                 ImageGrid.SelectedIndex = 0;
+                HandleGridLoaded(null, null);
             }
         }
 
         private void HandleGridLoaded(object sender, RoutedEventArgs e)
         {
-            if (ImageGrid.Items.Count > 0)
+            if (ImageGrid.Items.Count > 0 && ImageGrid.IsLoaded)
             {
                 ImageGrid.SelectedIndex = 0;
                 ListBoxItem myListBoxItem = (ListBoxItem)(ImageGrid.ItemContainerGenerator.ContainerFromItem(ImageGrid.Items[0]));
+                //ImageGrid.ScrollIntoView(myListBoxItem);
                 myListBoxItem.Focus();
             }
         }
@@ -84,18 +97,12 @@ namespace ImageTagger
         private void ScrollViewer_ScrollChanged(object sender, ScrollChangedEventArgs e)
         {
             Debug.WriteLine(
-                " e.VerticalChange:" +
-                e.VerticalChange +
-                "e.ViewportHeight:" +
-                e.ViewportHeight +
-                " e.VerticalOffset:" +
-                e.VerticalOffset +
-                " e.ExtentHeight:" +
-                e.ExtentHeight +
-                " e.ExtentHeightChange:" +
-                e.ExtentHeightChange +
-                " scrollableHeight:" +
-                (e.OriginalSource as ScrollViewer).ScrollableHeight
+                " e.VerticalChange:" + e.VerticalChange +
+                "e.ViewportHeight:" + e.ViewportHeight +
+                " e.VerticalOffset:" + e.VerticalOffset +
+                " e.ExtentHeight:" + e.ExtentHeight +
+                " e.ExtentHeightChange:" + e.ExtentHeightChange + 
+                " scrollableHeight:" + (e.OriginalSource as ScrollViewer).ScrollableHeight
               );
             var scrollableHeight = (e.OriginalSource as ScrollViewer).ScrollableHeight;
             if (e.VerticalChange > 0 || scrollableHeight == 0)

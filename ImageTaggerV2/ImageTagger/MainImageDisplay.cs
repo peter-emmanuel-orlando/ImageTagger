@@ -18,11 +18,12 @@ namespace ImageTagger
                 return main.mainImageDisplay;
             }
         }
-        public ImageInfo mainImageInfo { get; private set; } = new ImageInfo(@"C:\Users\YumeMura\Desktop\unsamples\1zBMSv4xEA4.jpg");
+        public ImageInfo mainImageInfo { get; private set; } = new ImageInfo(@"C:\Users\YumeMura\Desktop\unsamples\1zBMSv4xEA4.jpge");
 
         public MainImageDisplay(MainWindow main)
         {
             this.main = main;
+            main.PreviewMainWindowInitialized += UnsubscribeFromAllEvents;
             ImageDisplay.Source = mainImageInfo;
         }
 
@@ -30,6 +31,12 @@ namespace ImageTagger
         {
             mainImageInfo = newInfo;
             ImageDisplay.Source = mainImageInfo;
+        }
+
+        private void UnsubscribeFromAllEvents(object sender, EventArgs e)
+        {
+            main.PreviewMainWindowInitialized -= UnsubscribeFromAllEvents;
+            // unsubscribe from anything else here
         }
     }
 }

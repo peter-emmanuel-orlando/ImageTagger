@@ -1,4 +1,5 @@
 ﻿using ImageTagger_DataModels;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
@@ -30,7 +31,7 @@ namespace ImageTagger
             {
                 tagSource = value;
                 mainImageTags.Clear();
-                mainImageTags.Add(main.GetImageTags(value.ImgPath));
+                mainImageTags.Add(ImageFileUtil.GetImageTags(value.ImgPath));
             }
         }
 
@@ -41,6 +42,17 @@ namespace ImageTagger
             TagsDisplay.KeyDown += TagsDisplay_KeyDown;
             TagsDisplay.LostFocus += TagsDisplay_LostFocus;
             mainImageTags.CollectionChanged += HandleCollectionChanged;
+
+            main.PreviewMainWindowInitialized += UnsubscribeFromAllEvents;
+        }
+
+        private void UnsubscribeFromAllEvents(object sender, EventArgs e)
+        {
+            main.PreviewMainWindowInitialized -= UnsubscribeFromAllEvents;
+            // unsubscribe from anything else here
+            TagsDisplay.KeyDown -= TagsDisplay_KeyDown;
+            TagsDisplay.LostFocus -= TagsDisplay_LostFocus;
+            mainImageTags.CollectionChanged -= HandleCollectionChanged;
         }
 
         private void HandleCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)

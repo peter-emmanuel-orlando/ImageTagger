@@ -1,4 +1,5 @@
 ﻿using ImageTagger_DataModels;
+using System;
 using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
@@ -23,6 +24,20 @@ namespace ImageTagger
             AddNewTag_TextBox.TextChanged += HandleTextChanged;
             AddNewTag_TextBox.GotFocus += HandleTextBoxGotFocus;
             AddNewTag_TextBox.MouseLeftButtonUp += HandleTextBoxClick;
+
+            main.PreviewMainWindowInitialized += UnsubscribeFromAllEvents;
+        }
+
+        private void UnsubscribeFromAllEvents(object sender, EventArgs e)
+        {
+            main.PreviewMainWindowInitialized -= UnsubscribeFromAllEvents;
+            // unsubscribe from anything else here
+            AddNewTag_TextBox.KeyDown -= HandleKeyDown;
+            AddNewTag_AcceptButton.Click -= HandleButtonClick;
+            AddNewTag_TextBox.LostFocus -= HandleTextBoxLostFocus;
+            AddNewTag_TextBox.TextChanged -= HandleTextChanged;
+            AddNewTag_TextBox.GotFocus -= HandleTextBoxGotFocus;
+            AddNewTag_TextBox.MouseLeftButtonUp -= HandleTextBoxClick;
         }
 
 
