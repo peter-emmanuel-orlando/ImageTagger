@@ -33,8 +33,6 @@ namespace ImageTagger
 
 
         private string programDirectory = Directory.GetCurrentDirectory();
-        public string sourceDirectory { get; private set; } = Environment.GetFolderPath(Environment.SpecialFolder.MyPictures);
-        public string destinationDirectory { get; private set; } = Environment.GetFolderPath(Environment.SpecialFolder.MyPictures);
         private bool checkForEmptyTags = true;
 
         private bool randomizeImages = false;
@@ -68,7 +66,8 @@ namespace ImageTagger
             OnUnload(this, new EventArgs());
 
             ImageFileNames.Clear();
-            ImageFileUtil.GetImageFilenames(sourceDirectory, randomizeImages).ForEach((item) => { ImageFileNames.Add(item); });
+            PersistanceUtil.LoadLocations();
+            ImageFileUtil.GetImageFilenames(PersistanceUtil.SourceDirectory, randomizeImages).ForEach((item) => { ImageFileNames.Add(item); });
 
             ImageDisplay = new MainImageDisplay(this);
             ImageTagsDisplay = new ImageTagsDisplay(this);
@@ -80,10 +79,10 @@ namespace ImageTagger
         private void SetSource_MenuItem_Click(object sender, RoutedEventArgs e)
         {
             var result = "";
-            var success = ImageFileUtil.GetDirectoryFromDialog(out result, sourceDirectory);
+            var success = ImageFileUtil.GetDirectoryFromDialog(out result, PersistanceUtil.SourceDirectory);
             if(success)
             {
-                sourceDirectory = result;
+                PersistanceUtil.ChangeSource(result);
                 InitializeSelf();
             }
         }
@@ -91,10 +90,10 @@ namespace ImageTagger
         private void SetDestination_MenuItem_Click(object sender, RoutedEventArgs e)
         {
             var result = "";
-            var success = ImageFileUtil.GetDirectoryFromDialog(out result, destinationDirectory);
+            var success = ImageFileUtil.GetDirectoryFromDialog(out result, PersistanceUtil.DestinationDirectory);
             if (success)
             {
-                destinationDirectory = result;
+                PersistanceUtil.ChangeDestination(result);
             }
         }
 

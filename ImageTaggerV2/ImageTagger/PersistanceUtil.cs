@@ -13,41 +13,71 @@ namespace ImageTagger
         private static string DefaultImageDirectory { get { return Environment.GetFolderPath(Environment.SpecialFolder.MyPictures); } }
         private static string DefaultPersistanceDirectory { get { return Directory.GetCurrentDirectory(); } }
 
+        public static string SourceDirectory { get; private set; }
+        public static string DestinationDirectory { get; private set; }
 
-        private static void SaveLocations(string sourcePath = "", string destinationPath = "", string persistanceDirectory = "")
+        static PersistanceUtil()
         {
-            if (sourcePath == "") sourcePath = DefaultImageDirectory;
-            if (destinationPath == "") destinationPath = DefaultImageDirectory;
-            if (persistanceDirectory == "") persistanceDirectory = DefaultPersistanceDirectory;
+            LoadLocations();
+        }
 
-            var newLocFile = genericLocFile.Replace("SourcePlaceHolder", sourcePath).Replace("DestinationPlaceHolder", destinationPath);
-            var filename = Path.Combine(persistanceDirectory, locFileName);
-            string[] files = Directory.GetFiles(persistanceDirectory, locFileExtension);
+        public static void ChangeSource(string sourceDirectory = null)
+        {
+            if (String.IsNullOrEmpty(sourceDirectory) || String.IsNullOrWhiteSpace(sourceDirectory))
+                sourceDirectory = DefaultImageDirectory;
+            SaveLocations(sourceDirectory, DestinationDirectory);
+        }
+
+        public static void ChangeDestination(string destinationDirectory)
+        {
+            if (String.IsNullOrEmpty(destinationDirectory) || String.IsNullOrWhiteSpace(destinationDirectory))
+                destinationDirectory = DefaultImageDirectory;
+            SaveLocations(SourceDirectory, destinationDirectory);
+        }
+
+        private static void SaveLocations(string sourceDirectory, string destinationDirectory)
+        {
+            var newLocFile = genericLocFile.Replace("SourcePlaceHolder", sourceDirectory).Replace("DestinationPlaceHolder", destinationDirectory);
+            var filename = Path.Combine(DefaultPersistanceDirectory, locFileName);
+            string[] files = Directory.GetFiles(DefaultPersistanceDirectory, locFileExtension);
             Array.Sort(files);
             if (files.Length > 0) filename = files[0];
             File.WriteAllText(filename, newLocFile);
+            LoadLocations();
         }
 
-        private static bool ReadLocations(out string sourcePath, out string destinationPath, string persistanceDirectory = "")
+        public static void LoadLocations()
         {
-            if(persistanceDirectory == "") persistanceDirectory = Directory.GetCurrentDirectory();
+            string source;
+            string destination;
+            ReadLocations(out source, out destination);
+            SourceDirectory = source;
+            DestinationDirectory = destination;
+        }
+        private static bool ReadLocations(out string sourcePath, out string destinationPath)
+        { 
             var success = false;
-            sourcePath = destinationPath = Environment.GetFolderPath(Environment.SpecialFolder.MyPictures);
+
+            sourcePath = DefaultImageDirectory;
+            destinationPath = DefaultImageDirectory;
+
             FileStream fs = null;
             StreamReader file = null;
             try
             {
-                var filename = Path.Combine(persistanceDirectory, locFileName);
-                string[] files = Directory.GetFiles(persistanceDirectory, locFileExtension);
+                var filename = Path.Combine(DefaultPersistanceDirectory, locFileName);
+                string[] files = Directory.GetFiles(DefaultPersistanceDirectory, locFileExtension);
                 Array.Sort(files);
                 if (files.Length > 0) filename = files[0];
                 fs = new FileStream(filename, FileMode.OpenOrCreate);
                 file = new StreamReader(fs);
                 var lines = file.ReadToEnd().Split('|');
-
-                sourcePath = lines[0].Replace("SourceDirectory:", "");
-                destinationPath = lines[1].Replace("DestinationDirectory:", "");
-                success = true;
+                if(lines.Length == 2)
+                {
+                    sourcePath = lines[0].Replace("SourceDirectory:", "");
+                    destinationPath = lines[1].Replace("DestinationDirectory:", "");
+                    success = true;
+                }
             }
             catch (Exception e)
             {

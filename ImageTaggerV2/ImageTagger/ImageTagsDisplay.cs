@@ -79,9 +79,9 @@ namespace ImageTagger
         public void ApplyTagsToMainImage()
         {
             var success = ImageFileUtil.ApplyTagsToImage(ImageDisplay.mainImageInfo, Tags);
-            if(mainImageTags.Count > 0 && success && main.destinationDirectory != main.sourceDirectory)
+            if(mainImageTags.Count > 0 && success && PersistanceUtil.DestinationDirectory != PersistanceUtil.SourceDirectory)
             {
-                MoveToDestination(ImageDisplay.mainImageInfo, main.destinationDirectory);
+                MoveToDestination(ImageDisplay.mainImageInfo, PersistanceUtil.DestinationDirectory);
             }
         }
 
