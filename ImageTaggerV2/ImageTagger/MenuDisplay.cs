@@ -52,12 +52,12 @@ namespace ImageTagger
 
         private void Randomize_MenuItem_Checked(object sender, RoutedEventArgs e)
         {
-
+            ImageFiles.Load(true);
         }
 
         private void Randomize_MenuItem_Unchecked(object sender, RoutedEventArgs e)
         {
-
+            ImageFiles.Load(false);
         }
     }
 }
