@@ -11,7 +11,7 @@ namespace ImageTagger
         private const string locFileName = @"lastSession" + locFileExtension;
         private const string genericLocFile = @"SourceDirectory:SourcePlaceHolder|DestinationDirectory:DestinationPlaceHolder";
         private static string DefaultImageDirectory { get { return Environment.GetFolderPath(Environment.SpecialFolder.MyPictures); } }
-        private static string DefaultPersistanceDirectory { get { return Directory.GetCurrentDirectory(); } }
+        public static string ResourcePersistanceDirectory { get { return Directory.GetCurrentDirectory(); } }
 
         public static string SourceDirectory { get; private set; }
         public static string DestinationDirectory { get; private set; }
@@ -38,8 +38,8 @@ namespace ImageTagger
         private static void SaveLocations(string sourceDirectory, string destinationDirectory)
         {
             var newLocFile = genericLocFile.Replace("SourcePlaceHolder", sourceDirectory).Replace("DestinationPlaceHolder", destinationDirectory);
-            var filename = Path.Combine(DefaultPersistanceDirectory, locFileName);
-            string[] files = Directory.GetFiles(DefaultPersistanceDirectory, locFileExtension);
+            var filename = Path.Combine(ResourcePersistanceDirectory, locFileName);
+            string[] files = Directory.GetFiles(ResourcePersistanceDirectory, locFileExtension);
             Array.Sort(files);
             if (files.Length > 0) filename = files[0];
             File.WriteAllText(filename, newLocFile);
@@ -65,8 +65,8 @@ namespace ImageTagger
             StreamReader file = null;
             try
             {
-                var filename = Path.Combine(DefaultPersistanceDirectory, locFileName);
-                string[] files = Directory.GetFiles(DefaultPersistanceDirectory, locFileExtension);
+                var filename = Path.Combine(ResourcePersistanceDirectory, locFileName);
+                string[] files = Directory.GetFiles(ResourcePersistanceDirectory, locFileExtension);
                 Array.Sort(files);
                 if (files.Length > 0) filename = files[0];
                 fs = new FileStream(filename, FileMode.OpenOrCreate);

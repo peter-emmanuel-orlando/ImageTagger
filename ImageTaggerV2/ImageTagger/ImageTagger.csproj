@@ -62,6 +62,7 @@
     <Compile Include="ImageInfo.cs" />
     <Compile Include="ImageTag.cs" />
     <Compile Include="ImageTagsDisplay.cs" />
+    <Compile Include="DirectoryTagUtil.cs" />
     <Compile Include="MainImageDisplay.cs" />
     <Compile Include="MyExtensions.cs" />
     <Compile Include="PersistanceUtil.cs" />

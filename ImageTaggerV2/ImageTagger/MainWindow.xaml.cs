@@ -68,7 +68,7 @@ namespace ImageTagger
             ImageFileNames.Clear();
             PersistanceUtil.LoadLocations();
             ImageFileUtil.GetImageFilenames(PersistanceUtil.SourceDirectory, randomizeImages).ForEach((item) => { ImageFileNames.Add(item); });
-
+            DirectoryTagUtil.Load();
             ImageDisplay = new MainImageDisplay(this);
             ImageTagsDisplay = new ImageTagsDisplay(this);
             ImageGridDisplay = new ImageGridDisplay(this);

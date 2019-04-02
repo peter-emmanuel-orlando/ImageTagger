@@ -11,7 +11,6 @@ using WinForms = System.Windows.Forms;
 
 namespace ImageTagger
 {
-
     public static class ImageFileUtil
     {
 
@@ -46,6 +45,33 @@ namespace ImageTagger
             }
         }
 
+        public static HashSet<ImageTag> GetImageTags(string imagePath)
+        {
+            var result = new HashSet<ImageTag>();
+
+            Debug.WriteLine("tags at: " + imagePath);
+            if (File.Exists(imagePath))
+            {
+                try
+                {
+                    var sFile = ShellFile.FromParsingName(imagePath);
+                    var tagsList = sFile.Properties.System.Keywords.Value;
+                    if (tagsList != null)
+                    {
+                        foreach (var tagText in tagsList)
+                        {
+                            var newTag = new ImageTag(tagText);//perhaps automatically do to lower?
+                            if (!result.Contains(newTag))
+                                result.Add(newTag);
+                        }
+                    }
+                }
+                catch (Exception e) { throw e; }
+            }
+
+            return result;
+        }
+
         /*
         public enum FileSortMethod
         {
@@ -75,36 +101,6 @@ namespace ImageTagger
                 }
                 if (randomize) result.Shuffle();
             }
-            return result;
-        }
-
-
-
-
-        public static HashSet<ImageTag> GetImageTags(string imagePath)
-        {
-            var result = new HashSet<ImageTag>();
-
-            Debug.WriteLine("tags at: " + imagePath);
-            if (File.Exists(imagePath))
-            {
-                try
-                {
-                    var sFile = ShellFile.FromParsingName(imagePath);
-                    var tagsList = sFile.Properties.System.Keywords.Value;
-                    if (tagsList != null)
-                    {
-                        foreach (var tagText in tagsList)
-                        {
-                            var newTag = new ImageTag(tagText);//perhaps automatically do to lower?
-                            if (!result.Contains(newTag))
-                                result.Add(newTag);
-                        }
-                    }
-                }
-                catch (Exception e) { throw e; }
-            }
-
             return result;
         }
 
