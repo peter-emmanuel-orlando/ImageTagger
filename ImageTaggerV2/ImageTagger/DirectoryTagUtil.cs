@@ -9,9 +9,15 @@ using System.Collections.Concurrent;
 
 namespace ImageTagger
 {
+    public enum LoadState
+    {
+        Unloaded = 0,
+        Loading,
+        Loaded
+    }
     public static class DirectoryTagUtil
     {
-        public static bool isLoaded { get; private set; }
+        public static LoadState loadState { get; private set; } = LoadState.Unloaded;
         private static readonly ConcurrentDictionary<string, HashSet<string>> tags = new ConcurrentDictionary<string, HashSet<string>>();
 
         public static HashSet<string> GetTagCategories()
@@ -53,8 +59,10 @@ namespace ImageTagger
         public static async void Load()
         {
             PreviewTagsLoaded?.Invoke(null, new EventArgs());
+            loadState = LoadState.Loading;
             await LoadTagsFromFileAsynch(PersistanceUtil.SourceDirectory);
             await LoadTagsFromListAsynch(PersistanceUtil.ResourcePersistanceDirectory + @"\AllPossibleTags.txt");
+            loadState = LoadState.Loaded;
             TagsLoaded?.Invoke(null, new EventArgs());
         }
 

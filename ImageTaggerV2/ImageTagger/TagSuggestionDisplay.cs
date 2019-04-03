@@ -1,5 +1,6 @@
 ﻿using ImageTagger_DataModels;
 using System;
+using System.Linq;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Threading;
@@ -40,6 +41,16 @@ namespace ImageTagger
             return TagText;
         }
     }
+
+    public class TagCategory
+    {
+        public TagCategory(string categoryName)
+        {
+            CategoryName = categoryName;
+        }
+
+        public string CategoryName { get; }
+    }
     
 
     public class TagSuggestionDisplay
@@ -48,6 +59,7 @@ namespace ImageTagger
         ItemsControl TagSuggestion { get { return main.tagSuggestionDisplay; } }
 
         private ObservableCollection<SuggestedTag> SuggestedTags { get; } = new ObservableCollection<SuggestedTag>();
+        private ObservableCollection<TagCategory> TagCategories { get; } = new ObservableCollection<TagCategory>();
 
         private bool isDormant = false;
 
@@ -57,10 +69,12 @@ namespace ImageTagger
             main.PreviewMainWindowUnload += UnsubscribeFromAllEvents;
 
             TagSuggestion.ItemsSource = SuggestedTags;
+            main.tagSuggestionCategoriesDisplay.ItemsSource = TagCategories;
 
             main.imageGrid.SelectionChanged += HandleGridSelectionChanged;
             main.reloadTagSuggestions.Click += HandleChangeSuggestionsClickEvent;
             main.closeTagSuggestions.Click += HandleCloseSuggestionsClickEvent;
+            DirectoryTagUtil.TagsLoaded += HandleTagsReloadedEvent;
 
             CloseSuggestionsPanel();
             DirectoryTagUtil.Load();
@@ -74,6 +88,16 @@ namespace ImageTagger
             main.imageGrid.SelectionChanged -= HandleGridSelectionChanged;
             main.reloadTagSuggestions.Click -= HandleChangeSuggestionsClickEvent;
             main.closeTagSuggestions.Click -= HandleCloseSuggestionsClickEvent;
+            DirectoryTagUtil.TagsLoaded -= HandleTagsReloadedEvent;
+        }
+
+        private void HandleTagsReloadedEvent(object sender, EventArgs e)
+        {
+            TagCategories.Clear();
+            foreach( var category in DirectoryTagUtil.GetTagCategories())
+            {
+                TagCategories.Add(new TagCategory(category));
+            }
         }
 
         private void HandleCloseSuggestionsClickEvent(object sender, RoutedEventArgs e)
@@ -100,6 +124,9 @@ namespace ImageTagger
             //enable and show display tags area
             main.tagSuggestionDisplay.IsEnabled = true;
             main.tagSuggestionDisplay.Visibility = Visibility.Visible;
+            //enable and show display tag categories area
+            main.tagSuggestionCategoriesDisplay_Viewer.IsEnabled = true;
+            main.tagSuggestionCategoriesDisplay_Viewer.Visibility = Visibility.Visible;
             //enable and show grid splitter
             main.suggestedTagsSplitter.IsEnabled = true;
             main.suggestedTagsSplitter.Visibility = Visibility.Visible;
@@ -120,6 +147,9 @@ namespace ImageTagger
             //disable and hide display tags area
             main.tagSuggestionDisplay.IsEnabled = false;
             main.tagSuggestionDisplay.Visibility = Visibility.Hidden;
+            //enable and show display tag categories area
+            main.tagSuggestionCategoriesDisplay_Viewer.IsEnabled = false;
+            main.tagSuggestionCategoriesDisplay_Viewer.Visibility = Visibility.Collapsed;
             //disable and hide grid splitter
             main.suggestedTagsSplitter.IsEnabled = false;
             main.suggestedTagsSplitter.Visibility = Visibility.Hidden;
@@ -198,6 +228,8 @@ namespace ImageTagger
         }
 
     }
+
+
 
     public partial class MainWindow
     {

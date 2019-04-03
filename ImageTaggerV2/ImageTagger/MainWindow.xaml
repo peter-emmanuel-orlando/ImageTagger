@@ -66,9 +66,9 @@
                             <RowDefinition MinHeight="50"/>
                         </Grid.RowDefinitions>
                         <GridSplitter x:Name="suggestedTagsSplitter" HorizontalAlignment="Stretch" Height="5" VerticalAlignment="Bottom" Grid.ColumnSpan="999999" Panel.ZIndex="2" Background="#33000000" BorderBrush="Black"/>
-
                         <DockPanel Grid.Row="2" ScrollViewer.VerticalScrollBarVisibility="Disabled">
-                            <Border DockPanel.Dock="Bottom" Background="#19000000">
+                            
+                            <Border DockPanel.Dock="Bottom">
                                 <DockPanel VerticalAlignment="Bottom" Panel.ZIndex="3" MinWidth="70" >
                                     <DockPanel VerticalAlignment="Top" HorizontalAlignment="Right" Panel.ZIndex="3" DockPanel.Dock="Right">
                                         <Grid HorizontalAlignment="Right">
@@ -81,8 +81,8 @@
                                     <Button x:Name="closeTagSuggestions" Content="Close" DockPanel.Dock="Right"/>
                                     <!-- bolow is the display for categories for suggested tags -->
                                     <Border>
-                                        <ScrollViewer VerticalScrollBarVisibility="Disabled" HorizontalScrollBarVisibility="Hidden" Background="#33FF8D8D" >
-                                            <ListBox ScrollViewer.HorizontalScrollBarVisibility="Hidden" ScrollViewer.VerticalScrollBarVisibility="Disabled" VerticalContentAlignment="Center" Background="#FF00E8FF" ScrollViewer.CanContentScroll="False">
+                                        <ScrollViewer x:Name="tagSuggestionCategoriesDisplay_Viewer" VerticalScrollBarVisibility="Disabled" HorizontalScrollBarVisibility="Hidden" HorizontalContentAlignment="Right" VerticalContentAlignment="Stretch" FlowDirection="RightToLeft" Background="#33000000" >
+                                            <ListBox x:Name="tagSuggestionCategoriesDisplay" ScrollViewer.HorizontalScrollBarVisibility="Hidden" ScrollViewer.VerticalScrollBarVisibility="Disabled" VerticalContentAlignment="Center" Background="{x:Null}" ScrollViewer.CanContentScroll="False" HorizontalContentAlignment="Right">
                                                 <!-- listbox.template portion essentially changes the controls to be the same as listbox, but without the scrollviewer in it. -->
                                                 <!-- see answer here: https://stackoverflow.com/questions/2976240/how-can-make-scrollviewer-scroll-when-mouse-is-over-any-content -->
                                                 <ListBox.Template>
@@ -101,7 +101,7 @@
                                                 <ListBox.ItemTemplate>
                                                     <DataTemplate>
                                                         <Border BorderBrush="Black" BorderThickness="1">
-                                                            <Button Content="{Binding TagName}" Click="HandleTagSuggestionCategoryButtonClickEvent" />
+                                                            <Button Content="{Binding CategoryName}" Click="HandleTagSuggestionCategoryButtonClickEvent" VerticalAlignment="Center" HorizontalAlignment="Center" />
                                                         </Border>
                                                     </DataTemplate>
                                                 </ListBox.ItemTemplate>
@@ -109,9 +109,6 @@
                                             </ListBox>
                                         </ScrollViewer>
                                     </Border>
-
-
-
                                 </DockPanel>
                             </Border>
 
