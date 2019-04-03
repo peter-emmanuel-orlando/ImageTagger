@@ -63,6 +63,7 @@ namespace ImageTagger
             main.closeTagSuggestions.Click += HandleCloseSuggestionsClickEvent;
 
             CloseSuggestionsPanel();
+            DirectoryTagUtil.Load();
         }
 
         private void UnsubscribeFromAllEvents(object sender, EventArgs e)
@@ -215,6 +216,12 @@ namespace ImageTagger
                 btn.Opacity = 0.5;
             }
             ImageTagsDisplay.ApplyTagsToMainImage();
+        }
+
+
+        private void HandleTagSuggestionCategoryButtonClickEvent(object sender, RoutedEventArgs e)
+        {
+
         }
     }
 }

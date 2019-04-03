@@ -5,12 +5,14 @@ using System.IO;
 using System.Threading.Tasks;
 using System.Linq;
 using System;
+using System.Collections.Concurrent;
 
 namespace ImageTagger
 {
     public static class DirectoryTagUtil
     {
-        private static readonly Dictionary<string, HashSet<string>> tags = new Dictionary<string, HashSet<string>>();
+        public static bool isLoaded { get; private set; }
+        private static readonly ConcurrentDictionary<string, HashSet<string>> tags = new ConcurrentDictionary<string, HashSet<string>>();
 
         public static HashSet<string> GetTagCategories()
         {
@@ -25,25 +27,46 @@ namespace ImageTagger
                 return new HashSet<string>();
         }
 
+        public static List<TagSuggestion> GetSuggestedTags(string imgFilePath)
+        {
+            var r = new Random(DateTime.UtcNow.Millisecond);
+            var tmp = GetTags("loaded").Select((tagText) =>
+            {
+                return new TagSuggestion(new ImageTag(tagText), r.NextDouble());
+            });
+            var result = new List<TagSuggestion>(tmp);
+            result.Shuffle();
+            return result;
+        }
+
         static DirectoryTagUtil()
         {
-            tags.Add("quickList", new HashSet<string>());
-            tags.Add("all", new HashSet<string>());
-            tags.Add("loaded", new HashSet<string>());
+            tags.TryAdd("quickList", new HashSet<string>());
+            tags.TryAdd("all", new HashSet<string>());
+            tags.TryAdd("loaded", new HashSet<string>());
+            OnProcessedNewCategory?.Invoke(null, new AddedCategoryEventArgs("quickList"));
+            OnProcessedNewCategory?.Invoke(null, new AddedCategoryEventArgs("all"));
+            OnProcessedNewCategory?.Invoke(null, new AddedCategoryEventArgs("loaded"));
+        }
+        
+
+        public static async void Load()
+        {
+            PreviewTagsLoaded?.Invoke(null, new EventArgs());
+            await LoadTagsFromFileAsynch(PersistanceUtil.SourceDirectory);
+            await LoadTagsFromListAsynch(PersistanceUtil.ResourcePersistanceDirectory + @"\AllPossibleTags.txt");
+            TagsLoaded?.Invoke(null, new EventArgs());
         }
 
-        public static void Load()
+
+        private static async Task LoadTagsFromListAsynch(string filename)
         {
-            //load tags from list
-            LoadTagsFromFileAsynch(PersistanceUtil.SourceDirectory);
+            await Task.Run(delegate () { LoadTagsFromList(filename); });
         }
 
-        private static void LoadTagsFromList()
+        private static void LoadTagsFromList(string filename)
         {
-            tags.Clear();
-
             // Read the file line by line.
-            var filename = PersistanceUtil.ResourcePersistanceDirectory + @"\AllPossibleTags.txt";
             FileStream fs = new FileStream(filename, FileMode.OpenOrCreate);
             StreamReader file = new StreamReader(fs);
             string line;
@@ -58,7 +81,8 @@ namespace ImageTagger
                 {
                     if (line[0] == '*' && !tags.ContainsKey(line))
                     {
-                        tags.Add(line, new HashSet<string>());
+                        tags.TryAdd(line, new HashSet<string>());
+                        OnProcessedNewCategory?.Invoke(null, new AddedCategoryEventArgs(line));
                         currentKey = line;
                     }
                     else
@@ -66,8 +90,10 @@ namespace ImageTagger
                         if (currentKey != "" && tags.ContainsKey(currentKey))
                         {
                             tags[currentKey].Add(line);
+                            OnProcessedNewTag?.Invoke(null, new AddedTagEventArgs(currentKey, line));
                         }
                         tags["all"].Add(line);//<- inefficient
+                        OnProcessedNewTag?.Invoke(null, new AddedTagEventArgs("all", line));
                     }
                 }
             }
@@ -75,18 +101,16 @@ namespace ImageTagger
             file.Close();
         }
 
-        private static async void LoadTagsFromFileAsynch(string filename)
+        private static async Task LoadTagsFromFileAsynch(string filename)
         {
-            Task loadTask;
-            loadTask = Task.Run(delegate () { LoadTagsFromFile(filename); });
-            await loadTask;
+            await Task.Run(delegate () { LoadTagsFromDirectory(filename); });
         }
 
-        private static void LoadTagsFromFile(string filename)
+        private static void LoadTagsFromDirectory(string directory)
         {
             tags["loaded"].Clear();
-            var ImageFilenames = new List<string>(Directory.EnumerateFiles(filename, "*jpg", SearchOption.AllDirectories));
-            ImageFilenames.AddRange(Directory.EnumerateFiles(filename, "*jpeg", SearchOption.AllDirectories));
+            var ImageFilenames = new List<string>(Directory.EnumerateFiles(directory, "*jpg", SearchOption.AllDirectories));
+            ImageFilenames.AddRange(Directory.EnumerateFiles(directory, "*jpeg", SearchOption.AllDirectories));
 
             foreach (var imageFilename in ImageFilenames)
             {
@@ -99,44 +123,57 @@ namespace ImageTagger
                         if (!tags["loaded"].Contains(tag))
                         {
                             tags["loaded"].Add(tag);
+                            OnProcessedNewTag?.Invoke(null, new AddedTagEventArgs(null, tag));
                         }
                     }
                 }
             }
         }
-        public static List<TagSuggestion> GetSuggestedTags(string imgFilePath)
+
+        public static event PreviewTagsLoadedEventHandler PreviewTagsLoaded = delegate { };
+        public static event ProcessedNewCategoryEventHandler OnProcessedNewCategory = delegate { };
+        public static event ProcessedNewTagEventHandler OnProcessedNewTag = delegate { };
+        public static event TagsLoadedEventHandler TagsLoaded = delegate { };
+
+    }
+    public delegate void PreviewTagsLoadedEventHandler(object sender, EventArgs e);
+    public delegate void ProcessedNewCategoryEventHandler(object sender, AddedCategoryEventArgs e);
+    public delegate void ProcessedNewTagEventHandler(object sender, AddedTagEventArgs e);
+    public delegate void TagsLoadedEventHandler(object sender, EventArgs e);
+
+    public class AddedCategoryEventArgs : EventArgs
+    {
+        public AddedCategoryEventArgs(string category)
         {
-            var r = new Random(DateTime.UtcNow.Millisecond);
-            var tmp = GetTags("loaded").Select((tagText) =>
-            {
-                return new TagSuggestion( new ImageTag(tagText), r.NextDouble());
-            });
-            var result = new List<TagSuggestion>(tmp);
-            result.Shuffle();
-            return result;
+            this.category = category;
         }
 
-
-
-
-
-
-
-
-
+        public string category { get; }
     }
-}
-
-
-public class TagSuggestion
-{
-
-    public ImageTag tag { get; }
-    public double confidenceLevel { get; }
-
-    public TagSuggestion(ImageTag tag, double confidenceLevel)
+    public class AddedTagEventArgs : EventArgs
     {
-        this.confidenceLevel = confidenceLevel;
-        this.tag = tag;
+        public AddedTagEventArgs(string category, string newTagText)
+        {
+            this.category = category;
+            this.newTagText = newTagText;
+        }
+
+        public string category { get; }
+        public string newTagText { get; }
+    }
+    public class TagSuggestion
+    {
+
+        public ImageTag tag { get; }
+        public double confidenceLevel { get; }
+
+        public TagSuggestion(ImageTag tag, double confidenceLevel)
+        {
+            this.confidenceLevel = confidenceLevel;
+            this.tag = tag;
+        }
     }
 }
+
+
+
