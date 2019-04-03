@@ -63,22 +63,16 @@
                         <Grid.RowDefinitions>
                             <RowDefinition Height="2*"/>
                             <!-- this puts a limit on the gridsplitter -->
-                            <RowDefinition/>
+                            <RowDefinition MinHeight="50"/>
                         </Grid.RowDefinitions>
-                        <GridSplitter x:Name="suggestedTagsSplitter" HorizontalAlignment="Stretch" Height="5" VerticalAlignment="Bottom" Grid.ColumnSpan="999999" Panel.ZIndex="2"/>
-
-
-
-
-
-
-
+                        <GridSplitter x:Name="suggestedTagsSplitter" HorizontalAlignment="Stretch" Height="5" VerticalAlignment="Bottom" Grid.ColumnSpan="999999" Panel.ZIndex="2" Background="#33000000" BorderBrush="Black"/>
 
                         <DockPanel Grid.Row="2" ScrollViewer.VerticalScrollBarVisibility="Disabled">
                             <Border DockPanel.Dock="Bottom" Background="#19000000">
                                 <DockPanel VerticalAlignment="Bottom" Panel.ZIndex="3" MinWidth="70" LastChildFill="False" HorizontalAlignment="Right" >
-                                    <Button x:Name="reloadTagSuggestions" Content="Load Suggestions"/>
-                                    <Button x:Name="closeTagSuggestions" Content="Close Suggestions"/>
+
+                                    <Button x:Name="closeTagSuggestions" Content="Close"/>
+                                    <Button x:Name="reloadTagSuggestions" Content="Suggest"/>
                                     <DockPanel VerticalAlignment="Top" HorizontalAlignment="Right" Panel.ZIndex="3">
                                         <Grid HorizontalAlignment="Right">
                                             <Label Content="[type tags]" Background="White" />
@@ -188,30 +182,6 @@
                             </ItemsControl>
 
                         </DockPanel>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
                     </Grid>
                 </Grid>
