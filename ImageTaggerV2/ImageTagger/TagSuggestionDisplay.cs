@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Threading;
 using System.Timers;
 using System.Windows;
 using System.Windows.Controls;
@@ -47,15 +48,36 @@ namespace ImageTagger
         ItemsControl TagSuggestion { get { return main.tagSuggestionDisplay; } }
 
         private ObservableCollection<SuggestedTag> SuggestedTags { get; } = new ObservableCollection<SuggestedTag>();
-        
+
+        private bool isDormant = false;
+
         public TagSuggestionDisplay(MainWindow main)
         {
             this.main = main;
-            TagSuggestion.ItemsSource = SuggestedTags;
             main.PreviewMainWindowUnload += UnsubscribeFromAllEvents;
-            main.imageGrid.SelectionChanged += HandleGridSelectionChanged;
 
+            TagSuggestion.ItemsSource = SuggestedTags;
+
+            main.imageGrid.SelectionChanged += HandleGridSelectionChanged;
             main.reloadTagSuggestions.Click += HandleChangeSuggestionsClickEvent;
+            main.closeTagSuggestions.Click += HandleCloseSuggestionsClickEvent;
+
+            CloseSuggestionsPanel();
+        }
+
+        private void UnsubscribeFromAllEvents(object sender, EventArgs e)
+        {
+            main.PreviewMainWindowUnload -= UnsubscribeFromAllEvents;
+            // unsubscribe from anything else here
+
+            main.imageGrid.SelectionChanged -= HandleGridSelectionChanged;
+            main.reloadTagSuggestions.Click -= HandleChangeSuggestionsClickEvent;
+            main.closeTagSuggestions.Click -= HandleCloseSuggestionsClickEvent;
+        }
+
+        private void HandleCloseSuggestionsClickEvent(object sender, RoutedEventArgs e)
+        {
+            CloseSuggestionsPanel();
         }
 
         private void HandleGridSelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -65,7 +87,48 @@ namespace ImageTagger
 
         private void HandleChangeSuggestionsClickEvent(object sender, RoutedEventArgs e)
         {
+            OpenSuggestionsPanel();
+        }
+
+        private void OpenSuggestionsPanel()
+        {
+            //vvv probably uneccessary vvv
+            //  set grid splitter position to 1/2 the total
+            //  main.suggestedTagsGridArea.RowDefinitions[0].Height = new GridLength(1, GridUnitType.Star);
+            //  main.suggestedTagsGridArea.RowDefinitions[1].Height = new GridLength(1, GridUnitType.Star);
+            //enable and show display tags area
+            main.tagSuggestionDisplay.IsEnabled = true;
+            main.tagSuggestionDisplay.Visibility = Visibility.Visible;
+            //enable and show grid splitter
+            main.suggestedTagsSplitter.IsEnabled = true;
+            main.suggestedTagsSplitter.Visibility = Visibility.Visible;
+            //enable and show closeSuggestions button
+            main.closeTagSuggestions.IsEnabled = true;
+            main.closeTagSuggestions.Visibility = Visibility.Visible;
+            //set isDormant to false
+            isDormant = false;
+            //call change suggestions to get new suggestions
+
             ChangeSuggestions();
+        }
+        private void CloseSuggestionsPanel()
+        {
+            //  vvv possibly uneccessary vvv
+            //  set grid splitter position to min
+            //  main.suggestedTagsGridArea.RowDefinitions[1].Height = new GridLength(0);
+            //disable and hide display tags area
+            main.tagSuggestionDisplay.IsEnabled = false;
+            main.tagSuggestionDisplay.Visibility = Visibility.Hidden;
+            //disable and hide grid splitter
+            main.suggestedTagsSplitter.IsEnabled = false;
+            main.suggestedTagsSplitter.Visibility = Visibility.Hidden;
+            //disable and hide closeSuggestions button
+            main.closeTagSuggestions.IsEnabled = false;
+            main.closeTagSuggestions.Visibility = Visibility.Collapsed;
+            //set isDormant to true
+            isDormant = true;
+            //clear tagSuggestions
+            SuggestedTags.Clear();
         }
 
         private struct Coordinate : IEquatable<Coordinate> {
@@ -105,6 +168,7 @@ namespace ImageTagger
         
         private void ChangeSuggestions()
         {
+            if (isDormant) return;
             var used = new HashSet<Coordinate>();
             SuggestedTags.Clear();
             //max = actualheight / tagheight rounded up so at least something is visible
@@ -130,12 +194,6 @@ namespace ImageTagger
                     }
                 }
             }
-        }
-
-        private void UnsubscribeFromAllEvents(object sender, EventArgs e)
-        {
-            main.PreviewMainWindowUnload -= UnsubscribeFromAllEvents;
-            // unsubscribe from anything else here
         }
 
     }

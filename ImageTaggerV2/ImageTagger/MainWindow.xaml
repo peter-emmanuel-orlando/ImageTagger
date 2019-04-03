@@ -60,17 +60,24 @@
                 <Grid Background="#33F2FF00" DockPanel.Dock="Top">
                     <Image x:Name="mainImageDisplay" Source="{Binding ImgSource}"/>
                     <DockPanel ScrollViewer.VerticalScrollBarVisibility="Disabled" ScrollViewer.CanContentScroll="True">
-                        <DockPanel VerticalAlignment="Bottom" Panel.ZIndex="3" DockPanel.Dock="Bottom" MinWidth="70" LastChildFill="False" >
+                        <DockPanel VerticalAlignment="Bottom" Panel.ZIndex="3" DockPanel.Dock="Bottom" MinWidth="70" LastChildFill="False" HorizontalAlignment="Right" >
                             <Button x:Name="reloadTagSuggestions" Content="Load Suggestions"/>
-                            <Button x:Name="clearTagSuggestions" Content="Clear Suggestions"/>
+                            <Button x:Name="closeTagSuggestions" Content="Close Suggestions"/>
+                            <DockPanel VerticalAlignment="Top" HorizontalAlignment="Right" Panel.ZIndex="3">
+                                <Grid HorizontalAlignment="Right">
+                                    <Label Content="[type tags]" Background="White" />
+                                    <TextBox x:Name="addNewTag_TextBox" TextWrapping="Wrap" MinWidth="60" MinHeight="20" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" Background="#FFFAFAFA" Foreground="Black" Opacity="0"/>
+                                </Grid>
+                                <Button x:Name="addNewTag_AcceptButton" HorizontalAlignment="Right" Content="✓" />
+                            </DockPanel>
                         </DockPanel>
-                        <Grid DockPanel.Dock="Bottom" Panel.ZIndex="2">
+                        <Grid x:Name="suggestedTagsGridArea" DockPanel.Dock="Bottom" Panel.ZIndex="2">
                             <Grid.RowDefinitions>
-                                <RowDefinition/>
+                                <RowDefinition Height="2*"/>
                                 <!-- this puts a limit on the gridsplitter -->
                                 <RowDefinition/>
                             </Grid.RowDefinitions>
-                            <GridSplitter HorizontalAlignment="Stretch" Height="5" VerticalAlignment="Bottom" Grid.ColumnSpan="999999" Panel.ZIndex="2"/>
+                            <GridSplitter x:Name="suggestedTagsSplitter" HorizontalAlignment="Stretch" Height="5" VerticalAlignment="Bottom" Grid.ColumnSpan="999999" Panel.ZIndex="2"/>
 
 
 
@@ -204,13 +211,6 @@
 
 
                         </Grid>
-                    </DockPanel>
-                    <DockPanel VerticalAlignment="Top" HorizontalAlignment="Right" Panel.ZIndex="3">
-                        <Grid HorizontalAlignment="Right">
-                            <Label Content="[type tags]" Background="White" />
-                            <TextBox x:Name="addNewTag_TextBox" TextWrapping="Wrap" MinWidth="60" MinHeight="20" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" Background="#FFFAFAFA" Foreground="Black" Opacity="0"/>
-                        </Grid>
-                        <Button x:Name="addNewTag_AcceptButton" HorizontalAlignment="Right" Content="✓" />
                     </DockPanel>
                 </Grid>
             </DockPanel>
