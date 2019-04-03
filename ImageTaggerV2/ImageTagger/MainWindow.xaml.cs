@@ -50,7 +50,11 @@ namespace ImageTagger
             //testing out some stuff
             List<char> tmp;
             var fixedTag = TagFormatUtil.Fix("ASDFAsrQreF$t#$^H^$WrsTdfGweG WtHRYH3% #5hEY 5H Y", TagCasing.KebabCase, out tmp);
-            Debug.WriteLine(fixedTag);
+            SettingsPersistanceUtil.RecordSetting("testVal1", "val1");
+            SettingsPersistanceUtil.RecordSetting("testVal2", "val2");
+            SettingsPersistanceUtil.RecordSetting("testVal3", "val3");
+            SettingsPersistanceUtil.RecordSetting("testVal4", "val4");
+            SettingsPersistanceUtil.RecordSetting("testVal5", "val5");
             //Thread.Sleep(99999999);
             ///end test section
 

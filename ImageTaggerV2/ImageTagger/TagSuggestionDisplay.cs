@@ -253,7 +253,7 @@ namespace ImageTagger
 
         private void HandleTagSuggestionCategoryButtonClickEvent(object sender, RoutedEventArgs e)
         {
-
+            throw new NotImplementedException();
         }
     }
 }

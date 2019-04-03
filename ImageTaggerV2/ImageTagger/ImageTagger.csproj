@@ -37,6 +37,7 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Data" />
+    <Reference Include="System.Web.Extensions" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
     <Reference Include="Microsoft.CSharp" />
@@ -57,6 +58,8 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="AddNewTagComponent.cs" />
+    <Compile Include="AllTagsRecord.cs" />
+    <Compile Include="ApplicationSettingsPersistanceUtil.cs" />
     <Compile Include="ImageFiles.cs" />
     <Compile Include="ImageFileUtil.cs" />
     <Compile Include="ImageGridDisplay.cs" />
