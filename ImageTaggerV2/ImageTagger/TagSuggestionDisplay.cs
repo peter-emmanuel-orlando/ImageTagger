@@ -53,8 +53,14 @@ namespace ImageTagger
             this.main = main;
             TagSuggestion.ItemsSource = SuggestedTags;
             main.PreviewMainWindowUnload += UnsubscribeFromAllEvents;
+            main.imageGrid.SelectionChanged += HandleGridSelectionChanged;
 
             main.reloadTagSuggestions.Click += HandleChangeSuggestionsClickEvent;
+        }
+
+        private void HandleGridSelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            ChangeSuggestions();
         }
 
         private void HandleChangeSuggestionsClickEvent(object sender, RoutedEventArgs e)
@@ -132,5 +138,25 @@ namespace ImageTagger
             // unsubscribe from anything else here
         }
 
+    }
+
+    public partial class MainWindow
+    {
+
+        private void HandleTagSuggestionButtonClickEvent(object sender, RoutedEventArgs e)
+        {
+            var btn = e.OriginalSource as Button;
+            if(btn.Opacity == 0.5)
+            {
+                ImageTagsDisplay.Remove(btn.Content + "");
+                btn.Opacity = 1;
+            }
+            else
+            {
+                ImageTagsDisplay.Add(new ImageTag(btn.Content + ""));
+                btn.Opacity = 0.5;
+            }
+            ImageTagsDisplay.ApplyTagsToMainImage();
+        }
     }
 }
