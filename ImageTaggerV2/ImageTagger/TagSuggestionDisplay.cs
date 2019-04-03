@@ -197,7 +197,7 @@ namespace ImageTagger
             }
         }
         
-        private void ChangeSuggestions()
+        internal void ChangeSuggestions(string category = "")
         {
             if (isDormant) return;
             var used = new HashSet<Coordinate>();
@@ -205,7 +205,7 @@ namespace ImageTagger
             //max = actualheight / tagheight rounded up so at least something is visible
             var maxRows = (int)(1 + Math.Floor(TagSuggestion.ActualHeight / 30) % 30);
             var maxColumns = (int)(1 + Math.Floor(TagSuggestion.ActualWidth / 70) % 30);
-            var list = DirectoryTagUtil.GetSuggestedTags(main.ImageDisplay.mainImageInfo.ImgPath);
+            var list = DirectoryTagUtil.GetSuggestedTags(main.ImageDisplay.mainImageInfo.ImgPath, category);
             var r =  new Random(DateTime.UtcNow.Millisecond);
             foreach ( var suggestion in list)
             {
@@ -253,7 +253,8 @@ namespace ImageTagger
 
         private void HandleTagSuggestionCategoryButtonClickEvent(object sender, RoutedEventArgs e)
         {
-            throw new NotImplementedException();
+            var category = (e.OriginalSource as Button).Content as string;
+            TagSuggestionDisplay.ChangeSuggestions(category);
         }
     }
 }

@@ -46,7 +46,6 @@ namespace ImageTagger
         public MainWindow()
         {
             InitializeComponent();
-
             //testing out some stuff
             List<char> tmp;
             var fixedTag = TagFormatUtil.Fix("ASDFAsrQreF$t#$^H^$WrsTdfGweG WtHRYH3% #5hEY 5H Y", TagCasing.KebabCase, out tmp);

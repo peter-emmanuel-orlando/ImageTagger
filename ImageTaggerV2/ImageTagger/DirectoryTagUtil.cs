@@ -20,6 +20,12 @@ namespace ImageTagger
         public static LoadState loadState { get; private set; } = LoadState.Unloaded;
         private static readonly ConcurrentDictionary<string, HashSet<string>> tags = new ConcurrentDictionary<string, HashSet<string>>();
 
+
+        public static bool HasCategory( string category)
+        {
+            return tags.ContainsKey(category);
+        }
+
         public static HashSet<string> GetTagCategories()
         {
             return new HashSet<string>(tags.Keys);
@@ -33,10 +39,11 @@ namespace ImageTagger
                 return new HashSet<string>();
         }
 
-        public static List<TagSuggestion> GetSuggestedTags(string imgFilePath)
+        public static List<TagSuggestion> GetSuggestedTags(string imgFilePath, string category = "")
         {
             var r = new Random(DateTime.UtcNow.Millisecond);
-            var tmp = GetTags("loaded").Select((tagText) =>
+            if (category == "" || !HasCategory(category)) category = "loaded";
+            var tmp = GetTags(category).Select((tagText) =>
             {
                 return new TagSuggestion(new ImageTag(tagText), r.NextDouble());
             });

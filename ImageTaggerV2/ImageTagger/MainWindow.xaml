@@ -21,7 +21,7 @@
                 <ColumnDefinition MinWidth="140" Width="0*"/>
                 <ColumnDefinition MinWidth="5"/>
             </Grid.ColumnDefinitions>
-            <GridSplitter HorizontalAlignment="Left" Width="5" Background="#3FF400FF" Grid.Column="1" Panel.ZIndex="9999999" VerticalContentAlignment="Stretch"/>
+            <GridSplitter HorizontalAlignment="Left" Width="5" Background="#3FF400FF" Grid.Column="1" Panel.ZIndex="9999999" VerticalContentAlignment="Stretch" DragIncrement="0.1" ShowsPreview="True"/>
             <DockPanel Background="#FFFEFFEC" Grid.Column="1">
                 <DockPanel Background="#66008CFF" VerticalAlignment="Top" DockPanel.Dock="Top">
                     <Label Content="Label"/>
