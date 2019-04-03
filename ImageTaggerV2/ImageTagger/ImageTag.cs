@@ -14,7 +14,8 @@ namespace ImageTagger_DataModels
 
         public ImageTag(string tagName)
         {
-            TagName = tagName;
+            var dump = new System.Collections.Generic.List<char>();
+            TagName = TagFormatUtil.Fix( tagName, TagCasing.SnakeCase, out dump );
         }
 
         public bool IsEmpty()

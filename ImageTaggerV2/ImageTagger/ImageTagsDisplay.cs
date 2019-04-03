@@ -87,14 +87,14 @@ namespace ImageTagger
         public bool Add(ImageTag item)
         {
             var success = false;
-            if( !item.IsEmpty() && !mainImageTags.Contains(item))
+            if (!item.IsEmpty() && !mainImageTags.Contains(item))
             {
                 success = true;
                 mainImageTags.Add(item);
             }
             return success;
         }
-
+        
         public bool Contains(string tagName)
         {
             return Contains(new ImageTag(tagName));
