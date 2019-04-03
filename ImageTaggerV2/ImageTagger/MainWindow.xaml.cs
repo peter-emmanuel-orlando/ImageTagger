@@ -45,11 +45,15 @@ namespace ImageTagger
 
         public MainWindow()
         {
+            InitializeComponent();
+
+            //testing out some stuff
             List<char> tmp;
             var fixedTag = TagFormatUtil.Fix("ASDFAsrQreF$t#$^H^$WrsTdfGweG WtHRYH3% #5hEY 5H Y", TagCasing.KebabCase, out tmp);
             Debug.WriteLine(fixedTag);
             //Thread.Sleep(99999999);
-            InitializeComponent();
+            ///end test section
+
             PersistanceUtil.LoadLocations();
             ImageFiles.FilesLoaded += HandleFilesReloaded;
             ImageFiles.Load();
