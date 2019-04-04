@@ -60,6 +60,9 @@
     <Compile Include="AddNewTagComponent.cs" />
     <Compile Include="AllTagsRecord.cs" />
     <Compile Include="ApplicationSettingsPersistanceUtil.cs" />
+    <Compile Include="EditMyTags.xaml.cs">
+      <DependentUpon>EditMyTags.xaml</DependentUpon>
+    </Compile>
     <Compile Include="ImageFiles.cs" />
     <Compile Include="ImageFileUtil.cs" />
     <Compile Include="ImageGridDisplay.cs" />
@@ -74,6 +77,10 @@
     <Compile Include="TagFormatUtil.cs" />
     <Compile Include="TagSuggestionDisplay.cs" />
     <Compile Include="ThreadSafeRandom.cs" />
+    <Page Include="EditMyTags.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>

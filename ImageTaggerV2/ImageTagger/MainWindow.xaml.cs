@@ -51,9 +51,11 @@ namespace ImageTagger
             AllTagsRecord.RecordTag("artStyle", "impressionist");
             AllTagsRecord.RecordTag("landscape", "evergreen");
 
-            Debug.WriteLine("retreived setting for sexy: " + SettingsPersistanceUtil.RetreiveSetting("sexy"));
-            Debug.WriteLine("retreived tags for sexy: " + String.Join(", ", AllTagsRecord.RetreiveTags("sexy")));
+            Debug.WriteLine("retreived setting for artStyle: " + SettingsPersistanceUtil.RetreiveSetting("artStyle"));
+            Debug.WriteLine("retreived tags for artStyle: " + String.Join(", ", AllTagsRecord.RetreiveTags("artStyle")));
             Debug.WriteLine("retreived tags for landscape: " + String.Join(", ", AllTagsRecord.RetreiveTags("landscape")));
+            var tmp = new EditMyTags();
+            tmp.ShowDialog();
             //Thread.Sleep(99999999);
             ///end test section
 
@@ -84,6 +86,11 @@ namespace ImageTagger
         protected override void OnClosing(CancelEventArgs e)
         {
             base.OnClosing(e);
+        }
+
+        private void EditTagsRecord_MenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            
         }
     }
 }

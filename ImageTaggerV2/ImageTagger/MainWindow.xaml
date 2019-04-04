@@ -254,6 +254,11 @@
                             <Image Source="Resources/64b6fbdc3036fe793216621435b981d3.jpg" />
                         </MenuItem.Icon>
                     </MenuItem>
+                    <MenuItem x:Name="editTagsRecord_MenuItem"  Header="Edit My Tags" Click="EditTagsRecord_MenuItem_Click" >
+                        <MenuItem.Icon>
+                            <Image Source="Resources/64b6fbdc3036fe793216621435b981d3.jpg" />
+                        </MenuItem.Icon>
+                    </MenuItem>
                 </MenuItem>
                 <MenuItem x:Name="settings_MenuItem" Background="#FFF0DBFF" Header="Settings">
                     <MenuItem x:Name="randomize_MenuItem"  Header="Randomize" IsCheckable="True" StaysOpenOnClick="True" >
