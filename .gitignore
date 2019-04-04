@@ -8,6 +8,7 @@
 *.sln.docstates
 *.tagsRec
 *.tsettings
+*.private*
 
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
