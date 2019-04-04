@@ -43,6 +43,8 @@ namespace ImageTagger
         public MainWindow()
         {
             InitializeComponent();
+            ImageAnalysisAPI.ImageAnalysis.GetSuggestions();
+            /*
             //testing out some stuff
             SettingsPersistanceUtil.RecordSetting("artStyle", "abstract");
             SettingsPersistanceUtil.RecordSetting("artStyle", "impressionist");
@@ -56,7 +58,8 @@ namespace ImageTagger
             Debug.WriteLine("retreived tags for landscape: " + String.Join(", ", AllTagsRecord.RetreiveTags("landscape")));
             var tmp = new EditMyTags();
             tmp.ShowDialog();
-            //Thread.Sleep(99999999);
+            */
+            Thread.Sleep(99999999);
             ///end test section
 
             PersistanceUtil.LoadLocations();
