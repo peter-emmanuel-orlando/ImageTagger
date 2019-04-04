@@ -6,7 +6,7 @@ using System.Net.Cache;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
-namespace ImageTagger_DataModels// <-- change to nested namespaces
+namespace ImageTagger.DataModels
 {
     public class ImageInfo
     {

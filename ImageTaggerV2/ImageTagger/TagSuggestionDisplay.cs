@@ -1,4 +1,4 @@
-﻿using ImageTagger_DataModels;
+﻿
 using System;
 using System.Linq;
 using System.Collections.Generic;
@@ -7,6 +7,7 @@ using System.Threading;
 using System.Timers;
 using System.Windows;
 using System.Windows.Controls;
+using ImageTagger.DataModels;
 
 namespace ImageTagger
 {

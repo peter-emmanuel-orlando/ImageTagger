@@ -1,4 +1,5 @@
-﻿using ImageTagger_DataModels;
+﻿
+using ImageTagger.DataModels;
 using Microsoft.WindowsAPICodePack.Shell;
 using Microsoft.WindowsAPICodePack.Shell.PropertySystem;
 using System;

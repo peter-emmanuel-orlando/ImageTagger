@@ -4,18 +4,42 @@ using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
 
-namespace ImageTagger_DataModels
+namespace ImageTagger.DataModels
 {
-    public class ImageTag : IComparable<ImageTag>
+    public class ImageTag : ImageTag_Base, IComparable<ImageTag>
     {
-        
-        public string TagName { get; }
+
+        public override string TagName { get { return base.TagName; } }
+        public ImageTag(string tagName) : base(tagName)
+        { }
+
+        public int CompareTo(ImageTag other)
+        {
+            return base.CompareTo(other);
+        }
+    }
+
+    public class EditableImageTag : ImageTag_Base, IComparable<ImageTag>
+    {
+        public EditableImageTag(string tagName) : base(tagName)
+        { }
+
+        public int CompareTo(ImageTag other)
+        {
+            return base.CompareTo(other);
+        }
+    }
+
+    public abstract class ImageTag_Base : IComparable<ImageTag_Base>
+    {
+
+        public virtual string TagName { get; set; }
         public static readonly ImageTag NoTagsPlaceholder = new ImageTag("[no tags yet...]");
 
-        public ImageTag(string tagName)
+        public ImageTag_Base(string tagName)
         {
             var dump = new System.Collections.Generic.List<char>();
-            TagName = TagFormatUtil.Fix( tagName, TagCasing.SnakeCase, out dump );
+            TagName = TagFormatUtil.Fix(tagName, TagCasing.SnakeCase, out dump);
         }
 
         public bool IsEmpty()
@@ -23,7 +47,7 @@ namespace ImageTagger_DataModels
             return TagName == null || TagName == "";
         }
 
-        public int CompareTo(ImageTag other)
+        public int CompareTo(ImageTag_Base other)
         {
             return TagName.CompareTo(other.TagName);
         }

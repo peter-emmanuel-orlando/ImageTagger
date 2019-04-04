@@ -1,4 +1,5 @@
-﻿using ImageTagger_DataModels;
+﻿
+using ImageTagger.DataModels;
 using System;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;

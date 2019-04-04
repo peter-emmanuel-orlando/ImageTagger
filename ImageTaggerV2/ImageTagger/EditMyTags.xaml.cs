@@ -1,5 +1,8 @@
-﻿using System;
+﻿
+using ImageTagger.DataModels;
+using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -14,6 +17,7 @@ using System.Windows.Shapes;
 
 namespace ImageTagger
 {
+
     /// <summary>
     /// Interaction logic for EditMyTags.xaml
     /// </summary>
@@ -22,6 +26,7 @@ namespace ImageTagger
         public EditMyTags()
         {
             InitializeComponent();
+            /*
             tabcontrol.ItemsSource = new List<object>(new object[]
             {
                 new {
@@ -37,11 +42,29 @@ namespace ImageTagger
                         Tags = new List<object>(new object[]{ new {TagName = "l1u1g1s1" }, new {TagName = "lu2g2s2" }, new {TagName = "lu3g3s" }, })
                 }
             });
-        }
+            */
+            tabcontrol.ItemsSource = new List<TagsRecordViewModel>(new TagsRecordViewModel[]{
+                new TagsRecordViewModel("giif", new ObservableCollection<ImageTag>(new ImageTag[]{ new ImageTag("test1"),new ImageTag("test6"),new ImageTag("test2"), })),
+                new TagsRecordViewModel("gfgfhgj", new ObservableCollection<ImageTag>(new ImageTag[]{ new ImageTag("jhghfg"),new ImageTag("hgfd"),new ImageTag("sdftg"), })),
+                new TagsRecordViewModel("sdfg", new ObservableCollection<ImageTag>(new ImageTag[]{ new ImageTag("5467"),new ImageTag("654"),new ImageTag("78965"), })),
+            });
 
-        private void TabControl_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        }
+    }
+
+}
+
+namespace ImageTagger.DataModels
+{
+    public class TagsRecordViewModel
+    {
+        public TagsRecordViewModel(string category, ObservableCollection<ImageTag> tags)
         {
-
+            Category = category;
+            Tags = tags;
         }
+
+        public string Category { get; set; } = "";
+        public ObservableCollection<ImageTag> Tags { get; } = new ObservableCollection<ImageTag>();
     }
 }

@@ -6,9 +6,11 @@
         xmlns:local="clr-namespace:ImageTagger"
         mc:Ignorable="d"
         Title="Edit My Tags" Height="450" Width="800">
-    <Grid>
-
-        <TabControl x:Name="tabcontrol"  SelectionChanged="TabControl_SelectionChanged" Margin="0,215,-0.4,0">
+    <DockPanel>
+        <Grid DockPanel.Dock="Top">
+            <TextBlock />
+        </Grid>
+        <TabControl x:Name="tabcontrol" DockPanel.Dock="Top">
             <TabControl.ItemTemplate>
                 <DataTemplate>
                     <TextBlock Text="{Binding Category}" />
@@ -17,7 +19,7 @@
             <TabControl.ContentTemplate>
                 <DataTemplate>
                     <ScrollViewer x:Name="imageGrid_ScrollViewer"  >
-                        <ListBox x:Name="imageGrid" ItemsSource="{  Binding Tags }" ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Hidden" VerticalContentAlignment="Top" Background="#FF00E8FF" ScrollViewer.CanContentScroll="False">
+                        <ListBox x:Name="imageGrid" ItemsSource="{Binding Tags}" ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Hidden" VerticalContentAlignment="Top" Background="#FF00E8FF" ScrollViewer.CanContentScroll="False">
                             <!-- listbox.template portion essentially changes the controls to be the same as listbox, but without the scrollviewer in it. -->
                             <!-- see answer here: https://stackoverflow.com/questions/2976240/how-can-make-scrollviewer-scroll-when-mouse-is-over-any-content -->
                             <ListBox.Template>
@@ -34,7 +36,7 @@
                             </ListBox.ItemsPanel>
                             <ListBox.ItemTemplate>
                                 <DataTemplate>
-                                    <TextBlock Text="{Binding TagName}" />
+                                    <TextBox Text="{Binding TagName}" />
                                 </DataTemplate>
                             </ListBox.ItemTemplate>
                         </ListBox>
@@ -42,14 +44,6 @@
                 </DataTemplate>
             </TabControl.ContentTemplate>
         </TabControl>
-        <TabControl HorizontalAlignment="Left" Height="100" Margin="313,104,0,0" VerticalAlignment="Top" Width="100">
-            <TabItem Header="TabItem">
-                <Grid Background="#FFE5E5E5"/>
-            </TabItem>
-            <TabItem Header="TabItem">
-                <Grid Background="#FFE5E5E5"/>
-            </TabItem>
-        </TabControl>
 
 
 
@@ -61,5 +55,6 @@
 
 
 
-    </Grid>
+
+    </DockPanel>
 </Window>

@@ -1,4 +1,4 @@
-﻿using ImageTagger_DataModels;
+﻿
 using Microsoft.WindowsAPICodePack.Shell;
 using System;
 using System.Collections.Generic;
