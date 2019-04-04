@@ -7,6 +7,7 @@ using System.Linq;
 using System;
 using System.Collections.Concurrent;
 using ImageTagger.DataModels;
+using System.Diagnostics;
 
 namespace ImageTagger
 {
@@ -40,7 +41,7 @@ namespace ImageTagger
                 return new HashSet<string>();
         }
 
-        public static List<TagSuggestion> GetSuggestedTags(string imgFilePath, string category = "")
+        public static List<TagSuggestion> GetTagSuggestions(string imgFilePath, string category = "")
         {
             var r = new Random(DateTime.UtcNow.Millisecond);
             if (category == "" || !HasCategory(category)) category = "loaded";
@@ -51,6 +52,23 @@ namespace ImageTagger
             var result = new List<TagSuggestion>(tmp);
             result.Shuffle();
             return result;
+        }
+
+
+        public static void GetImageAnalysisTags( string imagePath, Action<List<TagSuggestion>> callback)
+        {
+            var res = ImageAnalysisAPI.ImageAnalysis.RequestAnalysis(imagePath);
+             res.ContinueWith( async (task) =>
+             {
+                 var response = await task;
+                 var result = new List<TagSuggestion>();
+                 foreach (var concept in response)
+                 {
+                     result.Add(new TagSuggestion( new ImageTag(concept.Item1), concept.Item2));
+                     //Debug.WriteLine($"{concept.Item1}: {concept.Item2}");
+                 }
+                 App.Current.Dispatcher.Invoke(() => callback(result));
+             });
         }
 
         static DirectoryTagUtil()

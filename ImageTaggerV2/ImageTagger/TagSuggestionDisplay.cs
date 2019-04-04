@@ -8,6 +8,8 @@ using System.Timers;
 using System.Windows;
 using System.Windows.Controls;
 using ImageTagger.DataModels;
+using System.Diagnostics;
+using System.Collections;
 
 namespace ImageTagger
 {
@@ -17,22 +19,24 @@ namespace ImageTagger
     /// 
 
 
-    public class SuggestedTag
+    public class SuggestedTagGridItem
     {
-        public SuggestedTag(string tagText, int row, int column)
+        public SuggestedTagGridItem(string tagText, int row, int column, string color)
         {
             tag = new ImageTag( tagText);
             // 0 and 11 are used for spacing
             Row = row.Clamp(1, 10);
             Column = column;
+            Color = color;
         }
 
         public string TagText { get { return tag.TagName; } }
         private ImageTag tag { get; }
         public int Row { get; }
         public int Column { get; }
+        public string Color { get; } = "#FFFF69B4";
 
-        public static implicit operator ImageTag(SuggestedTag sTag)
+        public static implicit operator ImageTag(SuggestedTagGridItem sTag)
         {
             return sTag.tag;
         }
@@ -52,14 +56,15 @@ namespace ImageTagger
 
         public string CategoryName { get; }
     }
-    
+
 
     public class TagSuggestionDisplay
     {
         MainWindow main { get; }
         ItemsControl TagSuggestion { get { return main.tagSuggestionDisplay; } }
 
-        private ObservableCollection<SuggestedTag> SuggestedTags { get; } = new ObservableCollection<SuggestedTag>();
+        private HashSet<Coordinate> UsedPositions { get; } = new HashSet<Coordinate>();
+        private ObservableCollection<SuggestedTagGridItem> SuggestedTagGridItems { get; } = new ObservableCollection<SuggestedTagGridItem>();
         private ObservableCollection<TagCategory> TagCategories { get; } = new ObservableCollection<TagCategory>();
 
         private bool isDormant = false;
@@ -69,7 +74,7 @@ namespace ImageTagger
             this.main = main;
             main.PreviewMainWindowUnload += UnsubscribeFromAllEvents;
 
-            TagSuggestion.ItemsSource = SuggestedTags;
+            TagSuggestion.ItemsSource = SuggestedTagGridItems;
             main.tagSuggestionCategoriesDisplay.ItemsSource = TagCategories;
 
             main.imageGrid.SelectionChanged += HandleGridSelectionChanged;
@@ -95,7 +100,7 @@ namespace ImageTagger
         private void HandleTagsReloadedEvent(object sender, EventArgs e)
         {
             TagCategories.Clear();
-            foreach( var category in DirectoryTagUtil.GetTagCategories())
+            foreach (var category in DirectoryTagUtil.GetTagCategories())
             {
                 TagCategories.Add(new TagCategory(category));
             }
@@ -166,12 +171,12 @@ namespace ImageTagger
             //set isDormant to true
             isDormant = true;
             //clear tagSuggestions
-            SuggestedTags.Clear();
+            SuggestedTagGridItems.Clear();
         }
 
         private struct Coordinate : IEquatable<Coordinate> {
             public readonly int row, column;
-            public Coordinate(int x, int y){ this.row = x; this.column = y; }
+            public Coordinate(int x, int y) { this.row = x; this.column = y; }
 
             public override bool Equals(object obj)
             {
@@ -203,39 +208,50 @@ namespace ImageTagger
                 return "row:" + row + " column:" + column;
             }
         }
-        
+
         internal void ChangeSuggestions(string category = "")
         {
             if (isDormant) return;
-            var used = new HashSet<Coordinate>();
-            SuggestedTags.Clear();
-            //max = actualheight / tagheight rounded up so at least something is visible
+            SuggestedTagGridItems.Clear();
+            UsedPositions.Clear();
+            var mainImgPath = main.ImageDisplay.mainImageInfo.ImgPath;
+            AddSuggestions(DirectoryTagUtil.GetTagSuggestions(mainImgPath, category));
+            DirectoryTagUtil.GetImageAnalysisTags(mainImgPath, (result) => {
+                AddSuggestions(result, "#bcf4d3");
+            });
+        }
+
+
+
+        private void AddSuggestions(IEnumerable<TagSuggestion> toAdd, string color = "#7a776f")
+        {
             var maxRows = (int)(1 + Math.Floor(TagSuggestion.ActualHeight / 30) % 30);
             var maxColumns = (int)(1 + Math.Floor(TagSuggestion.ActualWidth / 70) % 30);
-            var list = DirectoryTagUtil.GetSuggestedTags(main.ImageDisplay.mainImageInfo.ImgPath, category);
-            var r =  new Random(DateTime.UtcNow.Millisecond);
-            foreach ( var suggestion in list)
+            var r = new Random(DateTime.UtcNow.Millisecond);
+            foreach (var suggestion in toAdd)
             {
                 Coordinate coord = new Coordinate();
                 for (int i = 0; i < 50; i++)
                 {
-                    if(i == 0 || used.Contains(coord))
+                    if (i == 0 || UsedPositions.Contains(coord))
                     {
                         coord = new Coordinate(1 + r.Next() % maxRows, 1 + r.Next() % maxColumns);
                     }
 
-                    if (!used.Contains(coord))
+                    if (!UsedPositions.Contains(coord))
                     {
-                        used.Add(coord);
-                        SuggestedTags.Add(new SuggestedTag(suggestion.tag.TagName, coord.row, coord.column));
+                        UsedPositions.Add(coord);
+                        try
+                        {
+                            SuggestedTagGridItems.Add(new SuggestedTagGridItem(suggestion.tag.TagName, coord.row, coord.column, color));
+                        }
+                        catch (Exception e) { Debug.WriteLine(e); }
                         break;
                     }
                 }
             }
         }
-
     }
-
 
 
     public partial class MainWindow

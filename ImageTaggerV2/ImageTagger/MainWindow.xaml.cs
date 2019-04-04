@@ -42,31 +42,16 @@ namespace ImageTagger
 
         public MainWindow()
         {
-            InitializeComponent();
-            ImageAnalysisAPI.ImageAnalysis.GetSuggestions();
-            /*
-            //testing out some stuff
-            SettingsPersistanceUtil.RecordSetting("artStyle", "abstract");
-            SettingsPersistanceUtil.RecordSetting("artStyle", "impressionist");
-            SettingsPersistanceUtil.RecordSetting("landscape", "evergreen");
-            AllTagsRecord.RecordTag("artStyle", "abstract");
-            AllTagsRecord.RecordTag("artStyle", "impressionist");
-            AllTagsRecord.RecordTag("landscape", "evergreen");
-
-            Debug.WriteLine("retreived setting for artStyle: " + SettingsPersistanceUtil.RetreiveSetting("artStyle"));
-            Debug.WriteLine("retreived tags for artStyle: " + String.Join(", ", AllTagsRecord.RetreiveTags("artStyle")));
-            Debug.WriteLine("retreived tags for landscape: " + String.Join(", ", AllTagsRecord.RetreiveTags("landscape")));
-            var tmp = new EditMyTags();
-            tmp.ShowDialog();
-            */
-            Thread.Sleep(99999999);
+            InitializeComponent();//TestProject-f23fca2eca3e.private.json
+            //VisionAPISuggestions.VisionApi.Test();
+            
+            //Thread.Sleep(99999999);
             ///end test section
 
             PersistanceUtil.LoadLocations();
             ImageFiles.FilesLoaded += HandleFilesReloaded;
             ImageFiles.Load();
         }
-
 
         private void HandleFilesReloaded(object sender, EventArgs e)
         {
@@ -91,9 +76,20 @@ namespace ImageTagger
             base.OnClosing(e);
         }
 
+        private void WatchForAdditions_UNTESTED(string path)
+        {
+            FileSystemWatcher watcher = new FileSystemWatcher();
+            watcher.Path = path;
+            watcher.NotifyFilter = NotifyFilters.LastWrite;
+            watcher.Filter = "*.*";
+            //watcher.Changed += new FileSystemEventHandler(OnChanged);
+            watcher.EnableRaisingEvents = true;
+        }
+
         private void EditTagsRecord_MenuItem_Click(object sender, RoutedEventArgs e)
         {
-            
+            var tmp = new EditMyTags();
+            tmp.ShowDialog();
         }
     }
 }

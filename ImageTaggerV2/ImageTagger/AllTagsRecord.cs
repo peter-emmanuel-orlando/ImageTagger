@@ -54,7 +54,7 @@ namespace ImageTagger
             Persist();
         }
 
-        private static HashSet<string> reservedCategories { get; } = new HashSet<string>(new string[] { "all", "loaded" });
+        private static HashSet<string> reservedCategories { get; } = new HashSet<string>(new string[] { "all", "loaded", "insight" });
         public static void AddCategory(string category)
         {
             category = FormatCategory(category);
