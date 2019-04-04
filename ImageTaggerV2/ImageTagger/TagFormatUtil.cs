@@ -21,6 +21,12 @@ namespace ImageTagger
         //rules:
         //  Allowed chars: letters, numbers, dash and underscore
         //  Possible  cases: CamelCase, pascalCase, kebab-case, snake_case
+        public static string Fix(string tagText, TagCasing casingFormat = TagCasing.SnakeCase)
+        {
+            var dump = new List<char>();
+            return Fix(tagText, casingFormat, out dump);
+
+        }
         public static string Fix( string tagText, TagCasing casingFormat, out List<char> rejectedChars)
         {
             var result = FilterChars(tagText, out rejectedChars);

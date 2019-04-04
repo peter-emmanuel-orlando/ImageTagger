@@ -72,13 +72,13 @@ namespace ImageTagger
             try
             {
                 var filename = Path.Combine(SettingsPersistanceDirectory, defaultSettingsFilename + settingsFileExtension);
-                string[] files = Directory.GetFiles(SettingsPersistanceDirectory, settingsFileExtension);
+                string[] files = Directory.GetFiles(SettingsPersistanceDirectory, "*" + settingsFileExtension);
                 Array.Sort(files);
                 if (files.Length > 0) filename = files[0];
                 fs = new FileStream(filename, FileMode.OpenOrCreate);
                 file = new StreamReader(fs);
                 var fileString = file.ReadToEnd();
-                var ledger = new JavaScriptSerializer().Deserialize<Dictionary<string, string>>(fileString);
+                ledger = new JavaScriptSerializer().Deserialize<Dictionary<string, string>>(fileString);
                 Debug.WriteLine("successfully loaded settings.\n" + fileString);
                 success = true;
             }

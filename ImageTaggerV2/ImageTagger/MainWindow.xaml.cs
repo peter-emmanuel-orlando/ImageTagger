@@ -30,9 +30,6 @@ namespace ImageTagger
 
         private bool randomizeImages = false;
 
-        protected const string locFileName = @"lastSession.loc";
-        protected const string genericLocFile = @"SourceDirectory:SourcePlaceHolder|DestinationDirectory:DestinationPlaceHolder";
-
         ///this is the generic, come back and fix
         public event EventHandler PreviewMainWindowUnload;
 
@@ -47,14 +44,17 @@ namespace ImageTagger
         {
             InitializeComponent();
             //testing out some stuff
-            List<char> tmp;
-            var fixedTag = TagFormatUtil.Fix("ASDFAsrQreF$t#$^H^$WrsTdfGweG WtHRYH3% #5hEY 5H Y", TagCasing.KebabCase, out tmp);
-            SettingsPersistanceUtil.RecordSetting("testVal1", "val1");
-            SettingsPersistanceUtil.RecordSetting("testVal2", "val2");
-            SettingsPersistanceUtil.RecordSetting("testVal3", "val3");
-            SettingsPersistanceUtil.RecordSetting("testVal4", "val4");
-            SettingsPersistanceUtil.RecordSetting("testVal5", "val5");
-            //Thread.Sleep(99999999);
+            SettingsPersistanceUtil.RecordSetting("artStyle", "abstract");
+            SettingsPersistanceUtil.RecordSetting("artStyle", "impressionist");
+            SettingsPersistanceUtil.RecordSetting("landscape", "evergreen");
+            AllTagsRecord.RecordTag("artStyle", "abstract");
+            AllTagsRecord.RecordTag("artStyle", "impressionist");
+            AllTagsRecord.RecordTag("landscape", "evergreen");
+
+            Debug.WriteLine("retreived setting for sexy: " + SettingsPersistanceUtil.RetreiveSetting("sexy"));
+            Debug.WriteLine("retreived tags for sexy: " + String.Join(", ", AllTagsRecord.RetreiveTags("sexy")));
+            Debug.WriteLine("retreived tags for landscape: " + String.Join(", ", AllTagsRecord.RetreiveTags("landscape")));
+            Thread.Sleep(99999999);
             ///end test section
 
             PersistanceUtil.LoadLocations();
