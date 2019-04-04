@@ -133,6 +133,9 @@ namespace ImageTagger
             //enable and show closeSuggestions button
             main.closeTagSuggestions.IsEnabled = true;
             main.closeTagSuggestions.Visibility = Visibility.Visible;
+            //disable and collapse openSuggestions button
+            main.reloadTagSuggestions.IsEnabled = false;
+            main.reloadTagSuggestions.Visibility = Visibility.Collapsed;
             //set isDormant to false
             isDormant = false;
             //call change suggestions to get new suggestions
@@ -156,6 +159,9 @@ namespace ImageTagger
             //disable and hide closeSuggestions button
             main.closeTagSuggestions.IsEnabled = false;
             main.closeTagSuggestions.Visibility = Visibility.Collapsed;
+            //enable and show openSuggestions button
+            main.reloadTagSuggestions.IsEnabled = true;
+            main.reloadTagSuggestions.Visibility = Visibility.Visible;
             //set isDormant to true
             isDormant = true;
             //clear tagSuggestions

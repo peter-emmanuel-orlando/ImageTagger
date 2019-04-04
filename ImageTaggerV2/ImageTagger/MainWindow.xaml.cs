@@ -54,7 +54,7 @@ namespace ImageTagger
             Debug.WriteLine("retreived setting for sexy: " + SettingsPersistanceUtil.RetreiveSetting("sexy"));
             Debug.WriteLine("retreived tags for sexy: " + String.Join(", ", AllTagsRecord.RetreiveTags("sexy")));
             Debug.WriteLine("retreived tags for landscape: " + String.Join(", ", AllTagsRecord.RetreiveTags("landscape")));
-            Thread.Sleep(99999999);
+            //Thread.Sleep(99999999);
             ///end test section
 
             PersistanceUtil.LoadLocations();

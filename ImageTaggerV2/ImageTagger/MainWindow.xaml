@@ -21,7 +21,7 @@
                 <ColumnDefinition MinWidth="140" Width="0*"/>
                 <ColumnDefinition MinWidth="5"/>
             </Grid.ColumnDefinitions>
-            <GridSplitter HorizontalAlignment="Left" Width="5" Background="#3FF400FF" Grid.Column="1" Panel.ZIndex="9999999" VerticalContentAlignment="Stretch" DragIncrement="0.1" ShowsPreview="True"/>
+            <GridSplitter x:Name="imageGridSplitter" Width="5" Background="#19000000" Grid.Column="1" Panel.ZIndex="9999999" VerticalContentAlignment="Stretch" DragIncrement="0.1" ShowsPreview="True" HorizontalAlignment="Left" Margin="-2.5,0,0,0"/>
             <DockPanel Background="#FFFEFFEC" Grid.Column="1">
                 <DockPanel Background="#66008CFF" VerticalAlignment="Top" DockPanel.Dock="Top">
                     <Label Content="Label"/>
@@ -68,21 +68,22 @@
                         <GridSplitter x:Name="suggestedTagsSplitter" HorizontalAlignment="Stretch" Height="5" VerticalAlignment="Bottom" Grid.ColumnSpan="999999" Panel.ZIndex="2" Background="#33000000" BorderBrush="Black"/>
                         <DockPanel Grid.Row="2" ScrollViewer.VerticalScrollBarVisibility="Disabled">
                             
-                            <Border DockPanel.Dock="Bottom">
+                            <Border DockPanel.Dock="Bottom" Padding="0">
                                 <DockPanel VerticalAlignment="Bottom" Panel.ZIndex="3" MinWidth="70" >
-                                    <DockPanel VerticalAlignment="Top" HorizontalAlignment="Right" Panel.ZIndex="3" DockPanel.Dock="Right">
+                                    <Button x:Name="reloadTagSuggestions" Content="Suggest"/>
+                                    <Button x:Name="closeTagSuggestions" Content="Close"/>
+                                    <Label Content="or" Background="#33000000"></Label>
+                                    <DockPanel VerticalAlignment="Top" HorizontalAlignment="Right" Panel.ZIndex="3">
                                         <Grid HorizontalAlignment="Right">
                                             <Label Content="[type tags]" Background="White" />
                                             <TextBox x:Name="addNewTag_TextBox" TextWrapping="Wrap" MinWidth="60" MinHeight="20" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" Background="#FFFAFAFA" Foreground="Black" Opacity="0"/>
                                         </Grid>
-                                        <Button x:Name="addNewTag_AcceptButton" HorizontalAlignment="Right" Content="✓" />
+                                        <Button x:Name="addNewTag_AcceptButton" HorizontalAlignment="Right" Content="  ✓  " />
                                     </DockPanel>
-                                    <Button x:Name="reloadTagSuggestions" Content="Suggest" DockPanel.Dock="Right"/>
-                                    <Button x:Name="closeTagSuggestions" Content="Close" DockPanel.Dock="Right"/>
                                     <!-- bolow is the display for categories for suggested tags -->
                                     <Border>
                                         <ScrollViewer x:Name="tagSuggestionCategoriesDisplay_Viewer" VerticalScrollBarVisibility="Disabled" HorizontalScrollBarVisibility="Hidden" HorizontalContentAlignment="Right" VerticalContentAlignment="Stretch" FlowDirection="RightToLeft" Background="#33000000" >
-                                            <ListBox x:Name="tagSuggestionCategoriesDisplay" ScrollViewer.HorizontalScrollBarVisibility="Hidden" ScrollViewer.VerticalScrollBarVisibility="Disabled" VerticalContentAlignment="Center" Background="{x:Null}" ScrollViewer.CanContentScroll="False" HorizontalContentAlignment="Right">
+                                            <ListBox x:Name="tagSuggestionCategoriesDisplay" ScrollViewer.HorizontalScrollBarVisibility="Hidden" ScrollViewer.VerticalScrollBarVisibility="Disabled" VerticalContentAlignment="Center" Background="{x:Null}" ScrollViewer.CanContentScroll="False" HorizontalContentAlignment="Right" FlowDirection="LeftToRight">
                                                 <!-- listbox.template portion essentially changes the controls to be the same as listbox, but without the scrollviewer in it. -->
                                                 <!-- see answer here: https://stackoverflow.com/questions/2976240/how-can-make-scrollviewer-scroll-when-mouse-is-over-any-content -->
                                                 <ListBox.Template>
