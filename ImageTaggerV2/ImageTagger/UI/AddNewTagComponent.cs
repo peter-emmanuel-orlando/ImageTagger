@@ -32,7 +32,7 @@ namespace ImageTagger
 
         private void HandlePreviewTextInput(object sender, TextCompositionEventArgs e)
         {
-            var isInvalid = TagFormatUtil.ContainsInvalidCharacters(e.Text);
+            var isInvalid = FormatUtil.ContainsInvalidCharacters(e.Text);
             if (isInvalid) e.Handled = true;
         }
 

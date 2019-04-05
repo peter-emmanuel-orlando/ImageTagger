@@ -16,22 +16,28 @@ namespace ImageTagger
         //LowerCase,
         //UpperCase,
     }
-    public static class TagFormatUtil
+    public static class FormatUtil
     {
         //rules:
         //  Allowed chars: letters, numbers, dash and underscore
         //  Possible  cases: CamelCase, pascalCase, kebab-case, snake_case
-        public static string Fix(string tagText, TagCasing casingFormat = TagCasing.SnakeCase)
+        public static string FixTag(string tagText, TagCasing casingFormat = TagCasing.SnakeCase)
         {
             var dump = new List<char>();
-            return Fix(tagText, casingFormat, out dump);
+            return FixTag(tagText, casingFormat, out dump);
 
         }
-        public static string Fix( string tagText, TagCasing casingFormat, out List<char> rejectedChars)
+        public static string FixTag( string tagText, TagCasing casingFormat, out List<char> rejectedChars)
         {
             var result = FilterChars(tagText, out rejectedChars);
             result = ChangeToSnakeCasing(result);
             return result;
+        }
+
+
+        public static string FixCategory(string category)
+        {
+            return category.ToLower();
         }
 
         private static string ChangeToSnakeCasing(string tagText)

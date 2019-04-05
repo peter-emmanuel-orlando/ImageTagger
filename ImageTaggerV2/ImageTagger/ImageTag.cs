@@ -39,7 +39,7 @@ namespace ImageTagger.DataModels
         public ImageTag_Base(string tagName)
         {
             var dump = new System.Collections.Generic.List<char>();
-            TagName = TagFormatUtil.Fix(tagName, TagCasing.SnakeCase, out dump);
+            TagName = FormatUtil.FixTag(tagName, TagCasing.SnakeCase, out dump);
         }
 
         public bool IsEmpty()

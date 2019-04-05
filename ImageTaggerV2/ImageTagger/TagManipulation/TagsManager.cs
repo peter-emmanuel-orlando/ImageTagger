@@ -8,6 +8,7 @@ using System;
 using System.Collections.Concurrent;
 using ImageTagger.DataModels;
 using System.Diagnostics;
+using ImageTagger.TagManipulation.Internal;
 
 namespace ImageTagger
 {
@@ -17,35 +18,103 @@ namespace ImageTagger
         Loading,
         Loaded
     }
-    public static class DirectoryTagUtil
+    public static class TagsManager
     {
         public static LoadState loadState { get; private set; } = LoadState.Unloaded;
-        private static readonly ConcurrentDictionary<string, HashSet<string>> tags = new ConcurrentDictionary<string, HashSet<string>>();
+        private static ConcurrentDictionary<string, HashSet<string>> TagsRecord = new ConcurrentDictionary<string, HashSet<string>>();
 
 
-        public static bool HasCategory( string category)
+        public static string[] RetreiveTags(string category)
         {
-            return tags.ContainsKey(category);
+            if (HasCategory(category))
+                return TagsRecord[category].ToArray();
+            else
+                return new string[] { };
         }
+
+        public static void RecordTag(string category, string tagText)
+        {
+            tagText = FormatUtil.FixTag(tagText);
+            category = FormatUtil.FixCategory(category);
+            if (tagText == "" || tagText == null)
+                return;
+            else if (HasCategory(category))
+                TagsRecord[category].Add(tagText);
+            else
+            {
+                AddCategory(category);
+                TagsRecord[category].Add(tagText);
+            }
+
+            MyTagsRecord.Persist(TagsRecord);
+        }
+
+        public static void AddCategory(string category)
+        {
+            category = FormatUtil.FixCategory(category);
+            if (ReservedTagCategories.Contains(category)) throw new ArgumentException(string.Join(", ", ReservedTagCategories.Names) + " are reserved categories");
+            if (!HasCategory(category))
+                TagsRecord.TryAdd(category, new HashSet<string>());
+        }
+
+
+
+        public static void RemoveTagFromRecord(string tag)
+        {
+            foreach (var category in TagsRecord.Keys)
+            {
+                if (TagsRecord[category].Contains(tag))
+                {
+                    TagsRecord[category].Remove(tag);
+                }
+            }
+
+            MyTagsRecord.Persist(TagsRecord);
+        }
+
 
         public static HashSet<string> GetTagCategories()
         {
-            return new HashSet<string>(tags.Keys);
+            var result = new HashSet<string> { "insight" };
+            foreach (var category in TagsRecord.Keys)
+            {
+                result.Add(category);
+            }
+            return result;
         }
 
-        public static HashSet<string> GetTags(string category)
+        public static void RemoveTagFromCategory(string category, string tag)
         {
-            if (tags.ContainsKey(category))
-                return new HashSet<string>(tags[category]);
-            else
-                return new HashSet<string>();
+            if (TagsRecord[category].Contains(tag))
+            {
+                TagsRecord[category].Remove(tag);
+            }
+
+            MyTagsRecord.Persist(TagsRecord);
+        }
+
+        public static bool HasCategory(string setting)
+        {
+            return TagsRecord.ContainsKey(setting);
+        }
+
+        public static bool HasTag(string tag)
+        {
+            foreach (var category in TagsRecord.Keys)
+            {
+                if (TagsRecord[category].Contains(tag))
+                {
+                    return true;
+                }
+            }
+            return false;
         }
 
         public static List<TagSuggestion> GetTagSuggestions(string imgFilePath, string category = "")
         {
             var r = new Random(DateTime.UtcNow.Millisecond);
             if (category == "" || !HasCategory(category)) category = "loaded";
-            var tmp = GetTags(category).Select((tagText) =>
+            var tmp = RetreiveTags(category).Select((tagText) =>
             {
                 return new TagSuggestion(new ImageTag(tagText), r.NextDouble());
             });
@@ -71,68 +140,22 @@ namespace ImageTagger
              });
         }
 
-        static DirectoryTagUtil()
+        static TagsManager()
         {
-            tags.TryAdd("quickList", new HashSet<string>());
-            tags.TryAdd("all", new HashSet<string>());
-            tags.TryAdd("loaded", new HashSet<string>());
-            OnProcessedNewCategory?.Invoke(null, new AddedCategoryEventArgs("quickList"));
-            OnProcessedNewCategory?.Invoke(null, new AddedCategoryEventArgs("all"));
-            OnProcessedNewCategory?.Invoke(null, new AddedCategoryEventArgs("loaded"));
+            TagsRecord.TryAdd("loaded", new HashSet<string>());
+            OnProcessedNewCategory(null, new AddedCategoryEventArgs("loaded"));
         }
-        
+
+
 
         public static async void Load()
         {
-            PreviewTagsLoaded?.Invoke(null, new EventArgs());
+            MyTagsRecord.Load(ref TagsRecord);
+            OnPreviewTagsLoaded(null, new EventArgs());
             loadState = LoadState.Loading;
             await LoadTagsFromFileAsynch(PersistanceUtil.SourceDirectory);
-            await LoadTagsFromListAsynch(PersistanceUtil.ResourcePersistanceDirectory + @"\AllPossibleTags.txt");
             loadState = LoadState.Loaded;
-            TagsLoaded?.Invoke(null, new EventArgs());
-        }
-
-
-        private static async Task LoadTagsFromListAsynch(string filename)
-        {
-            await Task.Run(delegate () { LoadTagsFromList(filename); });
-        }
-
-        private static void LoadTagsFromList(string filename)
-        {
-            // Read the file line by line.
-            FileStream fs = new FileStream(filename, FileMode.OpenOrCreate);
-            StreamReader file = new StreamReader(fs);
-            string line;
-            string currentKey = "";
-            while ((line = file.ReadLine()) != null)
-            {
-                line = line.Replace("\n", "");
-                line = line.Replace("\r", "");
-                line = line.Replace("\t", "");
-                line = line.Replace(";", "");
-                if (line != "")
-                {
-                    if (line[0] == '*' && !tags.ContainsKey(line))
-                    {
-                        tags.TryAdd(line, new HashSet<string>());
-                        OnProcessedNewCategory?.Invoke(null, new AddedCategoryEventArgs(line));
-                        currentKey = line;
-                    }
-                    else
-                    {
-                        if (currentKey != "" && tags.ContainsKey(currentKey))
-                        {
-                            tags[currentKey].Add(line);
-                            OnProcessedNewTag?.Invoke(null, new AddedTagEventArgs(currentKey, line));
-                        }
-                        tags["all"].Add(line);//<- inefficient
-                        OnProcessedNewTag?.Invoke(null, new AddedTagEventArgs("all", line));
-                    }
-                }
-            }
-            fs.Close();
-            file.Close();
+            OnTagsLoaded(null, new EventArgs());
         }
 
         private static async Task LoadTagsFromFileAsynch(string filename)
@@ -142,7 +165,7 @@ namespace ImageTagger
 
         private static void LoadTagsFromDirectory(string directory)
         {
-            tags["loaded"].Clear();
+            TagsRecord["loaded"].Clear();
             var ImageFilenames = new List<string>(Directory.EnumerateFiles(directory, "*jpg", SearchOption.AllDirectories));
             ImageFilenames.AddRange(Directory.EnumerateFiles(directory, "*jpeg", SearchOption.AllDirectories));
 
@@ -154,19 +177,25 @@ namespace ImageTagger
                 {
                     foreach (var tag in tagsRaw)
                     {
-                        if (!tags["loaded"].Contains(tag))
+                        if (!TagsRecord["loaded"].Contains(tag))
                         {
-                            tags["loaded"].Add(tag);
-                            OnProcessedNewTag?.Invoke(null, new AddedTagEventArgs(null, tag));
+                            TagsRecord["loaded"].Add(tag);
+                            OnProcessedNewTag(null, new AddedTagEventArgs(null, tag));
                         }
                     }
                 }
             }
         }
 
+        //needed to put events back on the ui thread
+        private static void OnPreviewTagsLoaded(object sender, EventArgs e) { App.Current.Dispatcher.Invoke(()=> PreviewTagsLoaded?.Invoke(sender, e)); }
+        private static void OnProcessedNewCategory(object sender, AddedCategoryEventArgs e) { App.Current.Dispatcher.Invoke(() => ProcessedNewCategory?.Invoke(sender, e)); }
+        private static void OnProcessedNewTag(object sender, AddedTagEventArgs e) { App.Current.Dispatcher.Invoke(() => ProcessedNewTag?.Invoke(sender, e)); }
+        private static void OnTagsLoaded(object sender, EventArgs e) { App.Current.Dispatcher.Invoke(() => TagsLoaded?.Invoke(sender, e)); }
+
         public static event PreviewTagsLoadedEventHandler PreviewTagsLoaded = delegate { };
-        public static event ProcessedNewCategoryEventHandler OnProcessedNewCategory = delegate { };
-        public static event ProcessedNewTagEventHandler OnProcessedNewTag = delegate { };
+        public static event ProcessedNewCategoryEventHandler ProcessedNewCategory = delegate { };
+        public static event ProcessedNewTagEventHandler ProcessedNewTag = delegate { };
         public static event TagsLoadedEventHandler TagsLoaded = delegate { };
 
     }

@@ -80,10 +80,10 @@ namespace ImageTagger
             main.imageGrid.SelectionChanged += HandleGridSelectionChanged;
             main.reloadTagSuggestions.Click += HandleChangeSuggestionsClickEvent;
             main.closeTagSuggestions.Click += HandleCloseSuggestionsClickEvent;
-            DirectoryTagUtil.TagsLoaded += HandleTagsReloadedEvent;
+            TagsManager.TagsLoaded += HandleTagsReloadedEvent;
 
             CloseSuggestionsPanel();
-            DirectoryTagUtil.Load();
+            TagsManager.Load();
         }
 
         private void UnsubscribeFromAllEvents(object sender, EventArgs e)
@@ -94,13 +94,13 @@ namespace ImageTagger
             main.imageGrid.SelectionChanged -= HandleGridSelectionChanged;
             main.reloadTagSuggestions.Click -= HandleChangeSuggestionsClickEvent;
             main.closeTagSuggestions.Click -= HandleCloseSuggestionsClickEvent;
-            DirectoryTagUtil.TagsLoaded -= HandleTagsReloadedEvent;
+            TagsManager.TagsLoaded -= HandleTagsReloadedEvent;
         }
 
         private void HandleTagsReloadedEvent(object sender, EventArgs e)
         {
             TagCategories.Clear();
-            foreach (var category in DirectoryTagUtil.GetTagCategories())
+            foreach (var category in TagsManager.GetTagCategories())
             {
                 TagCategories.Add(new TagCategory(category));
             }
@@ -215,15 +215,21 @@ namespace ImageTagger
             SuggestedTagGridItems.Clear();
             UsedPositions.Clear();
             var mainImgPath = main.ImageDisplay.mainImageInfo.ImgPath;
-            AddSuggestions(DirectoryTagUtil.GetTagSuggestions(mainImgPath, category));
-            DirectoryTagUtil.GetImageAnalysisTags(mainImgPath, (result) => {
-                AddSuggestions(result, "#bcf4d3");
-            });
+            if(category == "insight")
+            {
+                TagsManager.GetImageAnalysisTags(mainImgPath, (result) => {
+                    AddSuggestions(result, "#bcf4d3");
+                });
+            }
+            else
+            {
+                AddSuggestions(TagsManager.GetTagSuggestions(mainImgPath, category));
+            }
         }
 
 
 
-        private void AddSuggestions(IEnumerable<TagSuggestion> toAdd, string color = "#7a776f")
+        private void AddSuggestions(IEnumerable<TagSuggestion> toAdd, string color = "#ede7da")
         {
             var maxRows = (int)(1 + Math.Floor(TagSuggestion.ActualHeight / 30) % 30);
             var maxColumns = (int)(1 + Math.Floor(TagSuggestion.ActualWidth / 70) % 30);

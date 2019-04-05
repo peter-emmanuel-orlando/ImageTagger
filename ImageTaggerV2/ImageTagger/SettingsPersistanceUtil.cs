@@ -3,6 +3,8 @@ using System.Web.Script.Serialization;
 using System.Diagnostics;
 using System.IO;
 using System;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace ImageTagger
 {
@@ -55,10 +57,9 @@ namespace ImageTagger
         private static void Persist()
         {
             var filename = Path.Combine(SettingsPersistanceDirectory, defaultSettingsFilename + settingsFileExtension);
-            var newSettingsFile = new JavaScriptSerializer().Serialize(ledger);
-            newSettingsFile = newSettingsFile.Replace("{", "{\r\n\t");
-            newSettingsFile = newSettingsFile.Replace(",", ",\r\n\t");
-            newSettingsFile = newSettingsFile.Replace("}", "\r\n}");
+            var newSettingsFile = JsonConvert.SerializeObject(ledger);
+            var parsedJson = JToken.Parse(newSettingsFile);
+            newSettingsFile = parsedJson.ToString(Formatting.Indented);
             File.WriteAllText(filename, newSettingsFile);
             Debug.WriteLine( "saved settings to " + filename);
         }
@@ -78,7 +79,7 @@ namespace ImageTagger
                 fs = new FileStream(filename, FileMode.OpenOrCreate);
                 file = new StreamReader(fs);
                 var fileString = file.ReadToEnd();
-                ledger = new JavaScriptSerializer().Deserialize<Dictionary<string, string>>(fileString);
+                ledger = JsonConvert.DeserializeObject<Dictionary<string, string>>(fileString);
                 Debug.WriteLine("successfully loaded settings.\n" + fileString);
                 success = true;
             }
