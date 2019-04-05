@@ -155,18 +155,21 @@ namespace ImageTagger
                 var fileNameCount = ImageFiles.Count;
                 if (loadedCount < fileNameCount && IsFullyScrolled())
                 {
-                    try
+                    for (int i = loadedCount; i < Math.Min(24 + loadedCount, fileNameCount); i++)
                     {
-                        //Debug.WriteLine("trying to add file to list:" + imageFileNames[i]);
-                        var newSquare = new ImageInfo(ImageFiles.Get(loadedCount + 1));
-                        Images.Add(newSquare);
+                        try
+                        {
+                            //Debug.WriteLine("trying to add file to list:" + imageFileNames[i]);
+                            var newSquare = new ImageInfo(ImageFiles.Get(loadedCount + i));
+                            Images.Add(newSquare);
+                        }
+                        catch (Exception e) { Debug.WriteLine(e); }
+                        //wait for UI thread to complete in order to get accurate results
+                        Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.ApplicationIdle, new Action(() =>
+                        {
+                            LoadMoreImages();
+                        }));
                     }
-                    catch (Exception e) { Debug.WriteLine(e); }
-                    //wait for UI thread to complete in order to get accurate results
-                    Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.ApplicationIdle, new Action(() =>
-                    {
-                        LoadMoreImages();
-                    }));
                 }
                 //calculate if scrolled to bottom
 
