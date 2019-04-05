@@ -8,7 +8,6 @@ using System;
 using System.Collections.Concurrent;
 using ImageTagger.DataModels;
 using System.Diagnostics;
-using ImageTagger.TagManipulation.Internal;
 
 namespace ImageTagger
 {
@@ -46,7 +45,7 @@ namespace ImageTagger
                 TagsRecord[category].Add(tagText);
             }
 
-            MyTagsRecord.Persist(TagsRecord);
+            Persist();
         }
 
         public static void AddCategory(string category)
@@ -69,7 +68,18 @@ namespace ImageTagger
                 }
             }
 
-            MyTagsRecord.Persist(TagsRecord);
+            Persist();
+        }
+
+        private static void Persist()
+        {
+            var cleaned = new ConcurrentDictionary<string, HashSet<string>>();
+            foreach (var category in TagsRecord.Keys)
+            {
+                if (category == "loaded") continue;
+                cleaned.TryAdd(category, TagsRecord[category]);
+            }
+            ImageTagger.TagManipulation.Internal.MyTagsRecord.Persist(cleaned);
         }
 
 
@@ -90,7 +100,7 @@ namespace ImageTagger
                 TagsRecord[category].Remove(tag);
             }
 
-            MyTagsRecord.Persist(TagsRecord);
+            Persist();
         }
 
         public static bool HasCategory(string setting)
@@ -150,7 +160,16 @@ namespace ImageTagger
 
         public static async void Load()
         {
-            MyTagsRecord.Load(ref TagsRecord);
+            TagsRecord.Clear();
+            ImageTagger.TagManipulation.Internal.MyTagsRecord.Load(ref TagsRecord);
+            foreach (var category in TagsRecord.Keys)
+            {
+                OnProcessedNewCategory(null, new AddedCategoryEventArgs(category));
+                foreach (var tag in TagsRecord[category])
+                {
+                    OnProcessedNewTag(null, new AddedTagEventArgs(category, tag));
+                }
+            }
             OnPreviewTagsLoaded(null, new EventArgs());
             loadState = LoadState.Loading;
             await LoadTagsFromFileAsynch(PersistanceUtil.SourceDirectory);
