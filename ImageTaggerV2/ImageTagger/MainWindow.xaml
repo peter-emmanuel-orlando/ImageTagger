@@ -261,11 +261,7 @@
                     </MenuItem>
                 </MenuItem>
                 <MenuItem x:Name="settings_MenuItem" Background="#FFF0DBFF" Header="Settings">
-                    <MenuItem x:Name="randomize_MenuItem"  Header="Randomize" IsCheckable="True" StaysOpenOnClick="True" >
-                        <MenuItem.Icon>
-                            <Image Source="Resources/64b6fbdc3036fe793216621435b981d3.jpg" />
-                        </MenuItem.Icon>
-                    </MenuItem>
+                    <MenuItem x:Name="randomize_MenuItem"  Header="Randomize" IsCheckable="True" StaysOpenOnClick="True" />
                 </MenuItem>
                 <MenuItem x:Name="tools_MenuItem" Background="#FFF0DBFF" Header="Tools">
                     <MenuItem x:Name="setFilterByTags_MenuItem"  Header="Filter By Tags" IsEnabled="False">

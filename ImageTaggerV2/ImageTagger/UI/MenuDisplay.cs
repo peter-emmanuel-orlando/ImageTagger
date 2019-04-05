@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Windows;
+using System.Windows.Controls;
 
 namespace ImageTagger
 {
@@ -16,6 +17,7 @@ namespace ImageTagger
             main.setDestination_MenuItem.Click += SetDestination_MenuItem_Click;
             main.randomize_MenuItem.Checked += Randomize_MenuItem_Checked;
             main.randomize_MenuItem.Unchecked += Randomize_MenuItem_Unchecked;
+
         }
 
         private void UnsubscribeFromAllEvents(object sender, EventArgs e)
@@ -53,11 +55,13 @@ namespace ImageTagger
         private void Randomize_MenuItem_Checked(object sender, RoutedEventArgs e)
         {
             ImageFiles.Load(true);
+            SettingsPersistanceUtil.RecordSetting("randomizeItems", "true");
         }
 
         private void Randomize_MenuItem_Unchecked(object sender, RoutedEventArgs e)
         {
             ImageFiles.Load(false);
+            SettingsPersistanceUtil.RecordSetting("randomizeItems", "false");
         }
     }
 }

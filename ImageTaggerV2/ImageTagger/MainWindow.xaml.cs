@@ -40,6 +40,19 @@ namespace ImageTagger
         public MenuDisplay MenuDisplayComponent { get; private set; }
         public TagSuggestionDisplay TagSuggestionDisplay { get; private set; }
 
+
+        /***
+         * 
+         * 
+         *ASYNC METHODS ARE NOT CURRENTLY IMPLEMENTED IN THE CORRECT WAY!
+         * the caller should do task.run, not the implementation
+         * 
+         * 
+         * 
+         * 
+         * 
+         * 
+         */
         public MainWindow()
         {
             InitializeComponent();//TestProject-f23fca2eca3e.private.json
@@ -49,7 +62,11 @@ namespace ImageTagger
 
             PersistanceUtil.LoadLocations();
             ImageFiles.FilesLoaded += HandleFilesReloaded;
-            ImageFiles.Load();
+
+            var randomizeItems = SettingsPersistanceUtil.RetreiveSetting("randomizeItems") == "true";
+            randomize_MenuItem.IsChecked = randomizeItems;
+            
+            ImageFiles.Load(randomizeItems);
         }
 
         private void HandleFilesReloaded(object sender, EventArgs e)
@@ -73,6 +90,10 @@ namespace ImageTagger
         protected override void OnClosing(CancelEventArgs e)
         {
             base.OnClosing(e);
+            this.Hide();
+            //Debug.WriteLine(Environment.StackTrace);
+            // close all active threads
+            Environment.Exit(0);
         }
 
         private void WatchForAdditions_UNTESTED(string path)
