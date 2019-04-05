@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:ImageTagger"
         xmlns:System="clr-namespace:System;assembly=mscorlib" x:Class="ImageTagger.MainWindow"
         mc:Ignorable="d"
-        Title="ImageTagger" Height="562.5" Width="1000" WindowStartupLocation="CenterOwner" Icon="Resources/64b6fbdc3036fe793216621435b981d3.jpg">
+        Title="ImageTagger" Height="562.5" Width="1000" WindowStartupLocation="CenterOwner" Icon="/ImageTagger;component/Resources/64b6fbdc3036fe793216621435b981d3.jpg">
     <Grid x:Name="MainPanel" Background="#FFFFF0F0">
         <Grid.ColumnDefinitions>
             <ColumnDefinition/>
@@ -266,6 +266,8 @@
                             <Image Source="Resources/64b6fbdc3036fe793216621435b981d3.jpg" />
                         </MenuItem.Icon>
                     </MenuItem>
+                </MenuItem>
+                <MenuItem x:Name="tools_MenuItem" Background="#FFF0DBFF" Header="Tools">
                     <MenuItem x:Name="setFilterByTags_MenuItem"  Header="Filter By Tags" IsEnabled="False">
                         <MenuItem.Icon>
                             <Image Source="Resources/64b6fbdc3036fe793216621435b981d3.jpg" />

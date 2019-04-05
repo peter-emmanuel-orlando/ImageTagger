@@ -64,21 +64,21 @@
       <DependentUpon>EditMyTags.xaml</DependentUpon>
     </Compile>
     <Compile Include="FileManipulation\ImageFiles.cs" />
-    <Compile Include="ImageFileUtil.cs" />
-    <Compile Include="ImageGridDisplay.cs" />
+    <Compile Include="FileManipulation\ImageFileUtil.cs" />
+    <Compile Include="UI\ImageGridDisplay.cs" />
     <Compile Include="ImageInfo.cs" />
     <Compile Include="ImageTag.cs" />
-    <Compile Include="ImageTagsDisplay.cs" />
+    <Compile Include="UI\ImageTagsDisplay.cs" />
     <Compile Include="TagManipulation\TagsManager.cs" />
-    <Compile Include="MainImageDisplay.cs" />
-    <Compile Include="MenuDisplay.cs" />
+    <Compile Include="UI\MainImageDisplay.cs" />
+    <Compile Include="UI\MenuDisplay.cs" />
     <Compile Include="MyExtensions.cs" />
-    <Compile Include="PersistanceUtil.cs" />
+    <Compile Include="FileManipulation\PersistanceUtil.cs" />
     <Compile Include="TagManipulation\ImageAnalysis.cs" />
-    <Compile Include="FormatUtil.cs" />
-    <Compile Include="TagSuggestionDisplay.cs" />
+    <Compile Include="TagManipulation\FormatUtil.cs" />
+    <Compile Include="UI\TagSuggestionDisplay.cs" />
     <Compile Include="ThreadSafeRandom.cs" />
-    <Compile Include="VisionApi.cs" />
+    <Compile Include="TagManipulation\VisionApi.cs" />
     <Page Include="UI\EditMyTags.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
