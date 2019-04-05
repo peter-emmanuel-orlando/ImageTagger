@@ -7,6 +7,7 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Threading;
 using Debug = System.Diagnostics.Debug;
 
 namespace ImageTagger
@@ -69,6 +70,15 @@ namespace ImageTagger
             }
         }
 
+        private void SetTagFilter()
+        {
+            // any of these tags match < coded blue
+            // AND
+            // all of these tags match < coded green
+            // AND
+            // none of these tags match < coded orange
+        }
+
         private void HandleItemChanged(object sender, ItemChangedEventArgs e)
         {
             var changedImageIndex = Images.IndexOf(new ImageInfo(e.PreviousImagePath));
@@ -126,28 +136,45 @@ namespace ImageTagger
             }
         }
 
+        private bool IsFullyScrolled()
+        {
+            var result = false;
+            var viewer = main.imageGrid_ScrollViewer;
+            var scrollableHeight = viewer.ScrollableHeight;
+            //if scrolled to bottom, or there is no space to scroll
+            result = (viewer.VerticalOffset + viewer.ViewportHeight == viewer.ExtentHeight) || scrollableHeight == 0;
+            return result;
+        }
+
+
         private void LoadMoreImages()
         {
             if (Images.Count() < ImageFiles.Count)
             {
                 var loadedCount = Images.Count();
                 var fileNameCount = ImageFiles.Count;
-                for (int i = loadedCount; i < Math.Min(10 + loadedCount, fileNameCount); i++)
+                if (loadedCount < fileNameCount && IsFullyScrolled())
                 {
                     try
                     {
                         //Debug.WriteLine("trying to add file to list:" + imageFileNames[i]);
-                        var newSquare = new ImageInfo(ImageFiles.Get(i));
+                        var newSquare = new ImageInfo(ImageFiles.Get(loadedCount + 1));
                         Images.Add(newSquare);
                     }
                     catch (Exception e) { Debug.WriteLine(e); }
+                    //wait for UI thread to complete in order to get accurate results
+                    Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.ApplicationIdle, new Action(() =>
+                    {
+                        LoadMoreImages();
+                    }));
                 }
+                //calculate if scrolled to bottom
 
                 var selectedIndex = ImageGrid.SelectedIndex;
                 ListBoxItem myListBoxItem = (ListBoxItem)(ImageGrid.ItemContainerGenerator.ContainerFromItem(ImageGrid.Items[selectedIndex]));
                 myListBoxItem.Focus();
 
-                myListBoxItem.KeyDown += LastImage_KeyDown;
+                //myListBoxItem.KeyDown += LastImage_KeyDown;
                 return;
             }
         }
