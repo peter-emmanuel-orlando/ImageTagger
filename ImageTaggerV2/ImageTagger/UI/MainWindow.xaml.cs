@@ -44,7 +44,6 @@ namespace ImageTagger
         {
             InitializeComponent();//TestProject-f23fca2eca3e.private.json
             //VisionAPISuggestions.VisionApi.Test();
-            
             //Thread.Sleep(99999999);
             ///end test section
 

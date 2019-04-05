@@ -84,10 +84,12 @@ namespace ImageAnalysisAPI
 
 
 
-            public static async Task<List<Tuple<string, double>>> RequestAnalysis(string imageFilePath)
+        public static async Task<List<Tuple<string, double>>> RequestAnalysis(string imageFilePath)
         {
-            var result = new List<Tuple<string, double>>();
-            if (httpClient != null)
+            List<Tuple<string, double>> result;
+            var cacheHit = RequestCachedResults(imageFilePath, out result);
+
+            if (!cacheHit && httpClient != null)
             {
                 await Task.Run(async () =>
                 {
@@ -103,22 +105,62 @@ namespace ImageAnalysisAPI
                     var stringContent = new StringContent(JsonConvert.SerializeObject(reqJSON), Encoding.UTF8, "application/json");
                     request.Content = stringContent;
                     var res = await httpClient.SendAsync(request);
-                    Debug.WriteLine(res.StatusCode);
+                    Debug.WriteLine("server response: " + res.StatusCode);
                     var resString = await res.Content.ReadAsStringAsync();
                     var parsedJson = JToken.Parse(resString);
                     resString = parsedJson.ToString(Formatting.Indented);
-                    Debug.WriteLine(resString);
-                    var obj = JsonConvert.DeserializeAnonymousType(resString, new { status = new { }, outputs = new[] { new { data = new { concepts = new Suggestion[] { } } } } }, new JsonSerializerSettings() { ConstructorHandling = ConstructorHandling.AllowNonPublicDefaultConstructor});
+                    //Debug.WriteLine(resString);
+                    var obj = JsonConvert.DeserializeAnonymousType(resString, new { status = new { }, outputs = new[] { new { data = new { concepts = new Suggestion[] { } } } } }, new JsonSerializerSettings() { ConstructorHandling = ConstructorHandling.AllowNonPublicDefaultConstructor });
                     var concepts = obj.outputs[0].data.concepts;
 
                     foreach (var concept in concepts)
                     {
-                        result.Add(new Tuple<string, double>( concept.Name, (concept.Value.HasValue)? (double)concept.Value.Value : 0d ));
+                        result.Add(new Tuple<string, double>(concept.Name, (concept.Value.HasValue) ? (double)concept.Value.Value : 0d));
                     }
-                    
+
                 });
             }
+            CacheAnalyticsResults(imageFilePath, result);
             return result;
+        }
+
+        private static int maxCached = 6;
+        private static Dictionary<string, Tuple<long, List<Tuple<string, double>>>> CachedResponses = new Dictionary<string, Tuple<long, List<Tuple<string, double>>>>();
+        private static bool RequestCachedResults(string imageFilePath, out List<Tuple<string, double>> results)
+        {
+            var success = false;
+            if (CachedResponses.ContainsKey(imageFilePath))
+            {
+                Debug.WriteLine("cacheHit! avoided uneccessary API call");
+                results = CachedResponses[imageFilePath].Item2;
+                CachedResponses[imageFilePath] = new Tuple<long, List<Tuple<string, double>>>(DateTime.Now.Ticks, results);
+                success = true;
+            }
+            else { results = new List<Tuple<string, double>>(); Debug.WriteLine("cacheMiss! API call made");
+            }
+            return success;
+        }
+
+        private static void CacheAnalyticsResults(string imageFilePath, List<Tuple<string, double>> toCache )
+        {
+            CachedResponses.Remove(imageFilePath);
+            if (CachedResponses.Count >= maxCached)
+            {
+                string oldest = "";
+                long time = 0;
+                foreach (var cachedKey in CachedResponses.Keys)
+                {
+                    var current = CachedResponses[cachedKey];
+                    if (current.Item1 > time)
+                    {
+                        oldest = cachedKey;
+                        time = current.Item1;
+                    }
+                }
+                Debug.WriteLine("dropped " + imageFilePath + " from the cache!");
+                CachedResponses.Remove(oldest);
+            }
+            CachedResponses.Add(imageFilePath, new Tuple<long, List<Tuple<string, double>>> (DateTime.Now.Ticks, toCache));
         }
 
         public static async Task<Dictionary<string, List<string>>> GetSuggestionsAsync(string imageFilePath)

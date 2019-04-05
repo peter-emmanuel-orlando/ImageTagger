@@ -119,7 +119,7 @@ namespace ImageTagger
             }
             return false;
         }
-
+        
         public static List<TagSuggestion> GetTagSuggestions(string imgFilePath, string category = "")
         {
             var r = new Random(DateTime.UtcNow.Millisecond);
@@ -133,21 +133,20 @@ namespace ImageTagger
             return result;
         }
 
-
         public static void GetImageAnalysisTags( string imagePath, Action<List<TagSuggestion>> callback)
         {
             var res = ImageAnalysisAPI.ImageAnalysis.RequestAnalysis(imagePath);
-             res.ContinueWith( async (task) =>
-             {
-                 var response = await task;
-                 var result = new List<TagSuggestion>();
-                 foreach (var concept in response)
-                 {
-                     result.Add(new TagSuggestion( new ImageTag(concept.Item1), concept.Item2));
-                     //Debug.WriteLine($"{concept.Item1}: {concept.Item2}");
-                 }
-                 App.Current.Dispatcher.Invoke(() => callback(result));
-             });
+            res.ContinueWith(async (task) =>
+            {
+                var response = await task;
+                var result = new List<TagSuggestion>();
+                foreach (var concept in response)
+                {
+                    result.Add(new TagSuggestion(new ImageTag(concept.Item1), concept.Item2));
+                    //Debug.WriteLine($"{concept.Item1}: {concept.Item2}");
+                }
+                App.Current.Dispatcher.Invoke(() => callback(result));
+            });
         }
 
         static TagsManager()
