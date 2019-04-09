@@ -27,10 +27,12 @@ namespace ImageTagger
             ImageGrid.Loaded += HandleGridLoaded;
             ImageFiles.FilesLoaded += HandleFilesLoaded;
             ImageFiles.ItemChanged += HandleItemChanged;
+            main.loadNextPageButton.Click += HandleLoadNextPageButtonClick;
             Initialize();
 
             main.PreviewMainWindowUnload += UnsubscribeFromAllEvents;
         }
+
         private void UnsubscribeFromAllEvents(object sender, EventArgs e)
         {
             main.PreviewMainWindowUnload -= UnsubscribeFromAllEvents;
@@ -40,35 +42,12 @@ namespace ImageTagger
             ImageGrid.Loaded -= HandleGridLoaded;
             ImageFiles.FilesLoaded -= HandleFilesLoaded;
             ImageFiles.ItemChanged -= HandleItemChanged;
+            main.loadNextPageButton.Click -= HandleLoadNextPageButtonClick;
         }
 
         public void Initialize()
         {
-            LoadMoreImages();
-            /*int count = 0;
-            int max = 25;
-            Images.Clear();
-            var e = ImageFiles.GetEnumerator();
-            while( e.MoveNext())
-            {
-                var filename = e.Current;
-                Debug.WriteLine(filename);
-                try
-                {
-                    Images.Add(new ImageInfo(filename));
-                    count++;
-                }
-                catch (System.NotSupportedException)
-                {
-                    System.Diagnostics.Debug.WriteLine("was not able to use file: " + filename);
-                }
-                if (count >= max) break;
-            }
-            if (count > 0)
-            {
-                ImageGrid.SelectedIndex = 0;
-                HandleGridLoaded(null, null);
-            }*/
+
         }
 
         private void SetTagFilter()
@@ -91,6 +70,10 @@ namespace ImageTagger
             Initialize();
         }
 
+        private void HandleLoadNextPageButtonClick(object sender, RoutedEventArgs e)
+        {
+            LoadNextPage();
+        }
 
         private void HandleGridLoaded(object sender, RoutedEventArgs e)
         {
@@ -123,11 +106,14 @@ namespace ImageTagger
                 "e.ViewportHeight:" + e.ViewportHeight +
                 " e.VerticalOffset:" + e.VerticalOffset +
                 " e.ExtentHeight:" + e.ExtentHeight +
-                " e.ExtentHeightChange:" + e.ExtentHeightChange + 
+                " e.ExtentHeightChange:" + e.ExtentHeightChange +
                 " scrollableHeight:" + (e.OriginalSource as ScrollViewer).ScrollableHeight
-              );
-            LoadMoreImages();
-            ManageMemory();
+            );
+
+            if(IsFullyScrolled())
+            {
+                RequestMoreImages();
+            }
         }
 
         private bool IsFullyScrolled()
@@ -138,89 +124,57 @@ namespace ImageTagger
             //if scrolled to bottom, or there is no space to scroll
             var margin = 0.25 * viewer.ViewportHeight;
             result = (Math.Abs(viewer.VerticalOffset + viewer.ViewportHeight - viewer.ExtentHeight) < margin) || scrollableHeight < margin;
-            if(result) Debug.WriteLine("At the bottom of the list!");
+            if (result) Debug.WriteLine("At the bottom of the list!");
             return result;
         }
 
-
-        private void LoadMoreImages()
+        private int maxLoadedImages = 40;
+        public void RequestMoreImages()
         {
-            if (Images.Count() < ImageFiles.Count)
+            if(Images.Count() >= maxLoadedImages)
             {
-                var loadedCount = Images.Count();
-                var fileNameCount = ImageFiles.Count;
-                if (loadedCount < fileNameCount && IsFullyScrolled())
-                {
-                    for (int i = loadedCount; i < Math.Min(1 + loadedCount, fileNameCount); i++)
-                    {
-                        try
-                        {
-                            //Debug.WriteLine("trying to add file to list:" + imageFileNames[i]);
-                            var newSquare = new ImageInfo(ImageFiles.Get(loadedCount + i));
-                            Images.Add(newSquare);
-                        }
-                        catch (Exception e) { Debug.WriteLine(e); }
-                        //wait for UI thread to complete in order to get accurate results
-                        Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.ApplicationIdle, new Action(() =>
-                        {
-                            LoadMoreImages();
-                            ManageMemory();
-                        }));
-                    }
-                }
-                //calculate if scrolled to bottom
-
-                var selectedIndex = ImageGrid.SelectedIndex;
-                if(selectedIndex != -1)
-                {
-                    ListBoxItem myListBoxItem = (ListBoxItem)(ImageGrid.ItemContainerGenerator.ContainerFromItem(ImageGrid.Items[selectedIndex]));
-                    myListBoxItem.Focus();
-                }
-
-                //myListBoxItem.KeyDown += LastImage_KeyDown;
+                main.loadNextPageButton.IsEnabled = true;
+                main.loadNextPageButton.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                LoadNextChunk();
             }
         }
 
-        int loadStartIndex = 0;
-        int loadEndIndex = 0;
-        const int imageSizeMin = 120;
-        const int imageSizeMax = 1000;
-        int imageSizeCurrent = imageSizeMin;
-        int loadCountCurrent = 0;
-
-        private void ManageMemory()
+        private int currentImageOffset = 0;
+        private int currentPage = 0;
+        private int imagesPerChunk = 25;
+        private void LoadNextChunk()
         {
-            var viewer = main.imageGrid_ScrollViewer;
-            var picsInColumn = (int)Math.Floor(viewer.ActualHeight / imageSizeCurrent);
-            var picsInRow = (int)Math.Floor(viewer.ActualWidth / imageSizeCurrent);
-            var desiredLoadCount = picsInColumn * picsInRow;
-            var desiredStartIndex = (int)(picsInRow * (main.imageGrid_ScrollViewer.VerticalOffset / imageSizeCurrent));
-            
-            if(loadStartIndex != desiredStartIndex || loadCountCurrent != desiredLoadCount)
+            var startIndex = currentImageOffset + (currentPage * imagesPerChunk);
+            var loadUpTo = startIndex + imagesPerChunk;
+            for (int i = startIndex; i < loadUpTo; i++)
             {
-                for (int i = loadStartIndex; i < Math.Min(loadStartIndex + loadCountCurrent, Images.Count()); i++)
-                {
-                    Images[loadStartIndex].Unload();
-                }
+                var newSquare = new ImageInfo(ImageFiles.Get(i));
+                Images.Add(newSquare);
+                newSquare.Load();
+            }
+            currentPage++;
 
-                for (int i = desiredStartIndex; i < Math.Min(desiredStartIndex + desiredLoadCount, Images.Count()); i++)
-                {
-                    Images[i].Load();
-                }
-                loadStartIndex = desiredStartIndex;
-                loadCountCurrent = desiredLoadCount;
+            var selectedIndex = ImageGrid.SelectedIndex;
+            if (selectedIndex == -1 && ImageGrid.Items.Count > 0) selectedIndex = 0;
+
+            if (selectedIndex != -1)
+            {
+                ListBoxItem myListBoxItem = (ListBoxItem)(ImageGrid.ItemContainerGenerator.ContainerFromItem(ImageGrid.Items[selectedIndex]));
+                myListBoxItem.Focus();
             }
         }
 
-        private void LastImage_KeyDown(object sender, KeyEventArgs e)
+        private void LoadNextPage()
         {
-            //var container = e.OriginalSource as ListBoxItem;
-            //container.Focus();
-            //e.Handled = true;
-            //var item = imgGrid.ItemContainerGenerator.ItemFromContainer(container);
-            //var index = imgGrid.Items.IndexOf(item);
-            //imgGrid.SelectedIndex = index + 1;
-            //Debug.WriteLine(index);
+            main.loadNextPageButton.IsEnabled = false;
+            main.loadNextPageButton.Visibility = Visibility.Collapsed;
+            currentImageOffset = currentImageOffset + Images.Count();
+            currentPage = 0;
+            Images.Clear();
+            LoadNextChunk();
         }
     }
 }

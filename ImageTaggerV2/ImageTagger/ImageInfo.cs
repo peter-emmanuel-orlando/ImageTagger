@@ -37,33 +37,33 @@ namespace ImageTagger.DataModels
         {
             if(ImgPath != null)
             {
-                FileStream stream = null;
-                try
+                isLoading = true;
+                App.Current.Dispatcher.BeginInvoke(DispatcherPriority.ApplicationIdle, new Action(() =>
                 {
-                    stream = File.OpenRead(ImgPath);
-                    var imgBitMap = new BitmapImage();
-
-                    imgBitMap.BeginInit();
-                    imgBitMap.StreamSource = stream;
-                    imgBitMap.CacheOption = BitmapCacheOption.OnLoad;
-                    imgBitMap.EndInit();
-
-                    imgBitMap.Freeze();
-                    isLoading = true;
-                    App.Current.Dispatcher.BeginInvoke(DispatcherPriority.ApplicationIdle, new Action(() =>
+                    FileStream stream = null;
+                    try
                     {
-                        if(isLoading)ImgSource = imgBitMap;
-                    }));
-                }
-                catch (Exception) { }
-                finally
-                {
-                    if(stream != null)
-                    {
-                        stream.Close();
-                        stream.Dispose();
+                        stream = File.OpenRead(ImgPath);
+                        var imgBitMap = new BitmapImage();
+
+                        imgBitMap.BeginInit();
+                        imgBitMap.StreamSource = stream;
+                        imgBitMap.CacheOption = BitmapCacheOption.OnLoad;
+                        imgBitMap.EndInit();
+
+                        imgBitMap.Freeze();
+                        if (isLoading) ImgSource = imgBitMap;
                     }
-                }
+                    catch (Exception) { }
+                    finally
+                    {
+                        if (stream != null)
+                        {
+                            stream.Close();
+                            stream.Dispose();
+                        }
+                    }
+                }));
             }
         }
 

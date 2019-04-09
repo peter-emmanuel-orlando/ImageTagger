@@ -217,29 +217,32 @@
                 </Grid>
             </DockPanel>
             <ScrollViewer x:Name="imageGrid_ScrollViewer" CanContentScroll="True" VirtualizingStackPanel.IsVirtualizing="True" >
-                <ListBox x:Name="imageGrid" ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Hidden" VerticalContentAlignment="Top" Background="#FF00E8FF" ScrollViewer.CanContentScroll="False">
-                    <!-- listbox.template portion essentially changes the controls to be the same as listbox, but without the scrollviewer in it. -->
-                    <!-- see answer here: https://stackoverflow.com/questions/2976240/how-can-make-scrollviewer-scroll-when-mouse-is-over-any-content -->
-                    <ListBox.Template>
-                        <ControlTemplate TargetType="{x:Type ListBox}">
-                            <Border BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderBrush}">
-                                <ItemsPresenter/>
-                            </Border>
-                        </ControlTemplate>
-                    </ListBox.Template>
-                    <ListBox.ItemsPanel>
-                        <ItemsPanelTemplate >
-                            <WrapPanel  IsItemsHost="True" />
-                        </ItemsPanelTemplate>
-                    </ListBox.ItemsPanel>
-                    <ListBox.ItemTemplate>
-                        <DataTemplate>
-                            <Border Height="100" Width="100" Margin="10,10,10,10" Background="Black" BorderBrush="Black" BorderThickness="1" CornerRadius="1">
-                                <Image Source="{Binding ImgSource}" Stretch="UniformToFill" />
-                            </Border>
-                        </DataTemplate>
-                    </ListBox.ItemTemplate>
-                </ListBox>
+                <DockPanel>
+                    <Button x:Name="loadNextPageButton" DockPanel.Dock="Bottom" Content="Load Next Page" />
+                    <ListBox x:Name="imageGrid" ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Hidden" VerticalContentAlignment="Top" Background="#FF00E8FF" ScrollViewer.CanContentScroll="False" DockPanel.Dock="Bottom">
+                        <!-- listbox.template portion essentially changes the controls to be the same as listbox, but without the scrollviewer in it. -->
+                        <!-- see answer here: https://stackoverflow.com/questions/2976240/how-can-make-scrollviewer-scroll-when-mouse-is-over-any-content -->
+                        <ListBox.Template>
+                            <ControlTemplate TargetType="{x:Type ListBox}">
+                                <Border BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderBrush}">
+                                    <ItemsPresenter/>
+                                </Border>
+                            </ControlTemplate>
+                        </ListBox.Template>
+                        <ListBox.ItemsPanel>
+                            <ItemsPanelTemplate >
+                                <WrapPanel  IsItemsHost="True" />
+                            </ItemsPanelTemplate>
+                        </ListBox.ItemsPanel>
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <Border Height="100" Width="100" Margin="10,10,10,10" Background="Black" BorderBrush="Black" BorderThickness="1" CornerRadius="1">
+                                    <Image Source="{Binding ImgSource}" Stretch="UniformToFill" />
+                                </Border>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                </DockPanel>
             </ScrollViewer>
         </Grid>
         <DockPanel LastChildFill="False" Grid.Row="2" Background="#667400FF"/>
