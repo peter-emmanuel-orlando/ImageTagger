@@ -156,7 +156,7 @@ namespace ImageTagger
                             //Debug.WriteLine("trying to add file to list:" + imageFileNames[i]);
                             var newSquare = new ImageInfo(ImageFiles.Get(loadedCount + i));
                             Images.Add(newSquare);
-                            //newSquare.Unload();
+                            ManageMemory();
                         }
                         catch (Exception e) { Debug.WriteLine(e); }
                         //wait for UI thread to complete in order to get accurate results
@@ -173,8 +173,25 @@ namespace ImageTagger
                 myListBoxItem.Focus();
 
                 //myListBoxItem.KeyDown += LastImage_KeyDown;
-                return;
             }
+        }
+
+        int loadStartIndex = 0;
+        int loadEndIndex = 0;
+        const int imageSizeMin = 120;
+        const int imageSizeMax = 1000;
+        int imageSizeCurrent = imageSizeMin;
+
+        private void ManageMemory()
+        {
+            var viewer = main.imageGrid_ScrollViewer;
+            var picsInColumn = (int)Math.Floor(viewer.ActualHeight / imageSizeCurrent);
+            var picsInRow = (int)Math.Floor(viewer.ActualWidth / imageSizeCurrent);
+            var desiredLoadCount = picsInColumn * picsInRow;
+            var desiredStartIndex = (int)(picsInRow * (main.imageGrid_ScrollViewer.VerticalOffset / imageSizeCurrent));
+
+            Images[loadStartIndex].Load();
+            loadStartIndex++;
         }
 
         private void LastImage_KeyDown(object sender, KeyEventArgs e)

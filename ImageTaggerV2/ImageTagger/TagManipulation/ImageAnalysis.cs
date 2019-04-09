@@ -228,7 +228,18 @@ namespace ImageAnalysisAPI
             return result;
         }
 
+        /*
+        private static async Task<List<TagSuggestion>> RequestCustomAnalysisAsync(string imageFilePath)
+        {
+            List<TagSuggestion> result;
+            var category = Enum.GetName(typeof(ImageAnalysisType), ImageAnalysisType.moderation);
+            var cachePath = imageFilePath + "/" + category;
+            var cacheHit = RequestCachedResults(cachePath, out result);
 
+            if (!cacheHit && clarifaiClient != null)
+            { }
+        }
+        */
 
 
 

@@ -1,15 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Net.Cache;
+using System.Runtime.CompilerServices;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 
 namespace ImageTagger.DataModels
 {
-    public class ImageInfo
+    public class ImageInfo : INotifyPropertyChanged
     {
         public ImageInfo()
         {
@@ -18,10 +20,17 @@ namespace ImageTagger.DataModels
         public ImageInfo(String imgPath)
         {
             ImgPath = imgPath; //Path.Combine(Environment.CurrentDirectory, "Bilder", "sas.png");
-            Load();
         }
-        public string ImgPath { get; set; }
-        public BitmapImage ImgSource { get; private set; }
+        private string imgPath;
+        public string ImgPath { get => imgPath; set { imgPath = value; NotifyPropertyChanged(); } }
+        private BitmapImage imgSource;
+        public BitmapImage ImgSource { get => imgSource; set { imgSource = value; NotifyPropertyChanged(); } }
+        public event PropertyChangedEventHandler PropertyChanged;
+        private void NotifyPropertyChanged([CallerMemberName] String propertyName = "")
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
 
         public void Load()
         {
@@ -39,7 +48,10 @@ namespace ImageTagger.DataModels
                     imgBitMap.EndInit();
 
                     imgBitMap.Freeze();
-                    ImgSource = imgBitMap;
+                    App.Current.Dispatcher.BeginInvoke(DispatcherPriority.ApplicationIdle, new Action(() =>
+                    {
+                        ImgSource = imgBitMap;
+                    }));
                 }
                 catch (Exception) { }
                 finally
