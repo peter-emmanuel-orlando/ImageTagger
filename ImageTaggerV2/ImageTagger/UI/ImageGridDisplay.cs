@@ -173,8 +173,14 @@ namespace ImageTagger
             main.loadNextPageButton.Visibility = Visibility.Collapsed;
             currentImageOffset = currentImageOffset + Images.Count();
             currentPage = 0;
+            foreach (var image in Images)
+            {
+                image.Unload();
+            }
             Images.Clear();
             LoadNextChunk();
         }
     }
+    
+
 }
