@@ -27,17 +27,29 @@ namespace ImageTagger.DataModels
         {
             if(ImgPath != null)
             {
-                    try
+                FileStream stream = null;
+                try
+                {
+                    stream = File.OpenRead(ImgPath);
+                    var imgBitMap = new BitmapImage();
+
+                    imgBitMap.BeginInit();
+                    imgBitMap.StreamSource = stream;
+                    imgBitMap.CacheOption = BitmapCacheOption.OnLoad;
+                    imgBitMap.EndInit();
+
+                    imgBitMap.Freeze();
+                    ImgSource = imgBitMap;
+                }
+                catch (Exception) { }
+                finally
+                {
+                    if(stream != null)
                     {
-                        var uri = new Uri(ImgPath);
-                        var imgBitMap = new BitmapImage();
-                        imgBitMap.BeginInit();
-                        imgBitMap.UriSource = uri;
-                        imgBitMap.CacheOption = BitmapCacheOption.None;
-                        imgBitMap.EndInit();
-                        ImgSource = imgBitMap;
+                        stream.Close();
+                        stream.Dispose();
                     }
-                    catch (Exception) { }
+                }
             }
         }
 

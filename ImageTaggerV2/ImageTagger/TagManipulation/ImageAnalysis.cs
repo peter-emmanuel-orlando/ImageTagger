@@ -214,7 +214,7 @@ namespace ImageAnalysisAPI
                 {
                     var name = concept.Name;
                     var certainty = (double)concept.Value.Value;
-                    var threshold = 0.6;
+                    var threshold = 0.3;
                     if(certainty > threshold)
                     {
                         result.Add(new TagSuggestion(new ImageTag( concept.Name), certainty, category));
