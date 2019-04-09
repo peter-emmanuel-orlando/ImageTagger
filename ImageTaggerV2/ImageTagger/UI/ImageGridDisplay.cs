@@ -44,7 +44,8 @@ namespace ImageTagger
 
         public void Initialize()
         {
-            int count = 0;
+            LoadMoreImages();
+            /*int count = 0;
             int max = 25;
             Images.Clear();
             var e = ImageFiles.GetEnumerator();
@@ -67,7 +68,7 @@ namespace ImageTagger
             {
                 ImageGrid.SelectedIndex = 0;
                 HandleGridLoaded(null, null);
-            }
+            }*/
         }
 
         private void SetTagFilter()
@@ -126,6 +127,7 @@ namespace ImageTagger
                 " scrollableHeight:" + (e.OriginalSource as ScrollViewer).ScrollableHeight
               );
             LoadMoreImages();
+            ManageMemory();
         }
 
         private bool IsFullyScrolled()
@@ -156,21 +158,24 @@ namespace ImageTagger
                             //Debug.WriteLine("trying to add file to list:" + imageFileNames[i]);
                             var newSquare = new ImageInfo(ImageFiles.Get(loadedCount + i));
                             Images.Add(newSquare);
-                            ManageMemory();
                         }
                         catch (Exception e) { Debug.WriteLine(e); }
                         //wait for UI thread to complete in order to get accurate results
                         Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.ApplicationIdle, new Action(() =>
                         {
                             LoadMoreImages();
+                            ManageMemory();
                         }));
                     }
                 }
                 //calculate if scrolled to bottom
 
                 var selectedIndex = ImageGrid.SelectedIndex;
-                ListBoxItem myListBoxItem = (ListBoxItem)(ImageGrid.ItemContainerGenerator.ContainerFromItem(ImageGrid.Items[selectedIndex]));
-                myListBoxItem.Focus();
+                if(selectedIndex != -1)
+                {
+                    ListBoxItem myListBoxItem = (ListBoxItem)(ImageGrid.ItemContainerGenerator.ContainerFromItem(ImageGrid.Items[selectedIndex]));
+                    myListBoxItem.Focus();
+                }
 
                 //myListBoxItem.KeyDown += LastImage_KeyDown;
             }
@@ -181,6 +186,7 @@ namespace ImageTagger
         const int imageSizeMin = 120;
         const int imageSizeMax = 1000;
         int imageSizeCurrent = imageSizeMin;
+        int loadCountCurrent = 0;
 
         private void ManageMemory()
         {
@@ -189,9 +195,21 @@ namespace ImageTagger
             var picsInRow = (int)Math.Floor(viewer.ActualWidth / imageSizeCurrent);
             var desiredLoadCount = picsInColumn * picsInRow;
             var desiredStartIndex = (int)(picsInRow * (main.imageGrid_ScrollViewer.VerticalOffset / imageSizeCurrent));
+            
+            if(loadStartIndex != desiredStartIndex || loadCountCurrent != desiredLoadCount)
+            {
+                for (int i = loadStartIndex; i < Math.Min(loadStartIndex + loadCountCurrent, Images.Count()); i++)
+                {
+                    Images[loadStartIndex].Unload();
+                }
 
-            Images[loadStartIndex].Load();
-            loadStartIndex++;
+                for (int i = desiredStartIndex; i < Math.Min(desiredStartIndex + desiredLoadCount, Images.Count()); i++)
+                {
+                    Images[i].Load();
+                }
+                loadStartIndex = desiredStartIndex;
+                loadCountCurrent = desiredLoadCount;
+            }
         }
 
         private void LastImage_KeyDown(object sender, KeyEventArgs e)

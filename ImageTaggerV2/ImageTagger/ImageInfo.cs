@@ -21,6 +21,7 @@ namespace ImageTagger.DataModels
         {
             ImgPath = imgPath; //Path.Combine(Environment.CurrentDirectory, "Bilder", "sas.png");
         }
+
         private string imgPath;
         public string ImgPath { get => imgPath; set { imgPath = value; NotifyPropertyChanged(); } }
         private BitmapImage imgSource;
@@ -31,7 +32,7 @@ namespace ImageTagger.DataModels
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
-
+        private bool isLoading = false;
         public void Load()
         {
             if(ImgPath != null)
@@ -48,9 +49,10 @@ namespace ImageTagger.DataModels
                     imgBitMap.EndInit();
 
                     imgBitMap.Freeze();
+                    isLoading = true;
                     App.Current.Dispatcher.BeginInvoke(DispatcherPriority.ApplicationIdle, new Action(() =>
                     {
-                        ImgSource = imgBitMap;
+                        if(isLoading)ImgSource = imgBitMap;
                     }));
                 }
                 catch (Exception) { }
@@ -67,6 +69,7 @@ namespace ImageTagger.DataModels
 
         public void Unload()
         {
+            isLoading = false;
             ImgSource = null;
         }
 
