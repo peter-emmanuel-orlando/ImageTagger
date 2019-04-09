@@ -5,45 +5,46 @@ using System.IO;
 using System.Net.Cache;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using System.Windows.Threading;
 
 namespace ImageTagger.DataModels
 {
     public class ImageInfo
     {
+        public ImageInfo()
+        {
+
+        }
         public ImageInfo(String imgPath)
         {
             ImgPath = imgPath; //Path.Combine(Environment.CurrentDirectory, "Bilder", "sas.png");
-
+            Load();
         }
+        public string ImgPath { get; set; }
+        public BitmapImage ImgSource { get; private set; }
 
-        private string imgPath;
-        public string ImgPath
+        public void Load()
         {
-            get
+            if(ImgPath != null)
             {
-                return imgPath;
-            }
-            set
-            {
-                    imgPath = value;
-                    var uri = new Uri(imgPath);
                     try
                     {
+                        var uri = new Uri(ImgPath);
                         var imgBitMap = new BitmapImage();
                         imgBitMap.BeginInit();
                         imgBitMap.UriSource = uri;
-                        imgBitMap.CacheOption = BitmapCacheOption.OnLoad;
+                        imgBitMap.CacheOption = BitmapCacheOption.None;
                         imgBitMap.EndInit();
                         ImgSource = imgBitMap;
                     }
-                    catch (Exception e)
-                    {
-                        Debug.WriteLine(e);
-                    }
+                    catch (Exception) { }
             }
         }
-        public BitmapImage ImgSource { get; private set; }
 
+        public void Unload()
+        {
+            ImgSource = null;
+        }
 
 
         public static implicit operator ImageSource (ImageInfo iInfo)
@@ -55,12 +56,12 @@ namespace ImageTagger.DataModels
         {
             var info = obj as ImageInfo;
             return info != null &&
-                   imgPath == info.imgPath;
+                   ImgPath == info.ImgPath;
         }
 
         public override int GetHashCode()
         {
-            return 485363467 + EqualityComparer<string>.Default.GetHashCode(imgPath);
+            return 485363467 + EqualityComparer<string>.Default.GetHashCode(ImgPath);
         }
 
 

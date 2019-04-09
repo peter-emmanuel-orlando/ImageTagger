@@ -125,15 +125,7 @@ namespace ImageTagger
                 " e.ExtentHeightChange:" + e.ExtentHeightChange + 
                 " scrollableHeight:" + (e.OriginalSource as ScrollViewer).ScrollableHeight
               );
-            var scrollableHeight = (e.OriginalSource as ScrollViewer).ScrollableHeight;
-            if (e.VerticalChange > 0 || scrollableHeight == 0)
-            {
-                if (e.VerticalOffset + e.ViewportHeight == e.ExtentHeight || scrollableHeight == 0)
-                {
-                    Debug.WriteLine("At the bottom of the list!");
-                    LoadMoreImages();
-                }
-            }
+            LoadMoreImages();
         }
 
         private bool IsFullyScrolled()
@@ -142,7 +134,9 @@ namespace ImageTagger
             var viewer = main.imageGrid_ScrollViewer;
             var scrollableHeight = viewer.ScrollableHeight;
             //if scrolled to bottom, or there is no space to scroll
-            result = (viewer.VerticalOffset + viewer.ViewportHeight == viewer.ExtentHeight) || scrollableHeight == 0;
+            var margin = 0.25 * viewer.ViewportHeight;
+            result = (Math.Abs(viewer.VerticalOffset + viewer.ViewportHeight - viewer.ExtentHeight) < margin) || scrollableHeight < margin;
+            if(result) Debug.WriteLine("At the bottom of the list!");
             return result;
         }
 
@@ -155,13 +149,14 @@ namespace ImageTagger
                 var fileNameCount = ImageFiles.Count;
                 if (loadedCount < fileNameCount && IsFullyScrolled())
                 {
-                    for (int i = loadedCount; i < Math.Min(24 + loadedCount, fileNameCount); i++)
+                    for (int i = loadedCount; i < Math.Min(1 + loadedCount, fileNameCount); i++)
                     {
                         try
                         {
                             //Debug.WriteLine("trying to add file to list:" + imageFileNames[i]);
                             var newSquare = new ImageInfo(ImageFiles.Get(loadedCount + i));
                             Images.Add(newSquare);
+                            //newSquare.Unload();
                         }
                         catch (Exception e) { Debug.WriteLine(e); }
                         //wait for UI thread to complete in order to get accurate results

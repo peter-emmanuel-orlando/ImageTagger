@@ -19,7 +19,7 @@ namespace ImageTagger
                 return main.mainImageDisplay;
             }
         }
-        public ImageInfo mainImageInfo { get; private set; } = new ImageInfo(@"C:\Users\YumeMura\Desktop\unsamples\1zBMSv4xEA4.jpge");
+        public ImageInfo mainImageInfo { get; private set; } = new ImageInfo();
 
         public MainImageDisplay(MainWindow main)
         {
