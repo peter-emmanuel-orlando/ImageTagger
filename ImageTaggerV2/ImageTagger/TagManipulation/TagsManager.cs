@@ -8,6 +8,7 @@ using System;
 using System.Collections.Concurrent;
 using ImageTagger.DataModels;
 using System.Diagnostics;
+using ImageAnalysisAPI;
 
 namespace ImageTagger
 {
@@ -122,31 +123,20 @@ namespace ImageTagger
         
         public static List<TagSuggestion> GetTagSuggestions(string imgFilePath, string category = "")
         {
-            var r = new Random(DateTime.UtcNow.Millisecond);
             if (category == "" || !HasCategory(category)) category = "loaded";
             var tmp = RetreiveTags(category).Select((tagText) =>
             {
-                return new TagSuggestion(new ImageTag(tagText), r.NextDouble());
+                return new TagSuggestion(new ImageTag(tagText), 0, category);
             });
             var result = new List<TagSuggestion>(tmp);
             result.Shuffle();
             return result;
         }
 
-        public static void GetImageAnalysisTags( string imagePath, Action<List<TagSuggestion>> callback)
+        public static async void GetImageAnalysisTags( string imagePath, Action<List<TagSuggestion>> callback, params ImageAnalysisType[] analysisTypes)
         {
-            var res = ImageAnalysisAPI.ImageAnalysis.RequestAnalysis(imagePath);
-            res.ContinueWith(async (task) =>
-            {
-                var response = await task;
-                var result = new List<TagSuggestion>();
-                foreach (var concept in response)
-                {
-                    result.Add(new TagSuggestion(new ImageTag(concept.Item1), concept.Item2));
-                    //Debug.WriteLine($"{concept.Item1}: {concept.Item2}");
-                }
-                App.Current.Dispatcher.Invoke(() => callback(result));
-            });
+            var result = await ImageAnalysisAPI.ImageAnalysis.RequestAnalysis(imagePath, analysisTypes);
+            App.Current.Dispatcher.Invoke(() => callback(result));
         }
 
         static TagsManager()
@@ -244,15 +234,16 @@ namespace ImageTagger
     }
     public class TagSuggestion
     {
+        public TagSuggestion(ImageTag tag, double confidenceLevel, string category)
+        {
+            this.tag = tag;
+            this.confidenceLevel = confidenceLevel;
+            this.category = category;
+        }
 
         public ImageTag tag { get; }
         public double confidenceLevel { get; }
-
-        public TagSuggestion(ImageTag tag, double confidenceLevel)
-        {
-            this.confidenceLevel = confidenceLevel;
-            this.tag = tag;
-        }
+        public string category { get; }
     }
 }
 

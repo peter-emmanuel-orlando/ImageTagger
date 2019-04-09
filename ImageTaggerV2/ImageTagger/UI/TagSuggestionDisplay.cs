@@ -10,6 +10,7 @@ using System.Windows.Controls;
 using ImageTagger.DataModels;
 using System.Diagnostics;
 using System.Collections;
+using ImageAnalysisAPI;
 
 namespace ImageTagger
 {
@@ -218,7 +219,16 @@ namespace ImageTagger
             if(category == "insight")
             {
                 TagsManager.GetImageAnalysisTags(mainImgPath, (result) => {
-                    AddSuggestions(result, "#bcf4d3");
+                    var colorDict = new Dictionary<ImageAnalysisType, string>();
+                    colorDict.Add(ImageAnalysisType.moderation, "#f92983");
+                    colorDict.Add(ImageAnalysisType.demographics, "#6670e3");
+                    colorDict.Add(ImageAnalysisType.general, "#00f3a7");
+                    foreach (var item in result)
+                    {
+                        ImageAnalysisType analysisCategory;
+                        Enum.TryParse(item.category, out analysisCategory);
+                        AddSuggestions(new TagSuggestion[] { item }, colorDict[analysisCategory]);
+                    }
                 });
             }
             else
