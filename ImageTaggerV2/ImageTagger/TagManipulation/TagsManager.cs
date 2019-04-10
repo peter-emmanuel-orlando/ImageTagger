@@ -149,7 +149,10 @@ namespace ImageTagger
 
         public static async void Load()
         {
-            TagsRecord.Clear();
+            foreach (var category in TagsRecord.Keys)
+            {
+                TagsRecord[category].Clear();
+            }
             ImageTagger.TagManipulation.Internal.MyTagsRecord.Load(ref TagsRecord);
             foreach (var category in TagsRecord.Keys)
             {

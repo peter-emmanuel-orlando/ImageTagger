@@ -17,6 +17,13 @@ namespace ImageTagger
 
         static SettingsPersistanceUtil()
         {
+            var filename = Path.Combine(SettingsPersistanceDirectory, defaultSettingsFilename + settingsFileExtension);
+            if (!File.Exists(filename))
+            {
+                var newSettingsFile = JsonConvert.SerializeObject(new Dictionary<string, string>());
+                File.WriteAllText(filename, "");
+            }
+
             Load();
         }
 
@@ -73,13 +80,11 @@ namespace ImageTagger
             try
             {
                 var filename = Path.Combine(SettingsPersistanceDirectory, defaultSettingsFilename + settingsFileExtension);
-                string[] files = Directory.GetFiles(SettingsPersistanceDirectory, "*" + settingsFileExtension);
-                Array.Sort(files);
-                if (files.Length > 0) filename = files[0];
                 fs = new FileStream(filename, FileMode.OpenOrCreate);
                 file = new StreamReader(fs);
                 var fileString = file.ReadToEnd();
                 ledger = JsonConvert.DeserializeObject<Dictionary<string, string>>(fileString);
+                if (ledger == null) ledger = new Dictionary<string, string>();
                 Debug.WriteLine("successfully loaded settings.\n" + fileString);
                 success = true;
             }
