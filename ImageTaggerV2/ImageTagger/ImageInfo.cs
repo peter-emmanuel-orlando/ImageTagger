@@ -23,9 +23,21 @@ namespace ImageTagger.DataModels
         }
 
         private string imgPath;
-        public string ImgPath { get => imgPath; set { imgPath = value; NotifyPropertyChanged(); } }
+        public string ImgPath
+        {
+            get => imgPath;
+            set
+            {
+                imgPath = value;
+                NotifyPropertyChanged();
+                imgTags = ImageFileUtil.GetImageTags(ImgPath);
+            }
+        }
+        private HashSet<ImageTag> imgTags = new HashSet<ImageTag>();
+        public HashSet<ImageTag> ImgTags { get => imgTags; set { imgTags = value; NotifyPropertyChanged(); } }
         private BitmapImage imgSource;
         public BitmapImage ImgSource { get => imgSource; set { imgSource = value; NotifyPropertyChanged(); } }
+        public bool IsLoaded { get => ImgSource == null; }
         public event PropertyChangedEventHandler PropertyChanged;
         private void NotifyPropertyChanged([CallerMemberName] String propertyName = "")
         {
@@ -37,33 +49,33 @@ namespace ImageTagger.DataModels
         {
             if(ImgPath != null)
             {
-                FileStream stream = null;
-                try
+                isLoading = true;
+                App.Current.Dispatcher.BeginInvoke(DispatcherPriority.ApplicationIdle, new Action(() =>
                 {
-                    stream = File.OpenRead(ImgPath);
-                    var imgBitMap = new BitmapImage();
-
-                    imgBitMap.BeginInit();
-                    imgBitMap.StreamSource = stream;
-                    imgBitMap.CacheOption = BitmapCacheOption.OnLoad;
-                    imgBitMap.EndInit();
-
-                    imgBitMap.Freeze();
-                    isLoading = true;
-                    App.Current.Dispatcher.BeginInvoke(DispatcherPriority.ApplicationIdle, new Action(() =>
+                    FileStream stream = null;
+                    try
                     {
-                        if(isLoading)ImgSource = imgBitMap;
-                    }));
-                }
-                catch (Exception) { }
-                finally
-                {
-                    if(stream != null)
-                    {
-                        stream.Close();
-                        stream.Dispose();
+                        stream = File.OpenRead(ImgPath);
+                        var imgBitMap = new BitmapImage();
+
+                        imgBitMap.BeginInit();
+                        imgBitMap.StreamSource = stream;
+                        imgBitMap.CacheOption = BitmapCacheOption.OnLoad;
+                        imgBitMap.EndInit();
+
+                        imgBitMap.Freeze();
+                        if (isLoading) ImgSource = imgBitMap;
                     }
-                }
+                    catch (Exception) { }
+                    finally
+                    {
+                        if (stream != null)
+                        {
+                            stream.Close();
+                            stream.Dispose();
+                        }
+                    }
+                }));
             }
         }
 
