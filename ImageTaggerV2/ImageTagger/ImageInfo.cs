@@ -23,9 +23,21 @@ namespace ImageTagger.DataModels
         }
 
         private string imgPath;
-        public string ImgPath { get => imgPath; set { imgPath = value; NotifyPropertyChanged(); } }
+        public string ImgPath
+        {
+            get => imgPath;
+            set
+            {
+                imgPath = value;
+                NotifyPropertyChanged();
+                imgTags = ImageFileUtil.GetImageTags(ImgPath);
+            }
+        }
+        private HashSet<ImageTag> imgTags = new HashSet<ImageTag>();
+        public HashSet<ImageTag> ImgTags { get => imgTags; set { imgTags = value; NotifyPropertyChanged(); } }
         private BitmapImage imgSource;
         public BitmapImage ImgSource { get => imgSource; set { imgSource = value; NotifyPropertyChanged(); } }
+        public bool IsLoaded { get => ImgSource == null; }
         public event PropertyChangedEventHandler PropertyChanged;
         private void NotifyPropertyChanged([CallerMemberName] String propertyName = "")
         {

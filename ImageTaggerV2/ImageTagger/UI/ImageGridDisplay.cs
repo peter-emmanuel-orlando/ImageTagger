@@ -18,6 +18,11 @@ namespace ImageTagger
         public ObservableCollection<ImageInfo> Images { get; } = new ObservableCollection<ImageInfo>();
         public ListBox ImageGrid { get { return main.imageGrid; } }
 
+        private int maxLoadedImages = 40;
+        private int currentImageOffset = 0;
+        private int currentPage = 0;
+        private int imagesPerChunk = 25;
+
         public ImageGridDisplay(MainWindow main)
         {
             this.main = main;
@@ -47,7 +52,10 @@ namespace ImageTagger
 
         public void Initialize()
         {
-
+            Images.Clear();
+            currentImageOffset = 0;
+            currentPage = 0;
+            RequestMoreImages();
         }
 
         private void SetTagFilter()
@@ -128,7 +136,6 @@ namespace ImageTagger
             return result;
         }
 
-        private int maxLoadedImages = 40;
         public void RequestMoreImages()
         {
             if(Images.Count() >= maxLoadedImages)
@@ -141,10 +148,6 @@ namespace ImageTagger
                 LoadNextChunk();
             }
         }
-
-        private int currentImageOffset = 0;
-        private int currentPage = 0;
-        private int imagesPerChunk = 25;
         private void LoadNextChunk()
         {
             var startIndex = currentImageOffset + (currentPage * imagesPerChunk);
@@ -162,11 +165,11 @@ namespace ImageTagger
 
             var selectedIndex = ImageGrid.SelectedIndex;
             if (selectedIndex == -1 && ImageGrid.Items.Count > 0) selectedIndex = 0;
-
+            ImageGrid.SelectedIndex = selectedIndex;
             if (selectedIndex != -1)
             {
                 ListBoxItem myListBoxItem = (ListBoxItem)(ImageGrid.ItemContainerGenerator.ContainerFromItem(ImageGrid.Items[selectedIndex]));
-                myListBoxItem.Focus();
+                if(myListBoxItem != null) myListBoxItem.Focus();
             }
         }
 
@@ -181,6 +184,4 @@ namespace ImageTagger
             LoadNextChunk();
         }
     }
-    
-
 }
