@@ -149,6 +149,9 @@ namespace ImageTagger
         {
             var startIndex = currentImageOffset + (currentPage * imagesPerChunk);
             var loadUpTo = startIndex + imagesPerChunk;
+            loadUpTo = Math.Min(loadUpTo, ImageFiles.Count);
+            loadUpTo = Math.Min(loadUpTo, startIndex + imagesPerChunk );
+            
             for (int i = startIndex; i < loadUpTo; i++)
             {
                 var newSquare = new ImageInfo(ImageFiles.Get(i));
@@ -173,11 +176,8 @@ namespace ImageTagger
             main.loadNextPageButton.Visibility = Visibility.Collapsed;
             currentImageOffset = currentImageOffset + Images.Count();
             currentPage = 0;
-            foreach (var image in Images)
-            {
-                image.Unload();
-            }
             Images.Clear();
+            GC.Collect();
             LoadNextChunk();
         }
     }
