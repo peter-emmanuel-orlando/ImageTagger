@@ -24,6 +24,7 @@ using Newtonsoft.Json.Linq;
 using Clarifai.DTOs;
 using Clarifai.DTOs.Models;
 using ImageTagger.DataModels;
+using ImageTagger.UI;
 
 namespace ImageAnalysisAPI
 {
@@ -50,7 +51,17 @@ namespace ImageAnalysisAPI
             var apiKey = SettingsPersistanceUtil.RetreiveSetting("apiKey");
 
             if (apiKey == "")
-                MessageBox.Show("Without a Clarifai API key, suggestions are limited.");
+            {
+                var getKeyWindow = new RequestClarafaiAPIDialog();
+                var success = getKeyWindow.ShowDialog() ?? false;
+                if (success)
+                {
+                    apiKey = getKeyWindow.ApiKey;
+                    MessageBox.Show("api key is set to " + apiKey);
+                    SettingsPersistanceUtil.RecordSetting("apiKey", apiKey);
+                }
+            }
+                
             else
             {
                 httpClient = new HttpClient();
