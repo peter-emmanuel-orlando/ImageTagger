@@ -41,22 +41,16 @@ namespace ImageTagger
         public TagSuggestionDisplay TagSuggestionDisplay { get; private set; }
 
 
-        /***
-         * 
-         * 
+        /*
          *ASYNC METHODS ARE NOT CURRENTLY IMPLEMENTED IN THE CORRECT WAY!
          * the caller should do task.run, not the implementation
-         * 
-         * 
-         * 
-         * 
-         * 
-         * 
          */
         public MainWindow()
         {
-            InitializeComponent();//TestProject-f23fca2eca3e.private.json
-            //VisionAPISuggestions.VisionApi.Test();
+            InitializeComponent();
+
+            //begin test section
+            ImageGridDisplay.SetTagFilter();
             //Thread.Sleep(99999999);
             ///end test section
 

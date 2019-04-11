@@ -3,7 +3,9 @@ using ImageTagger.DataModels;
 using System;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
+using System.Data.OleDb;
 using System.Linq;
+using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -58,13 +60,30 @@ namespace ImageTagger
             RequestMoreImages();
         }
 
-        private void SetTagFilter()
+        public static void SetTagFilter()
         {
             // any of these tags match < coded blue
             // AND
             // all of these tags match < coded green
             // AND
             // none of these tags match < coded orange
+            var windowsSearchConnection = @"Provider=Search.CollatorDSO;Extended Properties=""Application=Windows""";
+            using (OleDbConnection connection = new OleDbConnection(windowsSearchConnection))
+            {
+                connection.Open();
+                var query = $"SELECT System.ItemPathDisplay FROM SystemIndex WHERE SCOPE='{PersistanceUtil.SourceDirectory}'" +
+                    @" AND (System.ItemName LIKE '%.jpg' OR System.ItemName LIKE '%.jpeg')" +
+                    @" AND (System.Keywords LIKE '%test' OR System.Keywords LIKE '%pretty girl' )";
+                OleDbCommand command = new OleDbCommand(query, connection);
+
+                using (var r = command.ExecuteReader())
+                {
+                    while (r.Read())
+                    {
+                        Console.WriteLine(r[0]);
+                    }
+                }
+            }
         }
 
         private void HandleItemChanged(object sender, ItemChangedEventArgs e)

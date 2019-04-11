@@ -4,6 +4,7 @@ using Microsoft.WindowsAPICodePack.Shell;
 using Microsoft.WindowsAPICodePack.Shell.PropertySystem;
 using System;
 using System.Collections.Generic;
+using System.Data.OleDb;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -77,13 +78,20 @@ namespace ImageTagger
         public static List<string> GetImageFilenames(string sourcePath)
         {
             var result = new List<string>();
-            if(sourcePath != null)
+            var windowsSearchConnection = @"Provider=Search.CollatorDSO;Extended Properties=""Application=Windows""";
+            using (OleDbConnection connection = new OleDbConnection(windowsSearchConnection))
             {
-                //try ccatch this
-                foreach (var fileName in Directory.EnumerateFiles(sourcePath, "*.*", SearchOption.AllDirectories))
+                connection.Open();
+                var query = $"SELECT System.ItemPathDisplay FROM SystemIndex WHERE SCOPE='{PersistanceUtil.SourceDirectory}'" +
+                    @" AND (System.ItemName LIKE '%.jpg' OR System.ItemName LIKE '%.jpeg')";
+                OleDbCommand command = new OleDbCommand(query, connection);
+
+                using (var r = command.ExecuteReader())
                 {
-                    if (acceptedFileTypes.Contains(Path.GetExtension(fileName)))
-                        result.Add(fileName);
+                    while (r.Read())
+                    {
+                        result.Add("" + r[0]);
+                    }
                 }
             }
             return result;

@@ -79,6 +79,7 @@
     <Compile Include="UI\RequestClarafaiAPIDialog.xaml.cs">
       <DependentUpon>RequestClarafaiAPIDialog.xaml</DependentUpon>
     </Compile>
+    <Compile Include="TagFilter.cs" />
     <Compile Include="UI\TagSuggestionDisplay.cs" />
     <Compile Include="ThreadSafeRandom.cs" />
     <Compile Include="TagManipulation\VisionApi.cs" />
