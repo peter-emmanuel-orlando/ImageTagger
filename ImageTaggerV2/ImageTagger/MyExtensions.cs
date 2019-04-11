@@ -10,15 +10,30 @@ public static class MyExtensions
 {
     public static void Add<T>(this ObservableCollection<T> col, IEnumerable<T> enumerable)
     {
-        foreach( var item in enumerable)
+        if(enumerable != null)
         {
-            col.Add(item);
+            foreach (var item in enumerable)
+            {
+                col.Add(item);
+            }
+        }
+    }
+
+    public static void AddRange<T>(this HashSet<T> col, IEnumerable<T> enumerable)
+    {
+        if (enumerable != null)
+        {
+            foreach (var item in enumerable)
+            {
+                if (!col.Contains(item))
+                    col.Add(item);
+            }
         }
     }
     
-        //-----------------------------------------------------
+//-----------------------------------------------------
 
-        public static void Shuffle<T>(this IList<T> list)
+public static void Shuffle<T>(this IList<T> list)
     {
         int n = list.Count;
         while (n > 1)

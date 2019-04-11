@@ -57,6 +57,7 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="TagManipulation\ReservedTagCategories.cs" />
+    <Compile Include="TagQueryCriteria.cs" />
     <Compile Include="UI\AddNewTagComponent.cs" />
     <Compile Include="TagManipulation\MyTagsRecord.cs" />
     <Compile Include="SettingsPersistanceUtil.cs" />
@@ -79,7 +80,6 @@
     <Compile Include="UI\RequestClarafaiAPIDialog.xaml.cs">
       <DependentUpon>RequestClarafaiAPIDialog.xaml</DependentUpon>
     </Compile>
-    <Compile Include="TagFilter.cs" />
     <Compile Include="UI\TagSuggestionDisplay.cs" />
     <Compile Include="ThreadSafeRandom.cs" />
     <Compile Include="TagManipulation\VisionApi.cs" />
