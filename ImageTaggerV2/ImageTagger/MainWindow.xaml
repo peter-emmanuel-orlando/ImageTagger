@@ -58,11 +58,7 @@
                     </Grid>
                 </DockPanel>
                 <Grid Background="#33F2FF00" DockPanel.Dock="Top">
-                    <Image x:Name="mainImageDisplay" Source="{Binding ImgSource}">
-                        <Image.DataContext>
-                            <DataModels:ImageInfo/>
-                        </Image.DataContext>
-                    </Image>
+                    <Image x:Name="mainImageDisplay" Source="{Binding ImgSource}"/>
                     <Grid x:Name="suggestedTagsGridArea" DockPanel.Dock="Bottom" Panel.ZIndex="2">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="2*"/>
