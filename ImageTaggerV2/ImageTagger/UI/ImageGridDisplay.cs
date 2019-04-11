@@ -71,7 +71,7 @@ namespace ImageTagger
             using (OleDbConnection connection = new OleDbConnection(windowsSearchConnection))
             {
                 connection.Open();
-                var criteria = new TagQueryCriteria(new string[] { "test", "pretty girl" });
+                var criteria = new TagQueryCriteria(new string[] { "test", "test2" });
                 var query = $"SELECT System.ItemPathDisplay FROM SystemIndex WHERE SCOPE='{PersistanceUtil.SourceDirectory}' AND " + criteria.GetQueryClause();
                 Debug.WriteLine(query);
                 OleDbCommand command = new OleDbCommand(query, connection);
