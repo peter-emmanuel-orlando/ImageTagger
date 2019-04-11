@@ -5,6 +5,7 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Windows.Controls;
 using System.Windows.Data;
+using System.Windows.Threading;
 
 namespace ImageTagger
 {
@@ -18,7 +19,7 @@ namespace ImageTagger
         public MainImageDisplay(MainWindow main)
         {
             this.main = main;
-            ImageDisplay.Source = mainImageInfo;
+            ImageDisplay.DataContext = mainImageInfo;
 
             main.PreviewMainWindowUnload += UnsubscribeFromAllEvents;
             main.imageGrid.SelectionChanged += HandleImageGridSelectionChangeEvent;
@@ -37,15 +38,15 @@ namespace ImageTagger
             {
                 var newImageInfo = (e.AddedItems[0] as ImageInfo);
                 //Debug.WriteLine("selected: " + newImageInfo.ImgPath);
-
+                //if (!newImageInfo.IsLoaded) newImageInfo.Load();// App.Current.Dispatcher.BeginInvoke( new Action( newImageInfo.Load), DispatcherPriority.Loaded);
                 ChangeImage(newImageInfo);
             }
         }
 
         private void ChangeImage(ImageInfo newInfo)
         {
-            mainImageInfo = newInfo;
-            ImageDisplay.Source = mainImageInfo;
+            mainImageInfo.CloneFrom(newInfo, DispatcherPriority.Send);
+            //ImageDisplay.Source = mainImageInfo;
         }
     }
 }

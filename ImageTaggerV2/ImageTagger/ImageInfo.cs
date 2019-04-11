@@ -28,16 +28,17 @@ namespace ImageTagger.DataModels
             get => imgPath;
             set
             {
+                var prevPath = imgPath;
                 imgPath = value;
+                if (imgPath != prevPath) Unload();
                 NotifyPropertyChanged();
-                imgTags = ImageFileUtil.GetImageTags(ImgPath);
             }
         }
         private HashSet<ImageTag> imgTags = new HashSet<ImageTag>();
         public HashSet<ImageTag> ImgTags { get => imgTags; set { imgTags = value; NotifyPropertyChanged(); } }
         private BitmapImage imgSource;
         public BitmapImage ImgSource { get => imgSource; set { imgSource = value; NotifyPropertyChanged(); } }
-        public bool IsLoaded { get => ImgSource == null; }
+        public bool IsLoaded { get => ImgSource != null; }
         public event PropertyChangedEventHandler PropertyChanged;
         private void NotifyPropertyChanged([CallerMemberName] String propertyName = "")
         {
@@ -45,12 +46,13 @@ namespace ImageTagger.DataModels
         }
 
         private bool isLoading = false;
-        public void Load()
+        public void Load(DispatcherPriority priority = DispatcherPriority.ApplicationIdle)
         {
             if(ImgPath != null)
             {
                 isLoading = true;
-                App.Current.Dispatcher.BeginInvoke(DispatcherPriority.ApplicationIdle, new Action(() =>
+                ImgTags = ImageFileUtil.GetImageTags(ImgPath);
+                App.Current.Dispatcher.BeginInvoke(priority, new Action(() =>
                 {
                     FileStream stream = null;
                     try
@@ -74,6 +76,7 @@ namespace ImageTagger.DataModels
                             stream.Close();
                             stream.Dispose();
                         }
+                        isLoading = false;
                     }
                 }));
             }
@@ -82,13 +85,16 @@ namespace ImageTagger.DataModels
         public void Unload()
         {
             isLoading = false;
+            ImgTags = null;
             ImgSource = null;
         }
 
-
-        public static implicit operator ImageSource (ImageInfo iInfo)
+        public void CloneFrom(ImageInfo other, DispatcherPriority priority = DispatcherPriority.ApplicationIdle)
         {
-            return iInfo.ImgSource;
+            ImgPath = other.ImgPath;
+            ImgSource = other.ImgSource;
+            ImgTags = other.ImgTags;
+            if (other.isLoading) this.Load(priority);
         }
 
         public override bool Equals(object obj)

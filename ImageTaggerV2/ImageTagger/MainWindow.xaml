@@ -4,7 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:ImageTagger"
-        xmlns:System="clr-namespace:System;assembly=mscorlib" x:Class="ImageTagger.MainWindow"
+        xmlns:System="clr-namespace:System;assembly=mscorlib" xmlns:DataModels="clr-namespace:ImageTagger.DataModels" x:Class="ImageTagger.MainWindow"
         mc:Ignorable="d"
         Title="ImageTagger" Height="562.5" Width="1000" WindowStartupLocation="CenterOwner" Icon="/ImageTagger;component/Resources/64b6fbdc3036fe793216621435b981d3.jpg">
     <Grid x:Name="MainPanel" Background="#FFFFF0F0">
@@ -58,7 +58,11 @@
                     </Grid>
                 </DockPanel>
                 <Grid Background="#33F2FF00" DockPanel.Dock="Top">
-                    <Image x:Name="mainImageDisplay" Source="{Binding ImgSource}"/>
+                    <Image x:Name="mainImageDisplay" Source="{Binding ImgSource}">
+                        <Image.DataContext>
+                            <DataModels:ImageInfo/>
+                        </Image.DataContext>
+                    </Image>
                     <Grid x:Name="suggestedTagsGridArea" DockPanel.Dock="Bottom" Panel.ZIndex="2">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="2*"/>
@@ -67,12 +71,12 @@
                         </Grid.RowDefinitions>
                         <GridSplitter x:Name="suggestedTagsSplitter" HorizontalAlignment="Stretch" Height="5" VerticalAlignment="Bottom" Grid.ColumnSpan="999999" Panel.ZIndex="2" Background="#33000000" BorderBrush="Black"/>
                         <DockPanel Grid.Row="2" ScrollViewer.VerticalScrollBarVisibility="Disabled">
-                            
+
                             <Border DockPanel.Dock="Bottom" Padding="0">
                                 <DockPanel VerticalAlignment="Bottom" Panel.ZIndex="3" MinWidth="70" >
                                     <Button x:Name="reloadTagSuggestions" Content="Suggest"/>
                                     <Button x:Name="closeTagSuggestions" Content="Close"/>
-                                    <Label Content="or" Background="#33000000"></Label>
+                                    <Label Content="or" Background="#33000000"/>
                                     <DockPanel VerticalAlignment="Top" HorizontalAlignment="Right" Panel.ZIndex="3">
                                         <Grid HorizontalAlignment="Right">
                                             <Label Content="[type tags]" Background="White" />
@@ -203,10 +207,8 @@
                                 </ItemsControl.ItemTemplate>
                                 <ItemsControl.ItemContainerStyle>
                                     <Style>
-                                        <Style.Setters>
-                                            <Setter Property="Grid.Row" Value="{Binding Row}" />
-                                            <Setter Property="Grid.Column" Value="{Binding Column}" />
-                                        </Style.Setters>
+                                        <Setter Property="Grid.Row" Value="{Binding Row}" />
+                                        <Setter Property="Grid.Column" Value="{Binding Column}" />
                                     </Style>
                                 </ItemsControl.ItemContainerStyle>
                             </ItemsControl>
@@ -216,7 +218,7 @@
                     </Grid>
                 </Grid>
             </DockPanel>
-            <ScrollViewer x:Name="imageGrid_ScrollViewer" CanContentScroll="True" VirtualizingStackPanel.IsVirtualizing="True" >
+            <ScrollViewer x:Name="imageGrid_ScrollViewer" CanContentScroll="True" VirtualizingPanel.IsVirtualizing="True" >
                 <DockPanel>
                     <Button x:Name="loadNextPageButton" DockPanel.Dock="Bottom" Content="Load Next Page" />
                     <ListBox x:Name="imageGrid" ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Hidden" VerticalContentAlignment="Top" Background="#FF00E8FF" ScrollViewer.CanContentScroll="False" DockPanel.Dock="Bottom">
