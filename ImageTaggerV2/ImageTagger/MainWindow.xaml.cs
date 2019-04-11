@@ -89,11 +89,14 @@ namespace ImageTagger
 
         protected override void OnClosing(CancelEventArgs e)
         {
-            base.OnClosing(e);
             this.Hide();
-            //Debug.WriteLine(Environment.StackTrace);
-            // close all active threads
-            Environment.Exit(0);
+            App.Current.Dispatcher.Invoke(() =>
+            {
+                base.OnClosing(e);
+                //Debug.WriteLine(Environment.StackTrace);
+                // close all active threads
+                Environment.Exit(0);
+            }, System.Windows.Threading.DispatcherPriority.ApplicationIdle);
         }
 
         private void WatchForAdditions_UNTESTED(string path)

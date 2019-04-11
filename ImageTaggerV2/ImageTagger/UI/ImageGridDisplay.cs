@@ -98,12 +98,10 @@ namespace ImageTagger
         {
             if (e.AddedItems.Count > 0)
             {
-                var newImageInfo = (e.AddedItems[0] as ImageInfo);
-                Debug.WriteLine("selected: " + newImageInfo.ImgPath);
-
-                main.ImageDisplay.ChangeImage(newImageInfo);
-
-                main.ImageTagsDisplay.TagSource = newImageInfo;
+                //var newImageInfo = (e.AddedItems[0] as ImageInfo);
+                //Debug.WriteLine("selected: " + newImageInfo.ImgPath);
+                //main.ImageDisplay.ChangeImage(newImageInfo);
+                //main.ImageTagsDisplay.TagSource = newImageInfo;
             }
         }
 

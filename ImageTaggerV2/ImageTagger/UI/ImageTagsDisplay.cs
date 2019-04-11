@@ -20,20 +20,7 @@ namespace ImageTagger
 
         private ObservableCollection<ImageTag> mainImageTags { get; } = new ObservableCollection<ImageTag>();
         public IEnumerator<ImageTag> Tags { get { return mainImageTags.GetEnumerator(); } }
-        private ImageInfo tagSource;
-        public ImageInfo TagSource
-        {
-            get
-            {
-                return tagSource;
-            }
-            set
-            {
-                tagSource = value;
-                mainImageTags.Clear();
-                mainImageTags.Add(ImageFileUtil.GetImageTags(value.ImgPath));
-            }
-        }
+        public ImageInfo TagSource { get; private set; }
 
         public ImageTagsDisplay(MainWindow main)
         {
@@ -42,6 +29,7 @@ namespace ImageTagger
             TagsDisplay.KeyDown += TagsDisplay_KeyDown;
             TagsDisplay.LostFocus += TagsDisplay_LostFocus;
             mainImageTags.CollectionChanged += HandleCollectionChanged;
+            main.imageGrid.SelectionChanged += HandleImageGridSelectionChangeEvent;
 
             main.PreviewMainWindowUnload += UnsubscribeFromAllEvents;
         }
@@ -53,6 +41,7 @@ namespace ImageTagger
             TagsDisplay.KeyDown -= TagsDisplay_KeyDown;
             TagsDisplay.LostFocus -= TagsDisplay_LostFocus;
             mainImageTags.CollectionChanged -= HandleCollectionChanged;
+            main.imageGrid.SelectionChanged -= HandleImageGridSelectionChangeEvent;
         }
 
         private void HandleCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
@@ -69,6 +58,24 @@ namespace ImageTagger
             {
                 ApplyTagsToMainImage();
             }
+        }
+
+        private void HandleImageGridSelectionChangeEvent(object sender, SelectionChangedEventArgs e)
+        {
+            if (e.AddedItems.Count > 0)
+            {
+                var newImageInfo = (e.AddedItems[0] as ImageInfo);
+                //Debug.WriteLine("selected: " + newImageInfo.ImgPath);
+
+                ChangeImageTags(newImageInfo);
+            }
+        }
+
+        private void ChangeImageTags(ImageInfo newInfo)
+        {
+            TagSource = newInfo;
+            mainImageTags.Clear();
+            mainImageTags.Add(ImageFileUtil.GetImageTags(newInfo.ImgPath));
         }
 
         private void TagsDisplay_LostFocus(object sender, RoutedEventArgs e)
@@ -118,7 +125,7 @@ namespace ImageTagger
 
         public void Refresh()
         {
-            TagSource = tagSource;
+            TagSource = TagSource;
         }
 
     }
