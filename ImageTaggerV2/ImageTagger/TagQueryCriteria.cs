@@ -26,7 +26,7 @@ namespace ImageTagger
         {
             var evalsToTrue = @"(System.Keywords IS NULL OR System.Keywords IS NOT NULL )";
             var evalsToFalse = @"(System.Keywords IS NULL AND System.Keywords IS NOT NULL )";
-            var result = " (true";
+            var result = $" ({evalsToTrue}";
 
 
             //begin criteria

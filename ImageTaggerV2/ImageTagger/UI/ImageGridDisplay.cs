@@ -72,7 +72,7 @@ namespace ImageTagger
             {
                 connection.Open();
                 var criteria = new TagQueryCriteria(new string[] { "test", "pretty girl" });
-                var query = $"SELECT System.ItemPathDisplay FROM SystemIndex WHERE SCOPE='{PersistanceUtil.SourceDirectory}' AND ( System.Keywords LIKE '%' OR System.Keywords IS NULL ) ";// + criteria.GetQueryClause();
+                var query = $"SELECT System.ItemPathDisplay FROM SystemIndex WHERE SCOPE='{PersistanceUtil.SourceDirectory}' AND " + criteria.GetQueryClause();
                 Debug.WriteLine(query);
                 OleDbCommand command = new OleDbCommand(query, connection);
 
