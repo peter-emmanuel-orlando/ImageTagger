@@ -78,17 +78,18 @@ namespace ImageTagger
         public static List<string> GetImageFilenames(string sourcePath, TagQueryCriteria tagQueryCriteria = null)
         {
             var result = new List<string>();
+            tagQueryCriteria = new TagQueryCriteria();
+
+            var query = $"SELECT System.ItemPathDisplay FROM SystemIndex WHERE SCOPE='{PersistanceUtil.SourceDirectory}'" +
+                @" AND (System.ItemName LIKE '%.jpg' OR System.ItemName LIKE '%.jpeg')";
+            if (tagQueryCriteria != null) query += " AND " + tagQueryCriteria.GetQueryClause();
+
+
             var windowsSearchConnection = @"Provider=Search.CollatorDSO;Extended Properties=""Application=Windows""";
             using (OleDbConnection connection = new OleDbConnection(windowsSearchConnection))
             {
                 connection.Open();
-                tagQueryCriteria = new TagQueryCriteria(new string[] { "test", "pretty girl" });
-                var query = $"SELECT System.ItemPathDisplay FROM SystemIndex WHERE SCOPE='{PersistanceUtil.SourceDirectory}'" +
-                    @" AND (System.ItemName LIKE '%.jpg' OR System.ItemName LIKE '%.jpeg')";
-                if (tagQueryCriteria != null) query += " AND " + tagQueryCriteria.GetQueryClause();
-
                 OleDbCommand command = new OleDbCommand(query, connection);
-
                 using (var r = command.ExecuteReader())
                 {
                     while (r.Read())
