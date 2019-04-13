@@ -54,19 +54,11 @@ namespace ImageTagger
             ///end test section
 
             PersistanceUtil.LoadLocations();
-            ImageFiles.FilesLoaded += HandleFilesReloaded;
 
             var randomizeItems = SettingsPersistanceUtil.RetreiveSetting("randomizeItems") == "true";
             randomize_MenuItem.IsChecked = randomizeItems;
             
             ImageFiles.Load(randomizeItems);
-        }
-
-        private void HandleFilesReloaded(object sender, EventArgs e)
-        {
-            OnUnload(this, new EventArgs());
-
-            PersistanceUtil.LoadLocations();
             ImageDisplay = new MainImageDisplay(this);
             ImageTagsDisplay = new ImageTagsDisplay(this);
             ImageGridDisplay = new ImageGridDisplay(this);

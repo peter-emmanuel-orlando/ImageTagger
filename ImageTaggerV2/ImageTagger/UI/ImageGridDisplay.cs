@@ -33,7 +33,7 @@ namespace ImageTagger
             ImageGrid.SelectionChanged += ImgGrid_SelectionChanged;
             main.imageGrid_ScrollViewer.ScrollChanged += ScrollViewer_ScrollChanged;
             ImageGrid.Loaded += HandleGridLoaded;
-            //ImageFiles.FilesLoaded += HandleFilesLoaded;
+            ImageFiles.FilesLoaded += HandleFilesLoaded;
             //ImageFiles.ItemChanged += HandleItemChanged;
             main.loadNextPageButton.Click += HandleLoadNextPageButtonClick;
             Initialize();
@@ -48,7 +48,7 @@ namespace ImageTagger
             ImageGrid.SelectionChanged -= ImgGrid_SelectionChanged;
             main.imageGrid_ScrollViewer.ScrollChanged -= ScrollViewer_ScrollChanged;
             ImageGrid.Loaded -= HandleGridLoaded;
-            //ImageFiles.FilesLoaded -= HandleFilesLoaded;
+            ImageFiles.FilesLoaded -= HandleFilesLoaded;
             //ImageFiles.ItemChanged -= HandleItemChanged;
             main.loadNextPageButton.Click -= HandleLoadNextPageButtonClick;
         }

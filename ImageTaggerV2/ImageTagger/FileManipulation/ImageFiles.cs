@@ -85,7 +85,7 @@ namespace ImageTagger
         public static void Load(bool randomize = false, TagQueryCriteria tagQueryCriteria = null)
         {
             FileNames.Clear();
-            tagQueryCriteria = new TagQueryCriteria(new string[] { "female", }, null, new string[] { "hispanic", });
+            //tagQueryCriteria = new TagQueryCriteria(new string[] { "female", }, null, new string[] { "hispanic", });
             var persistancePath = PersistanceUtil.SourceDirectory;
             FileNames.Add(ImageFileUtil.GetImageFilenames(persistancePath, tagQueryCriteria ));
             if (randomize) FileNames.Shuffle();
