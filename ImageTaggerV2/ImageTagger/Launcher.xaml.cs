@@ -18,6 +18,11 @@ namespace ImageTagger
             InitializeComponent();
             this.Hide();
             this.ShowInTaskbar = true;
+
+
+            PersistanceUtil.LoadLocations();
+            ImageFiles.Load();
+
             main = new MainWindow();
             main.Closing += HandleMainWindowClosingEvent;
             main.Closed += HandleMainWindowClosedEvent;

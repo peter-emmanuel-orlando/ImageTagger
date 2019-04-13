@@ -53,10 +53,8 @@ namespace ImageTagger
             }
             else
             {
-                PersistanceUtil.LoadLocations();
                 var randomizeItems = SettingsPersistanceUtil.RetreiveSetting("randomizeItems") == "true";
                 randomize_MenuItem.IsChecked = randomizeItems;
-                ImageFiles.Load(randomizeItems);
             }
 
 
