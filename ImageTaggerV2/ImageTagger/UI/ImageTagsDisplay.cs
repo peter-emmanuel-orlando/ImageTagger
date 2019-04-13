@@ -88,7 +88,7 @@ namespace ImageTagger
             var success = ImageFileUtil.ApplyTagsToImage(ImageDisplay.mainImageInfo, Tags);
             if(mainImageTags.Count > 0 && success && PersistanceUtil.DestinationDirectory != PersistanceUtil.SourceDirectory)
             {
-                ImageFiles.MoveToDestination(ImageDisplay.mainImageInfo, PersistanceUtil.DestinationDirectory);
+                ImageFileUtil.MoveToDestination(ImageDisplay.mainImageInfo, PersistanceUtil.DestinationDirectory);
             }
         }
 

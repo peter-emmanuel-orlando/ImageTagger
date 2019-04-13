@@ -116,7 +116,20 @@ namespace ImageTagger
 
 
 
-        public static bool MoveFile(string imgPath, string newDirectory, out string newPath)
+        public static bool MoveToDestination(ImageInfo imgInfo, string newDirectory)
+        {
+            string newPath = "";
+            var success = MoveFile(imgInfo.ImgPath, newDirectory, out newPath);
+            if (success)
+            {
+                //change file path to new filepath
+                var fileNameIndex = ImageFiles.IndexOf(imgInfo.ImgPath);
+                if (fileNameIndex != -1) ImageFiles.Set(fileNameIndex, newPath);
+            }
+            return success;
+        }
+
+        private static bool MoveFile(string imgPath, string newDirectory, out string newPath)
         {
             newPath = imgPath;
             var success = !string.IsNullOrEmpty(imgPath) &&

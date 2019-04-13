@@ -101,33 +101,22 @@ namespace ImageTagger
             watcher.EnableRaisingEvents = true;
             FilesLoaded(null, new EventArgs());
         }
-
-        private static string ignoreNext = "";
+        
         private static void OnFilesChanged(object sender, FileSystemEventArgs e)
         {
-            var fileName = Path.GetFileName(e.FullPath);
-            var extension = Path.GetExtension(e.FullPath);
-            if (fileName != ignoreNext && (extension.Contains(".jpg") || extension.Contains(".jpeg")))
-                Debug.WriteLine("added " + e.FullPath);
-            if (fileName == ignoreNext) ignoreNext = "";
-        }
-
-
-        public static bool MoveToDestination(ImageInfo imgInfo, string newDirectory)
-        {
-            string newPath = "";
-            ignoreNext = Path.GetFileName(imgInfo.ImgPath);
-            var success = ImageFileUtil.MoveFile(imgInfo.ImgPath, newDirectory, out newPath);
-            if (success)
+            var path = e.FullPath;
+            var extension = Path.GetExtension(path);
+            if (!Contains(path) && (extension.Contains(".jpg") || extension.Contains(".jpeg")))
             {
-                //change file path to new filepath
-                var fileNameIndex = ImageFiles.IndexOf(imgInfo.ImgPath);
-                if (fileNameIndex != -1) ImageFiles.Set(fileNameIndex, newPath);
+                FileNames.Add(path);
+                ItemAdded(sender, e);
+                Debug.WriteLine("added " + path);
             }
-            return success;
         }
 
 
+
+        public static event FileSystemEventHandler ItemAdded = delegate { };
         public static event ItemChangedEventHandler ItemChanged = delegate { };
         public static event FilesLoadedEventHandler FilesLoaded = delegate { };
 
