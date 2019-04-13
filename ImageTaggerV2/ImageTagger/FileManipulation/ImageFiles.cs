@@ -21,42 +21,43 @@ namespace ImageTagger
 
     public static class ImageFiles
     {
-        private static ObservableCollection<string> ImageFileNames { get; } = new ObservableCollection<string>();
+        private static ObservableCollection<string> FileNames { get; } = new ObservableCollection<string>();
 
-        public static int Count { get { return ImageFileNames.Count; } }
+        public static int Count { get { return FileNames.Count; } }
 
         public static string Get(int index)
         {
-            return ImageFileNames[index];
+            return FileNames[index];
         }
 
         public static void Set(int index, string newFilePath)
         {
-            var args = new ItemChangedEventArgs(index, ImageFileNames[index], newFilePath);
-            ImageFileNames[index] = newFilePath;
+            var args = new ItemChangedEventArgs(index, FileNames[index], newFilePath);
+            FileNames[index] = newFilePath;
             ItemChanged(null, args);
         }
 
         public static int IndexOf(string filePath)
         {
-            return ImageFileNames.IndexOf(filePath);
+            return FileNames.IndexOf(filePath);
         }
 
         public static bool Contains(string filePath)
         {
-            return ImageFileNames.Contains(filePath);
+            return FileNames.Contains(filePath);
         }
 
         public static IEnumerator<string> GetEnumerator()
         {
-            return ImageFileNames.GetEnumerator();
+            return FileNames.GetEnumerator();
         }
 
-        public static void Load(bool randomize = false)
+        public static void Load(bool randomize = false, TagQueryCriteria tagQueryCriteria = null)
         {
-            ImageFileNames.Clear();
-            ImageFileNames.Add(ImageFileUtil.GetImageFilenames(PersistanceUtil.SourceDirectory));
-            if (randomize) ImageFileNames.Shuffle();
+            FileNames.Clear();
+            tagQueryCriteria = new TagQueryCriteria(new string[] { "female", }, null, new string[] { "hispanic", });
+            FileNames.Add(ImageFileUtil.GetImageFilenames(PersistanceUtil.SourceDirectory, tagQueryCriteria ));
+            if (randomize) FileNames.Shuffle();
             FilesLoaded(null, new EventArgs());
         }
         public static event ItemChangedEventHandler ItemChanged = delegate { };

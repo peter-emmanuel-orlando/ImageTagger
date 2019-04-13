@@ -75,10 +75,12 @@ namespace ImageTagger
         }
         public static string[] acceptedFileTypes { get { return new string[] { ".jpg", ".jpeg" }; } }//, "jpeg", "gif", "png", };
 
-        public static List<string> GetImageFilenames(string sourcePath, TagQueryCriteria tagQueryCriteria = null)
+        public static List<string> GetImageFilenames(string sourcePath = null, TagQueryCriteria tagQueryCriteria = null)
         {
+            sourcePath = sourcePath ?? PersistanceUtil.SourceDirectory;
+            tagQueryCriteria = tagQueryCriteria ?? new TagQueryCriteria();
+
             var result = new List<string>();
-            tagQueryCriteria = new TagQueryCriteria();
 
             var query = $"SELECT System.ItemPathDisplay FROM SystemIndex WHERE SCOPE='{PersistanceUtil.SourceDirectory}'" +
                 @" AND (System.ItemName LIKE '%.jpg' OR System.ItemName LIKE '%.jpeg')";

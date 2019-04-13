@@ -50,7 +50,7 @@ namespace ImageTagger
             InitializeComponent();
 
             //begin test section
-            ImageGridDisplay.SetTagFilter();
+            WatchForAdditions_UNTESTED();
             //Thread.Sleep(99999999);
             ///end test section
 
@@ -93,14 +93,25 @@ namespace ImageTagger
             }, System.Windows.Threading.DispatcherPriority.ApplicationIdle);
         }
 
-        private void WatchForAdditions_UNTESTED(string path)
+        FileSystemWatcher watcher = new FileSystemWatcher();
+        private void WatchForAdditions_UNTESTED()
         {
-            FileSystemWatcher watcher = new FileSystemWatcher();
-            watcher.Path = path;
-            watcher.NotifyFilter = NotifyFilters.LastWrite;
+            watcher.Path = PersistanceUtil.SourceDirectory;
+            watcher.NotifyFilter = NotifyFilters.Attributes |
+                NotifyFilters.CreationTime |
+                NotifyFilters.FileName |
+                NotifyFilters.LastAccess |
+                NotifyFilters.LastWrite |
+                NotifyFilters.Size |
+                NotifyFilters.Security;
             watcher.Filter = "*.*";
-            //watcher.Changed += new FileSystemEventHandler(OnChanged);
+            watcher.Created += new FileSystemEventHandler(OnFilesChanged);
             watcher.EnableRaisingEvents = true;
+        }
+
+        private void OnFilesChanged(object sender, FileSystemEventArgs e)
+        {
+            Debug.WriteLine("added " + e.FullPath);
         }
 
         private void EditTagsRecord_MenuItem_Click(object sender, RoutedEventArgs e)

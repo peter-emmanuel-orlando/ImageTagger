@@ -49,7 +49,7 @@ namespace ImageTagger
             if (allOfThese.Count == 0)
                 result += $" AND {evalsToTrue}";
             else
-                foreach (var all in anyOfThese)
+                foreach (var all in allOfThese)
                 {
                     result += $" AND System.Keywords LIKE '{all}'";
                 }
@@ -60,7 +60,7 @@ namespace ImageTagger
             if (noneOfThese.Count == 0)
                 result += $" OR {evalsToFalse}";
             else
-                foreach (var none in anyOfThese)
+                foreach (var none in noneOfThese)
                 {
                     result += $" OR System.Keywords LIKE '{none}'";
                 }

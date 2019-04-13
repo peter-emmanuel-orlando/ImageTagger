@@ -1,6 +1,7 @@
 ﻿
 using ImageTagger.DataModels;
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Data.OleDb;
@@ -17,8 +18,8 @@ namespace ImageTagger
     public class ImageGridDisplay
     {
         MainWindow main { get; }
-        public ObservableCollection<ImageInfo> Images { get; } = new ObservableCollection<ImageInfo>();
-        public ListBox ImageGrid { get { return main.imageGrid; } }
+        private ObservableCollection<ImageInfo> Images { get; } = new ObservableCollection<ImageInfo>();
+        private ListBox ImageGrid { get { return main.imageGrid; } }
 
         private int maxLoadedImages = 40;
         private int currentImageOffset = 0;
@@ -32,8 +33,8 @@ namespace ImageTagger
             ImageGrid.SelectionChanged += ImgGrid_SelectionChanged;
             main.imageGrid_ScrollViewer.ScrollChanged += ScrollViewer_ScrollChanged;
             ImageGrid.Loaded += HandleGridLoaded;
-            ImageFiles.FilesLoaded += HandleFilesLoaded;
-            ImageFiles.ItemChanged += HandleItemChanged;
+            //ImageFiles.FilesLoaded += HandleFilesLoaded;
+            //ImageFiles.ItemChanged += HandleItemChanged;
             main.loadNextPageButton.Click += HandleLoadNextPageButtonClick;
             Initialize();
 
@@ -47,8 +48,8 @@ namespace ImageTagger
             ImageGrid.SelectionChanged -= ImgGrid_SelectionChanged;
             main.imageGrid_ScrollViewer.ScrollChanged -= ScrollViewer_ScrollChanged;
             ImageGrid.Loaded -= HandleGridLoaded;
-            ImageFiles.FilesLoaded -= HandleFilesLoaded;
-            ImageFiles.ItemChanged -= HandleItemChanged;
+            //ImageFiles.FilesLoaded -= HandleFilesLoaded;
+            //ImageFiles.ItemChanged -= HandleItemChanged;
             main.loadNextPageButton.Click -= HandleLoadNextPageButtonClick;
         }
 
@@ -60,30 +61,13 @@ namespace ImageTagger
             RequestMoreImages();
         }
 
-        public static void SetTagFilter()
+        private void SetTagFilter()
         {
             // any of these tags match < coded blue
             // AND
             // all of these tags match < coded green
             // AND
             // none of these tags match < coded orange
-            var windowsSearchConnection = @"Provider=Search.CollatorDSO;Extended Properties=""Application=Windows""";
-            using (OleDbConnection connection = new OleDbConnection(windowsSearchConnection))
-            {
-                connection.Open();
-                var criteria = new TagQueryCriteria(new string[] { "test", "pretty girl" });
-                var query = $"SELECT System.ItemPathDisplay FROM SystemIndex WHERE SCOPE='{PersistanceUtil.SourceDirectory}' AND " + criteria.GetQueryClause();
-                Debug.WriteLine(query);
-                OleDbCommand command = new OleDbCommand(query, connection);
-
-                using (var r = command.ExecuteReader())
-                {
-                    while (r.Read())
-                    {
-                        Console.WriteLine(r[0]);
-                    }
-                }
-            }
         }
 
         private void HandleItemChanged(object sender, ItemChangedEventArgs e)
