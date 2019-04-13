@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:ImageTagger"
         xmlns:System="clr-namespace:System;assembly=mscorlib" xmlns:DataModels="clr-namespace:ImageTagger.DataModels" x:Class="ImageTagger.MainWindow"
         mc:Ignorable="d"
-        Title="ImageTagger" Height="562.5" Width="1000" WindowStartupLocation="CenterOwner" Icon="/ImageTagger;component/Resources/64b6fbdc3036fe793216621435b981d3.jpg">
+        Title="ImageTagger" Height="562.5" Width="1000" WindowStartupLocation="CenterOwner" Icon="/ImageTagger;component/cherryBlossomIcon.ico">
     <Grid x:Name="MainPanel" Background="#FFFFF0F0">
         <Grid.ColumnDefinitions>
             <ColumnDefinition/>
@@ -249,17 +249,17 @@
                 <MenuItem x:Name="file_MenuItem" Background="#FFF0DBFF" Header="File">
                     <MenuItem x:Name="setSource_MenuItem" Header="Source" >
                         <MenuItem.Icon>
-                            <Image Source="/ImageTagger;component/Resources/64b6fbdc3036fe793216621435b981d3.jpg" />
+                            <Image Source="/ImageTagger;component/cherryBlossomIcon.ico" />
                         </MenuItem.Icon>
                     </MenuItem>
                     <MenuItem x:Name="setDestination_MenuItem"  Header="Destination" >
                         <MenuItem.Icon>
-                            <Image Source="/ImageTagger;component/Resources/64b6fbdc3036fe793216621435b981d3.jpg" />
+                            <Image Source="/ImageTagger;component/cherryBlossomIcon.ico" />
                         </MenuItem.Icon>
                     </MenuItem>
                     <MenuItem x:Name="editTagsRecord_MenuItem"  Header="Edit My Tags" Click="EditTagsRecord_MenuItem_Click" >
                         <MenuItem.Icon>
-                            <Image Source="/ImageTagger;component/Resources/64b6fbdc3036fe793216621435b981d3.jpg" />
+                            <Image Source="/ImageTagger;component/cherryBlossomIcon.ico" />
                         </MenuItem.Icon>
                     </MenuItem>
                 </MenuItem>
@@ -269,7 +269,7 @@
                 <MenuItem x:Name="tools_MenuItem" Background="#FFF0DBFF" Header="Tools">
                     <MenuItem x:Name="setFilterByTags_MenuItem"  Header="Filter By Tags" IsEnabled="False">
                         <MenuItem.Icon>
-                            <Image Source="/ImageTagger;component/Resources/64b6fbdc3036fe793216621435b981d3.jpg" />
+                            <Image Source="/ImageTagger;component/cherryBlossomIcon.ico" />
                         </MenuItem.Icon>
                     </MenuItem>
                 </MenuItem>

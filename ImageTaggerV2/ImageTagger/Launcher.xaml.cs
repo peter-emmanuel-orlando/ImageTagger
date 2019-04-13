@@ -5,8 +5,10 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Drawing;
 using System.IO;
 using System.Windows;
+using System.Windows.Forms;
 
 namespace ImageTagger
 {
@@ -18,6 +20,18 @@ namespace ImageTagger
             InitializeComponent();
             this.Hide();
             this.ShowInTaskbar = true;
+
+            NotifyIcon ni = new NotifyIcon();
+            Stream iconStream = System.Windows.Application.GetResourceStream(new Uri("pack://application:,,,/ImageTagger;component/Resources/cherryBlossomIcon.ico")).Stream;
+            ni.Icon = new Icon(iconStream);
+            ni.Visible = true;
+            /*
+            ni.DoubleClick += delegate (object sender, EventArgs args)
+            {
+                this.Show();
+                this.WindowState = WindowState.Normal;
+            };
+            */
 
 
             PersistanceUtil.LoadLocations();
