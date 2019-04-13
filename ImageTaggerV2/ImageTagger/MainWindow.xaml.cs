@@ -50,7 +50,6 @@ namespace ImageTagger
             InitializeComponent();
 
             //begin test section
-            WatchForAdditions_UNTESTED();
             //Thread.Sleep(99999999);
             ///end test section
 
@@ -92,27 +91,7 @@ namespace ImageTagger
                 Environment.Exit(0);
             }, System.Windows.Threading.DispatcherPriority.ApplicationIdle);
         }
-
-        FileSystemWatcher watcher = new FileSystemWatcher();
-        private void WatchForAdditions_UNTESTED()
-        {
-            watcher.Path = PersistanceUtil.SourceDirectory;
-            watcher.NotifyFilter = NotifyFilters.Attributes |
-                NotifyFilters.CreationTime |
-                NotifyFilters.FileName |
-                NotifyFilters.LastAccess |
-                NotifyFilters.LastWrite |
-                NotifyFilters.Size |
-                NotifyFilters.Security;
-            watcher.Filter = "*.*";
-            watcher.Created += new FileSystemEventHandler(OnFilesChanged);
-            watcher.EnableRaisingEvents = true;
-        }
-
-        private void OnFilesChanged(object sender, FileSystemEventArgs e)
-        {
-            Debug.WriteLine("added " + e.FullPath);
-        }
+        
 
         private void EditTagsRecord_MenuItem_Click(object sender, RoutedEventArgs e)
         {

@@ -1,6 +1,9 @@
-﻿using System;
+﻿using ImageTagger.DataModels;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
+using System.IO;
 
 namespace ImageTagger
 {
@@ -52,14 +55,71 @@ namespace ImageTagger
             return FileNames.GetEnumerator();
         }
 
+
+
+
+
+        private static FileSystemWatcher watcher = new FileSystemWatcher();
+
+
+        static ImageFiles()
+        {
+            watcher = new FileSystemWatcher();
+            watcher.NotifyFilter = NotifyFilters.Attributes |
+                NotifyFilters.CreationTime |
+                NotifyFilters.FileName |
+                NotifyFilters.LastAccess |
+                NotifyFilters.LastWrite |
+                NotifyFilters.Size |
+                NotifyFilters.Security;
+            watcher.Filter = "*.*";
+            watcher.IncludeSubdirectories = true;
+            watcher.Changed += OnFilesChanged;
+        }
+
+
+
+
+
+
         public static void Load(bool randomize = false, TagQueryCriteria tagQueryCriteria = null)
         {
             FileNames.Clear();
             tagQueryCriteria = new TagQueryCriteria(new string[] { "female", }, null, new string[] { "hispanic", });
-            FileNames.Add(ImageFileUtil.GetImageFilenames(PersistanceUtil.SourceDirectory, tagQueryCriteria ));
+            var persistancePath = PersistanceUtil.SourceDirectory;
+            FileNames.Add(ImageFileUtil.GetImageFilenames(persistancePath, tagQueryCriteria ));
             if (randomize) FileNames.Shuffle();
+            watcher.Path = persistancePath;
+            watcher.EnableRaisingEvents = true;
             FilesLoaded(null, new EventArgs());
         }
+
+        private static string ignoreNext = "";
+        private static void OnFilesChanged(object sender, FileSystemEventArgs e)
+        {
+            var fileName = Path.GetFileName(e.FullPath);
+            var extension = Path.GetExtension(e.FullPath);
+            if (fileName != ignoreNext && (extension.Contains(".jpg") || extension.Contains(".jpeg")))
+                Debug.WriteLine("added " + e.FullPath);
+            if (fileName == ignoreNext) ignoreNext = "";
+        }
+
+
+        public static bool MoveToDestination(ImageInfo imgInfo, string newDirectory)
+        {
+            string newPath = "";
+            ignoreNext = Path.GetFileName(imgInfo.ImgPath);
+            var success = ImageFileUtil.MoveFile(imgInfo.ImgPath, newDirectory, out newPath);
+            if (success)
+            {
+                //change file path to new filepath
+                var fileNameIndex = ImageFiles.IndexOf(imgInfo.ImgPath);
+                if (fileNameIndex != -1) ImageFiles.Set(fileNameIndex, newPath);
+            }
+            return success;
+        }
+
+
         public static event ItemChangedEventHandler ItemChanged = delegate { };
         public static event FilesLoadedEventHandler FilesLoaded = delegate { };
 
