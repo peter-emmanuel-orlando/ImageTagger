@@ -249,17 +249,17 @@
                 <MenuItem x:Name="file_MenuItem" Background="#FFF0DBFF" Header="File">
                     <MenuItem x:Name="setSource_MenuItem" Header="Source" >
                         <MenuItem.Icon>
-                            <Image Source="Resources/64b6fbdc3036fe793216621435b981d3.jpg" />
+                            <Image Source="/ImageTagger;component/Resources/64b6fbdc3036fe793216621435b981d3.jpg" />
                         </MenuItem.Icon>
                     </MenuItem>
                     <MenuItem x:Name="setDestination_MenuItem"  Header="Destination" >
                         <MenuItem.Icon>
-                            <Image Source="Resources/64b6fbdc3036fe793216621435b981d3.jpg" />
+                            <Image Source="/ImageTagger;component/Resources/64b6fbdc3036fe793216621435b981d3.jpg" />
                         </MenuItem.Icon>
                     </MenuItem>
                     <MenuItem x:Name="editTagsRecord_MenuItem"  Header="Edit My Tags" Click="EditTagsRecord_MenuItem_Click" >
                         <MenuItem.Icon>
-                            <Image Source="Resources/64b6fbdc3036fe793216621435b981d3.jpg" />
+                            <Image Source="/ImageTagger;component/Resources/64b6fbdc3036fe793216621435b981d3.jpg" />
                         </MenuItem.Icon>
                     </MenuItem>
                 </MenuItem>
@@ -269,7 +269,7 @@
                 <MenuItem x:Name="tools_MenuItem" Background="#FFF0DBFF" Header="Tools">
                     <MenuItem x:Name="setFilterByTags_MenuItem"  Header="Filter By Tags" IsEnabled="False">
                         <MenuItem.Icon>
-                            <Image Source="Resources/64b6fbdc3036fe793216621435b981d3.jpg" />
+                            <Image Source="/ImageTagger;component/Resources/64b6fbdc3036fe793216621435b981d3.jpg" />
                         </MenuItem.Icon>
                     </MenuItem>
                 </MenuItem>

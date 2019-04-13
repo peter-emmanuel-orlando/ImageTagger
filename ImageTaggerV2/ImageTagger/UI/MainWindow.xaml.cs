@@ -26,9 +26,6 @@ namespace ImageTagger
     public partial class MainWindow : Window
     {
         private string programDirectory = Directory.GetCurrentDirectory();
-        private bool checkForEmptyTags = true;
-
-        private bool randomizeImages = false;
 
         ///this is the generic, come back and fix
         public event EventHandler PreviewMainWindowUnload;
@@ -41,24 +38,28 @@ namespace ImageTagger
         public TagSuggestionDisplay TagSuggestionDisplay { get; private set; }
 
 
-        /*
-         *ASYNC METHODS ARE NOT CURRENTLY IMPLEMENTED IN THE CORRECT WAY!
-         * the caller should do task.run, not the implementation
-         */
-        public MainWindow()
+        private bool isDialog = false;
+        public MainWindow(HashSet<string> toDisplay = null)
         {
             InitializeComponent();
+            isDialog = toDisplay != null;
 
-            //begin test section
-            //Thread.Sleep(99999999);
-            ///end test section
+            if (isDialog)
+            {
+                setSource_MenuItem.IsEnabled = false;
+                setSource_MenuItem.Visibility = Visibility.Collapsed;
+                randomize_MenuItem.IsEnabled = false;
+                randomize_MenuItem.Visibility = Visibility.Collapsed;
+            }
+            else
+            {
+                PersistanceUtil.LoadLocations();
+                var randomizeItems = SettingsPersistanceUtil.RetreiveSetting("randomizeItems") == "true";
+                randomize_MenuItem.IsChecked = randomizeItems;
+                ImageFiles.Load(randomizeItems);
+            }
 
-            PersistanceUtil.LoadLocations();
 
-            var randomizeItems = SettingsPersistanceUtil.RetreiveSetting("randomizeItems") == "true";
-            randomize_MenuItem.IsChecked = randomizeItems;
-            
-            ImageFiles.Load(randomizeItems);
             ImageDisplay = new MainImageDisplay(this);
             ImageTagsDisplay = new ImageTagsDisplay(this);
             ImageGridDisplay = new ImageGridDisplay(this);
@@ -67,23 +68,15 @@ namespace ImageTagger
             TagSuggestionDisplay = new TagSuggestionDisplay(this);
         }
 
-        protected void OnUnload(object sender, EventArgs e)
-        {
-            PreviewMainWindowUnload?.Invoke(sender, e);
-        }
-
         protected override void OnClosing(CancelEventArgs e)
         {
-            this.Hide();
-            App.Current.Dispatcher.Invoke(() =>
-            {
-                base.OnClosing(e);
-                //Debug.WriteLine(Environment.StackTrace);
-                // close all active threads
-                Environment.Exit(0);
-            }, System.Windows.Threading.DispatcherPriority.ApplicationIdle);
+            PreviewMainWindowUnload?.Invoke(this, new EventArgs());
+            if(this.isDialog)
+                this.DialogResult = true;
         }
         
+
+
 
         private void EditTagsRecord_MenuItem_Click(object sender, RoutedEventArgs e)
         {
