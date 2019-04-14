@@ -160,8 +160,8 @@ namespace ImageAnalysisAPI
             var parsedJson = JToken.Parse(JsonConvert.SerializeObject(data));
             var s = parsedJson.ToString(Formatting.Indented);
             s = Regex.Replace(s, @"\]([\s\S]*?)\[", ",");
-            s = Regex.Replace(s, @"[\s\S]*\[", "[");
-            s = Regex.Replace(s, @"\]([\s\S]*)", "]");
+            s = "[" + s.Split('[').Last();//Regex.Replace(s, @"[\s\S]*\[", "[");
+            s = s.Split(']').First() + "]"; //Regex.Replace(s, @"\]([\s\S]*)", "]");
             Debug.WriteLine(s);
             var concepts = JsonConvert.DeserializeObject<List<Concept>>(s);//s.Split(new string[] { "~break~" }, StringSplitOptions.RemoveEmptyEntries);
             var category = Enum.GetName(typeof(ImageAnalysisType), ImageAnalysisType.general);
