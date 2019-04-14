@@ -91,7 +91,7 @@ namespace ImageAnalysisAPI
                 }
                 else if(prediction.Model.ModelID == clarifaiClient.PublicModels.DemographicsModel.ModelID)
                 {
-                    var category = Enum.GetName(typeof(ImageAnalysisType), ImageAnalysisType.general);
+                    var category = Enum.GetName(typeof(ImageAnalysisType), ImageAnalysisType.demographics);
                     var cachePath = imageFilePath + "/" + category;
                     ParseGeneralData(prediction.Data);
                     var parsed = ParseDemographicsData(prediction.Data.Cast<Demographics>());
@@ -100,7 +100,7 @@ namespace ImageAnalysisAPI
                 }
                 else if (prediction.Model.ModelID == clarifaiClient.PublicModels.ModerationModel.ModelID)
                 {
-                    var category = Enum.GetName(typeof(ImageAnalysisType), ImageAnalysisType.general);
+                    var category = Enum.GetName(typeof(ImageAnalysisType), ImageAnalysisType.moderation);
                     var cachePath = imageFilePath + "/" + category;
                     var parsed = ParseModerationData(prediction.Data.Cast<Concept>());
                     CacheAnalyticsResults(cachePath, parsed);
@@ -110,7 +110,7 @@ namespace ImageAnalysisAPI
                 {
                     var category = Enum.GetName(typeof(ImageAnalysisType), ImageAnalysisType.general);
                     var cachePath = imageFilePath + "/" + category;
-                    var parsed = ParseGeneralData(prediction.Data.Cast<Concept>());
+                    var parsed = ParseGeneralData(prediction.Data);
                     CacheAnalyticsResults(cachePath, parsed);
                     result.AddRange(parsed);
                 }
@@ -159,17 +159,14 @@ namespace ImageAnalysisAPI
         {
             var parsedJson = JToken.Parse(JsonConvert.SerializeObject(data));
             var s = parsedJson.ToString(Formatting.Indented);
-            Debug.WriteLine(s);
             s = Regex.Replace(s, @"\]([\s\S]*?)\[", ",");
-            Debug.WriteLine(s);
-            s = Regex.Replace(s, @"([\s\S]*)\[", "[");
-            Debug.WriteLine(s);
+            s = Regex.Replace(s, @"[\s\S]*\[", "[");
             s = Regex.Replace(s, @"\]([\s\S]*)", "]");
             Debug.WriteLine(s);
             var concepts = JsonConvert.DeserializeObject<List<Concept>>(s);//s.Split(new string[] { "~break~" }, StringSplitOptions.RemoveEmptyEntries);
             var category = Enum.GetName(typeof(ImageAnalysisType), ImageAnalysisType.general);
             var result = new List<TagSuggestion>();
-            foreach (var concept in data.Cast<Concept>())
+            foreach (var concept in concepts)
             {
                 result.Add(new TagSuggestion(new ImageTag(concept.Name), (concept.Value.HasValue) ? (double)concept.Value.Value : 0d, category));
             }

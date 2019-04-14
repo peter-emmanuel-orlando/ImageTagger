@@ -247,7 +247,20 @@ namespace ImageTagger
         public ImageTag tag { get; }
         public double confidenceLevel { get; }
         public string category { get; }
+
+        public override bool Equals(object obj)
+        {
+            var suggestion = obj as TagSuggestion;
+            return suggestion != null &&
+                   EqualityComparer<ImageTag>.Default.Equals(tag, suggestion.tag);
+        }
+
+        public override int GetHashCode()
+        {
+            return -1573750901 + EqualityComparer<ImageTag>.Default.GetHashCode(tag);
+        }
     }
+
 }
 
 
