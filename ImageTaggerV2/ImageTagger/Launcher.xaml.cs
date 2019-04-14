@@ -15,13 +15,13 @@ namespace ImageTagger
     public partial class Launcher : Window
     {
         MainWindow main;
+        NotifyIcon ni = new NotifyIcon();
         public Launcher()
         {
             InitializeComponent();
             this.Hide();
             this.ShowInTaskbar = true;
 
-            NotifyIcon ni = new NotifyIcon();
             Stream iconStream = System.Windows.Application.GetResourceStream(new Uri("pack://application:,,,/ImageTagger;component/Resources/cherryBlossomIcon.ico")).Stream;
             ni.Icon = new Icon(iconStream);
             ni.Visible = true;
@@ -35,12 +35,28 @@ namespace ImageTagger
 
 
             PersistanceUtil.LoadLocations();
-            ImageFiles.Load();
+            ImageFiles.ItemAdded += HandleItemAddedEvent;
 
             main = new MainWindow();
+            main.Show();
             main.Closing += HandleMainWindowClosingEvent;
             main.Closed += HandleMainWindowClosedEvent;
-            main.Show();
+        }
+
+        HashSet<string> newFiles { get; } = new HashSet<string>();
+        int showAfter = 5;
+        private void HandleItemAddedEvent(object sender, FileSystemEventArgs e)
+        {
+            newFiles.Add(e.FullPath);
+            if(newFiles.Count >= showAfter)
+            {
+                App.Current.Dispatcher.Invoke(new Action(() =>
+                {
+                    var tempWindow = new MainWindow(true, null, true);
+                    newFiles.Clear();
+                    tempWindow.ShowDialog();
+                }));
+            }
         }
 
         private void HandleMainWindowClosingEvent(object sender, EventArgs e)
@@ -58,6 +74,7 @@ namespace ImageTagger
         protected override void OnClosing(CancelEventArgs e)
         {
             this.Hide();
+            ni.Visible = false;
             App.Current.Dispatcher.Invoke(() =>
             {
                 base.OnClosing(e);

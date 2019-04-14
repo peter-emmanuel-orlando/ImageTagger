@@ -36,13 +36,15 @@ namespace ImageTagger
         public AddNewTagComponent AddNewTagComponent { get; private set; }
         public MenuDisplay MenuDisplayComponent { get; private set; }
         public TagSuggestionDisplay TagSuggestionDisplay { get; private set; }
+        public ImageFiles ImageFiles{get;} = new ImageFiles();
 
+        public bool isDialog { get; } = false;
+        
 
-        private bool isDialog = false;
-        public MainWindow(HashSet<string> toDisplay = null)
+        public MainWindow(bool isDialog = false, TagQueryCriteria tagQueryCriteria = null, bool newAdditionsOnly = false)
         {
             InitializeComponent();
-            isDialog = toDisplay != null;
+            this.isDialog = isDialog;
 
             if (isDialog)
             {
@@ -51,12 +53,10 @@ namespace ImageTagger
                 randomize_MenuItem.IsEnabled = false;
                 randomize_MenuItem.Visibility = Visibility.Collapsed;
             }
-            else
-            {
-                var randomizeItems = SettingsPersistanceUtil.RetreiveSetting("randomizeItems") == "true";
-                randomize_MenuItem.IsChecked = randomizeItems;
-            }
 
+            var randomizeItems = SettingsPersistanceUtil.RetreiveSetting("randomizeItems") == "true";
+            randomize_MenuItem.IsChecked = randomizeItems;
+            ImageFiles.Load(randomizeItems, tagQueryCriteria, newAdditionsOnly);
 
             ImageDisplay = new MainImageDisplay(this);
             ImageTagsDisplay = new ImageTagsDisplay(this);

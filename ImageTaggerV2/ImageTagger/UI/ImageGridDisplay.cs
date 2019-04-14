@@ -153,12 +153,12 @@ namespace ImageTagger
         {
             var startIndex = currentImageOffset + (currentPage * imagesPerChunk);
             var loadUpTo = startIndex + imagesPerChunk;
-            loadUpTo = Math.Min(loadUpTo, ImageFiles.Count);
+            loadUpTo = Math.Min(loadUpTo, main.ImageFiles.Count);
             loadUpTo = Math.Min(loadUpTo, startIndex + imagesPerChunk );
             
             for (int i = startIndex; i < loadUpTo; i++)
             {
-                var newSquare = new ImageInfo(ImageFiles.Get(i));
+                var newSquare = new ImageInfo(main.ImageFiles.Get(i));
                 Images.Add(newSquare);
                 newSquare.Load();
             }

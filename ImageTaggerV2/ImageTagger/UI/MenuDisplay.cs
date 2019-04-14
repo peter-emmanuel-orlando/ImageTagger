@@ -38,7 +38,7 @@ namespace ImageTagger
             if (success)
             {
                 PersistanceUtil.ChangeSource(result);
-                ImageFiles.Load();
+                main.ImageFiles.Load();
             }
         }
 
@@ -54,13 +54,13 @@ namespace ImageTagger
 
         private void Randomize_MenuItem_Checked(object sender, RoutedEventArgs e)
         {
-            ImageFiles.Load(true);
+            main.ImageFiles.Load(true);
             SettingsPersistanceUtil.RecordSetting("randomizeItems", "true");
         }
 
         private void Randomize_MenuItem_Unchecked(object sender, RoutedEventArgs e)
         {
-            ImageFiles.Load(false);
+            main.ImageFiles.Load(false);
             SettingsPersistanceUtil.RecordSetting("randomizeItems", "false");
         }
     }
