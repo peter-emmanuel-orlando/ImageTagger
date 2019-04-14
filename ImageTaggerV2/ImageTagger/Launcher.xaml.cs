@@ -19,6 +19,7 @@ namespace ImageTagger
         public Launcher()
         {
             InitializeComponent();
+            AddShortcutToStartupHelper.Add("pyo", "ImageTagger");
             this.Hide();
             this.ShowInTaskbar = true;
 
