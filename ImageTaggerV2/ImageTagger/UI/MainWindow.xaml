@@ -265,6 +265,11 @@
                 </MenuItem>
                 <MenuItem x:Name="settings_MenuItem" Background="#FFF0DBFF" Header="Settings">
                     <MenuItem x:Name="randomize_MenuItem"  Header="Randomize" IsCheckable="True" StaysOpenOnClick="True" />
+                    <MenuItem x:Name="setAPIKeysRecord_MenuItem"  Header="Set API Keys" Click="SetAPIKeysRecord_MenuItem_Click" >
+                        <MenuItem.Icon>
+                            <Image Source="/ImageTagger;component/cherryBlossomIcon.ico" />
+                        </MenuItem.Icon>
+                    </MenuItem>
                 </MenuItem>
                 <MenuItem x:Name="tools_MenuItem" Background="#FFF0DBFF" Header="Tools">
                     <MenuItem x:Name="setFilterByTags_MenuItem"  Header="Filter By Tags" IsEnabled="False">

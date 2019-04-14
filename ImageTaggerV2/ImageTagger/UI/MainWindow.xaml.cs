@@ -20,6 +20,7 @@ using System.Windows.Shapes;
 using Debug = System.Diagnostics.Debug;
 using Path = System.IO.Path;
 using System.ComponentModel;
+using ImageTagger.UI;
 
 namespace ImageTagger
 {
@@ -80,6 +81,11 @@ namespace ImageTagger
         {
             var tmp = new EditMyTags();
             tmp.ShowDialog();
+        }
+
+        private void SetAPIKeysRecord_MenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            RequestClarafaiAPIDialog.GetAPIKeyViaDialog();
         }
     }
 }

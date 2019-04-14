@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ImageAnalysisAPI;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -20,9 +21,27 @@ namespace ImageTagger.UI
     public partial class RequestClarafaiAPIDialog : Window
     {
         public string ApiKey { get; private set; } = "";
-        public RequestClarafaiAPIDialog()
+        private RequestClarafaiAPIDialog()
         {
             InitializeComponent();
+            var currentKey = SettingsPersistanceUtil.RetreiveSetting("apiKey");
+            this.inputBox.Text = currentKey;
+        }
+
+        public static string GetAPIKeyViaDialog()
+        {
+            var result = "";
+            var getKeyWindow = new RequestClarafaiAPIDialog();
+            var success = getKeyWindow.ShowDialog() ?? false;
+            if (success)
+            {
+                result = getKeyWindow.ApiKey;
+                MessageBox.Show("api key is set to " + result);
+                SettingsPersistanceUtil.RecordSetting("apiKey", result);
+            }
+            ImageAnalysis.RefreshAPIKey();
+            return result;
+
         }
 
         private void CancelButton_Click(object sender, RoutedEventArgs e)

@@ -25,6 +25,7 @@ using Clarifai.DTOs;
 using Clarifai.DTOs.Models;
 using ImageTagger.DataModels;
 using ImageTagger.UI;
+using System.Text.RegularExpressions;
 
 namespace ImageAnalysisAPI
 {
@@ -43,23 +44,21 @@ namespace ImageAnalysisAPI
 
     public static class ImageAnalysis
     {
-        private static readonly HttpClient httpClient;
-        private static readonly ClarifaiClient clarifaiClient;
+        private static HttpClient httpClient;
+        private static ClarifaiClient clarifaiClient;
 
         static ImageAnalysis()
         {
+            RefreshAPIKey();
+        }
+
+        public static void RefreshAPIKey()
+        { 
             var apiKey = SettingsPersistanceUtil.RetreiveSetting("apiKey");
 
             if (apiKey == "")
             {
-                var getKeyWindow = new RequestClarafaiAPIDialog();
-                var success = getKeyWindow.ShowDialog() ?? false;
-                if (success)
-                {
-                    apiKey = getKeyWindow.ApiKey;
-                    MessageBox.Show("api key is set to " + apiKey);
-                    SettingsPersistanceUtil.RecordSetting("apiKey", apiKey);
-                }
+                 apiKey = RequestClarafaiAPIDialog.GetAPIKeyViaDialog();
             }
                 
             else
@@ -73,30 +72,53 @@ namespace ImageAnalysisAPI
             }
         }
 
-
-        private class Suggestion : IPrediction
+        public static async Task<List<TagSuggestion>> RequestAnalysis(string imageFilePath, params ImageAnalysisType[] categories)
         {
-            public Suggestion(string iD, string name, DateTime? createdAt, string appID, decimal? value, string language)
+            var bytes = File.ReadAllBytes(imageFilePath);
+            var input = new ClarifaiFileImage(bytes);
+            var res = await clarifaiClient.WorkflowPredict("workflow", input).ExecuteAsync();
+            var predictions = res.Get().WorkflowResult.Predictions;
+            var result = new HashSet<TagSuggestion>();
+            foreach (var prediction in predictions)
             {
-                ID = iD;
-                Name = name;
-                CreatedAt = createdAt;
-                AppID = appID;
-                Value = value;
-                Language = language;
+                if (prediction.Model.ModelID == clarifaiClient.PublicModels.GeneralModel.ModelID)
+                {
+                    var category = Enum.GetName(typeof(ImageAnalysisType), ImageAnalysisType.general);
+                    var cachePath = imageFilePath + "/" + category;
+                    var parsed = ParseGeneralData(prediction.Data.Cast<Concept>());
+                    CacheAnalyticsResults(cachePath, parsed);
+                    result.AddRange(parsed);
+                }
+                else if(prediction.Model.ModelID == clarifaiClient.PublicModels.DemographicsModel.ModelID)
+                {
+                    var category = Enum.GetName(typeof(ImageAnalysisType), ImageAnalysisType.general);
+                    var cachePath = imageFilePath + "/" + category;
+                    ParseGeneralData(prediction.Data);
+                    var parsed = ParseDemographicsData(prediction.Data.Cast<Demographics>());
+                    CacheAnalyticsResults(cachePath, parsed);
+                    result.AddRange(parsed);
+                }
+                else if (prediction.Model.ModelID == clarifaiClient.PublicModels.ModerationModel.ModelID)
+                {
+                    var category = Enum.GetName(typeof(ImageAnalysisType), ImageAnalysisType.general);
+                    var cachePath = imageFilePath + "/" + category;
+                    var parsed = ParseModerationData(prediction.Data.Cast<Concept>());
+                    CacheAnalyticsResults(cachePath, parsed);
+                    result.AddRange(parsed);
+                }
+                else
+                {
+                    var category = Enum.GetName(typeof(ImageAnalysisType), ImageAnalysisType.general);
+                    var cachePath = imageFilePath + "/" + category;
+                    var parsed = ParseGeneralData(prediction.Data.Cast<Concept>());
+                    CacheAnalyticsResults(cachePath, parsed);
+                    result.AddRange(parsed);
+                }
             }
-
-            public string TYPE => "concept";
-            public string ID { get; }
-            public string Name { get; }
-            public DateTime? CreatedAt { get; }
-            public string AppID { get; }
-            public decimal? Value { get; }
-            public string Language { get; }
+            return new List<TagSuggestion>(result);
         }
 
-        
-        public static async Task<List<TagSuggestion>> RequestAnalysis(string imageFilePath, params ImageAnalysisType[] categories)
+        public static async Task<List<TagSuggestion>> RequestAnalysiss(string imageFilePath, params ImageAnalysisType[] categories)
         {
             if (categories.Length == 0 || categories.Contains(ImageAnalysisType.all))
                 categories = (ImageAnalysisType[])Enum.GetValues(typeof(ImageAnalysisType));
@@ -123,31 +145,37 @@ namespace ImageAnalysisAPI
             {
                 var request = new HttpRequestMessage(HttpMethod.Post, "aaa03c23b3724a16a56b629203edc62c/outputs");
                 var bytes = File.ReadAllBytes(imageFilePath);
-                var reqJSON = new
+                var res = await clarifaiClient.PublicModels.GeneralModel.Predict(new ClarifaiFileImage(bytes)).ExecuteAsync();
+                if(res.IsSuccessful)
                 {
-                    inputs = new[] {
-                            new {data = new{ image = new{ base64 = bytes } } }
-                        }
-                };
-                var stringContent = new StringContent(JsonConvert.SerializeObject(reqJSON), Encoding.UTF8, "application/json");
-                request.Content = stringContent;
-                var res = await httpClient.SendAsync(request);
-                Debug.WriteLine("server response: " + res.StatusCode);
-                var resString = await res.Content.ReadAsStringAsync();
-                var parsedJson = JToken.Parse(resString);
-                resString = parsedJson.ToString(Formatting.Indented);
-                //Debug.WriteLine(resString);
-                var obj = JsonConvert.DeserializeAnonymousType(resString, new { status = new { }, outputs = new[] { new { data = new { concepts = new Suggestion[] { } } } } }, new JsonSerializerSettings() { ConstructorHandling = ConstructorHandling.AllowNonPublicDefaultConstructor });
-                var concepts = obj.outputs[0].data.concepts;
-
-                foreach (var concept in concepts)
-                {
-                    result.Add(new TagSuggestion(new ImageTag(concept.Name), (concept.Value.HasValue) ? (double)concept.Value.Value : 0d, category));
+                    result = ParseGeneralData(res.Get().Data);
                 }
             }
             CacheAnalyticsResults(cachePath, result);
             return result;
         }
+
+        private static List<TagSuggestion> ParseGeneralData(IEnumerable<IPrediction> data)
+        {
+            var parsedJson = JToken.Parse(JsonConvert.SerializeObject(data));
+            var s = parsedJson.ToString(Formatting.Indented);
+            Debug.WriteLine(s);
+            s = Regex.Replace(s, @"\]([\s\S]*?)\[", ",");
+            Debug.WriteLine(s);
+            s = Regex.Replace(s, @"([\s\S]*)\[", "[");
+            Debug.WriteLine(s);
+            s = Regex.Replace(s, @"\]([\s\S]*)", "]");
+            Debug.WriteLine(s);
+            var concepts = JsonConvert.DeserializeObject<List<Concept>>(s);//s.Split(new string[] { "~break~" }, StringSplitOptions.RemoveEmptyEntries);
+            var category = Enum.GetName(typeof(ImageAnalysisType), ImageAnalysisType.general);
+            var result = new List<TagSuggestion>();
+            foreach (var concept in data.Cast<Concept>())
+            {
+                result.Add(new TagSuggestion(new ImageTag(concept.Name), (concept.Value.HasValue) ? (double)concept.Value.Value : 0d, category));
+            }
+            return result;
+        }
+
 
         private static async Task<List<TagSuggestion>> RequestDemographicsAnalysisAsync(string imageFilePath)
         {
@@ -158,49 +186,55 @@ namespace ImageAnalysisAPI
 
             if (!cacheHit && clarifaiClient != null)
             {
-                // When using async/await
                 var bytes = File.ReadAllBytes(imageFilePath);
-                //var model = new ImageModels.DemographicsModel(client, ImageModels.)
-                var res = await clarifaiClient.PublicModels.DemographicsModel
-                    .Predict(new ClarifaiFileImage(bytes))
-                    .ExecuteAsync();
-                // Print the concepts
+                var modelId = clarifaiClient.PublicModels.DemographicsModel.ModelID;
+                var res = await clarifaiClient.Predict<Demographics>(modelId, new ClarifaiFileImage(bytes)).ExecuteAsync();
+                if(res.IsSuccessful)
+                    result = ParseDemographicsData(res.Get().Data);
 
-                Func<string, string> fixName = (string name) =>
-                {
-                    if (name == "middle eastern or north african") return "arab";
-                    else if (name == "american indian or alaska native") return "nativeAmerican";
-                    else if (name == "black or african american") return "africanOrigin";
-                    else if (name == "native hawaiian or pacific islander") return "pacificIslander";
-                    else if (name == "hispanic, latino, or spanish origin") return "hispanic";
-                    else if (name == "white") return "caucasian";
-                    else return name;
-                };
-                foreach (var person in res.Get().Data)
-                {
-                    //not using age right now
-                    /*foreach (var innerConcept in person.AgeAppearanceConcepts)
-                    {
-                        Debug.WriteLine($"{innerConcept.Name}: {innerConcept.Value}");
-                    }*/
-                    var gender = "unsure";
-                    var certainty = 0m;
-                    foreach (var innerConcept in person.GenderAppearanceConcepts)
-                    {
-                        if (innerConcept.Name == "feminine" && innerConcept.Value.Value > 0.6m) { gender = "female"; certainty = innerConcept.Value.Value; }
-                        else if (innerConcept.Name == "masculine" && innerConcept.Value.Value > 0.6m) { gender = "male"; certainty = innerConcept.Value.Value; }
-                    }
-                    result.Add(new TagSuggestion(new ImageTag(gender), (double)certainty, category));
-
-                    foreach (var innerConcept in person.MulticulturalAppearanceConcepts)
-                    {
-                        var threshold = 0.099m;
-                        if (innerConcept.Value.Value > threshold)
-                            result.Add(new TagSuggestion(new ImageTag(fixName(innerConcept.Name)), (double)innerConcept.Value.Value, category));
-                    }
-                }
             }
             CacheAnalyticsResults(cachePath, result);
+            return result;
+        }
+
+        private static List<TagSuggestion> ParseDemographicsData(IEnumerable<Demographics> data)
+        {
+
+            List<TagSuggestion> result = new List<TagSuggestion>();
+            var category = Enum.GetName(typeof(ImageAnalysisType), ImageAnalysisType.demographics);
+            Func<string, string> fixName = (string name) =>
+            {
+                if (name == "middle eastern or north african") return "arab";
+                else if (name == "american indian or alaska native") return "nativeAmerican";
+                else if (name == "black or african american") return "africanOrigin";
+                else if (name == "native hawaiian or pacific islander") return "pacificIslander";
+                else if (name == "hispanic, latino, or spanish origin") return "hispanic";
+                else if (name == "white") return "caucasian";
+                else return name;
+            };
+            foreach (var person in data)
+            {
+                //not using age right now
+                /*foreach (var innerConcept in person.AgeAppearanceConcepts)
+                {
+                    Debug.WriteLine($"{innerConcept.Name}: {innerConcept.Value}");
+                }*/
+                var gender = "unsure";
+                var certainty = 0m;
+                foreach (var innerConcept in person.GenderAppearanceConcepts)
+                {
+                    if (innerConcept.Name == "feminine" && innerConcept.Value.Value > 0.6m) { gender = "female"; certainty = innerConcept.Value.Value; }
+                    else if (innerConcept.Name == "masculine" && innerConcept.Value.Value > 0.6m) { gender = "male"; certainty = innerConcept.Value.Value; }
+                }
+                result.Add(new TagSuggestion(new ImageTag(gender), (double)certainty, category));
+
+                foreach (var innerConcept in person.MulticulturalAppearanceConcepts)
+                {
+                    var threshold = 0.099m;
+                    if (innerConcept.Value.Value > threshold)
+                        result.Add(new TagSuggestion(new ImageTag(fixName(innerConcept.Name)), (double)innerConcept.Value.Value, category));
+                }
+            }
             return result;
         }
 
@@ -220,22 +254,31 @@ namespace ImageAnalysisAPI
                     .Predict(new ClarifaiFileImage(bytes))
                     .ExecuteAsync();
                 // Print the concepts
-                var isSafe = false;
-                foreach (var concept in res.Get().Data)
-                {
-                    var name = concept.Name;
-                    var certainty = (double)concept.Value.Value;
-                    var threshold = 0.3;
-                    if(certainty > threshold)
-                    {
-                        result.Add(new TagSuggestion(new ImageTag( concept.Name), certainty, category));
-                        if (name == "safe") isSafe = true;
-                    }
-                }
-                if(!isSafe)
-                    result.Add(new TagSuggestion(new ImageTag("nsfw"), 1, category));
+                ParseModerationData(res.Get().Data);
             }
             CacheAnalyticsResults(cachePath, result);
+            return result;
+        }
+
+        private static List<TagSuggestion> ParseModerationData(IEnumerable<Concept> data)
+        {
+
+            var isSafe = false;
+            var category = Enum.GetName(typeof(ImageAnalysisType), ImageAnalysisType.moderation);
+            var result = new List<TagSuggestion>();
+            foreach (var concept in data)
+            {
+                var name = concept.Name;
+                var certainty = (double)concept.Value.Value;
+                var threshold = 0.3;
+                if (certainty > threshold)
+                {
+                    result.Add(new TagSuggestion(new ImageTag(concept.Name), certainty, category));
+                    if (name == "safe") isSafe = true;
+                }
+            }
+            if (!isSafe)
+                result.Add(new TagSuggestion(new ImageTag("nsfw"), 1, category));
             return result;
         }
 
@@ -310,3 +353,62 @@ namespace ImageAnalysisAPI
     }
 
 }
+/* general model via http
+private class Suggestion : IPrediction
+{
+    public Suggestion(string iD, string name, DateTime? createdAt, string appID, decimal? value, string language)
+    {
+        ID = iD;
+        Name = name;
+        CreatedAt = createdAt;
+        AppID = appID;
+        Value = value;
+        Language = language;
+    }
+
+    public string TYPE => "concept";
+    public string ID { get; }
+    public string Name { get; }
+    public DateTime? CreatedAt { get; }
+    public string AppID { get; }
+    public decimal? Value { get; }
+    public string Language { get; }
+}
+
+private static async Task<List<TagSuggestion>> RequestGeneralAnalysisAsync(string imageFilePath)
+{
+    List<TagSuggestion> result;
+    var category = Enum.GetName(typeof(ImageAnalysisType), ImageAnalysisType.general);
+    var cachePath = imageFilePath + "/" + category;
+    var cacheHit = RequestCachedResults(cachePath, out result);
+
+    if (!cacheHit && httpClient != null)
+    {
+        var request = new HttpRequestMessage(HttpMethod.Post, "aaa03c23b3724a16a56b629203edc62c/outputs");
+        var bytes = File.ReadAllBytes(imageFilePath);
+        var reqJSON = new
+        {
+            inputs = new[] {
+                    new {data = new{ image = new{ base64 = bytes } } }
+                }
+        };
+        var stringContent = new StringContent(JsonConvert.SerializeObject(reqJSON), Encoding.UTF8, "application/json");
+        request.Content = stringContent;
+        var res = await httpClient.SendAsync(request);
+        Debug.WriteLine("server response: " + res.StatusCode);
+        var resString = await res.Content.ReadAsStringAsync();
+        var parsedJson = JToken.Parse(resString);
+        resString = parsedJson.ToString(Formatting.Indented);
+        //Debug.WriteLine(resString);
+        var obj = JsonConvert.DeserializeAnonymousType(resString, new { status = new { }, outputs = new[] { new { data = new { concepts = new Suggestion[] { } } } } }, new JsonSerializerSettings() { ConstructorHandling = ConstructorHandling.AllowNonPublicDefaultConstructor });
+        var concepts = obj.outputs[0].data.concepts;
+        foreach (var concept in concepts)
+        {
+            result.Add(new TagSuggestion(new ImageTag(concept.Name), (concept.Value.HasValue) ? (double)concept.Value.Value : 0d, category));
+        }
+    }
+    CacheAnalyticsResults(cachePath, result);
+    return result;
+}
+*/
+

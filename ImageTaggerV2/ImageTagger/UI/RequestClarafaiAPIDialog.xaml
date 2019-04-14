@@ -16,7 +16,7 @@
             <TextBlock TextWrapping="Wrap" Text="You can get an API key from clarafai.com" Grid.Row="1" HorizontalAlignment="Center"/>
             <TextBlock TextWrapping="Wrap" Text="Without an API key, suggestions are limited" HorizontalAlignment="Center"/>
             <Label Content="[ enter your api key here]" Grid.Row="2" VerticalAlignment="Center"/>
-            <TextBox Grid.Row="2" TextWrapping="Wrap" TextChanged="TextBox_TextChanged"/>
+            <TextBox x:Name="inputBox" Grid.Row="2" TextWrapping="Wrap" TextChanged="TextBox_TextChanged"/>
         </Grid>
 
         <Button x:Name="cancelButton" Content="Cancel" VerticalAlignment="Bottom" HorizontalAlignment="Right" DockPanel.Dock="Right" Margin="0,0,40,40" Click="CancelButton_Click"/>
