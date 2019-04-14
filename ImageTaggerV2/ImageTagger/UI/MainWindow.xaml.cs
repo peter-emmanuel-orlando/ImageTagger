@@ -21,6 +21,7 @@ using Debug = System.Diagnostics.Debug;
 using Path = System.IO.Path;
 using System.ComponentModel;
 using ImageTagger.UI;
+using ImageTagger.DataModels;
 
 namespace ImageTagger
 {
@@ -86,6 +87,12 @@ namespace ImageTagger
         private void SetAPIKeysRecord_MenuItem_Click(object sender, RoutedEventArgs e)
         {
             RequestClarafaiAPIDialog.GetAPIKeyViaDialog();
+        }
+
+        private async void BatchTag_MenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            var toCombine = await ImageAnalysisAPI.ImageAnalysis.RequestBatchAnalysis(ImageFiles.GetAll().Take(2));
+            ImageFileUtil.BatchApplyTagsToImages(toCombine.ToDictionary(v => v.Key, v => v.Value.Cast<ImageTag>()));
         }
     }
 }

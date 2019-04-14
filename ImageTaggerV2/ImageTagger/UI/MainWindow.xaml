@@ -277,6 +277,11 @@
                             <Image Source="/ImageTagger;component/cherryBlossomIcon.ico" />
                         </MenuItem.Icon>
                     </MenuItem>
+                    <MenuItem x:Name="batchTag_MenuItem"  Header="Batch Tags" IsEnabled="True" Click="BatchTag_MenuItem_Click">
+                        <MenuItem.Icon>
+                            <Image Source="/ImageTagger;component/cherryBlossomIcon.ico" />
+                        </MenuItem.Icon>
+                    </MenuItem>
                 </MenuItem>
             </Menu>
         </DockPanel>

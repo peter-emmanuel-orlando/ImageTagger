@@ -45,7 +45,8 @@ namespace ImageAnalysisAPI
     public static class ImageAnalysis
     {
         private static HttpClient httpClient;
-        private static ClarifaiClient clarifaiClient;
+        private static ClarifaiClient clarifaiClient; 
+        public const int maxItemsPerBatchRequest = 8;
 
         static ImageAnalysis()
         {
@@ -72,12 +73,38 @@ namespace ImageAnalysisAPI
             }
         }
 
-        public static async Task<List<TagSuggestion>> RequestAnalysis(string imageFilePath, params ImageAnalysisType[] categories)
+        public static async Task<Dictionary<string, List<TagSuggestion>>> RequestBatchAnalysis(IEnumerable<string> imageFilePaths)
+        {
+            var result = new Dictionary<string, List<TagSuggestion>>();
+            var inputs = new List<ClarifaiFileImage>();
+            foreach (var imageFilePath in imageFilePaths)
+            {
+                var input = new ClarifaiFileImage(File.ReadAllBytes(imageFilePath), imageFilePath);
+                inputs.Add(input);
+                if (inputs.Count > maxItemsPerBatchRequest) throw new ArgumentException($"A max of {maxItemsPerBatchRequest} items are allowed to be processed at once!");
+            }
+            var res = await clarifaiClient.WorkflowPredict("workflow", inputs).ExecuteAsync();
+            foreach (var workflow in res.Get().WorkflowResults)
+            {
+                var imageFilePath = workflow.Input.ID;
+                var suggestions = ParsePredictions(imageFilePath, workflow.Predictions);
+                suggestions.Add(new TagSuggestion(new ImageTag("autoTagged"), 1, "general"));
+                result.Add(imageFilePath, suggestions);
+            }
+            return result;
+        }
+
+        public static async Task<List<TagSuggestion>> RequestWorkflowAnalysis(string imageFilePath, params ImageAnalysisType[] categories)
         {
             var bytes = File.ReadAllBytes(imageFilePath);
             var input = new ClarifaiFileImage(bytes);
             var res = await clarifaiClient.WorkflowPredict("workflow", input).ExecuteAsync();
             var predictions = res.Get().WorkflowResult.Predictions;
+            return ParsePredictions(imageFilePath, predictions);
+        }
+
+        private static List<TagSuggestion> ParsePredictions(string imageFilePath, IEnumerable<ClarifaiOutput> predictions)
+        {
             var result = new HashSet<TagSuggestion>();
             foreach (var prediction in predictions)
             {
@@ -93,7 +120,6 @@ namespace ImageAnalysisAPI
                 {
                     var category = Enum.GetName(typeof(ImageAnalysisType), ImageAnalysisType.demographics);
                     var cachePath = imageFilePath + "/" + category;
-                    ParseGeneralData(prediction.Data);
                     var parsed = ParseDemographicsData(prediction.Data.Cast<Demographics>());
                     CacheAnalyticsResults(cachePath, parsed);
                     result.AddRange(parsed);
@@ -118,7 +144,7 @@ namespace ImageAnalysisAPI
             return new List<TagSuggestion>(result);
         }
 
-        public static async Task<List<TagSuggestion>> RequestAnalysiss(string imageFilePath, params ImageAnalysisType[] categories)
+        public static async Task<List<TagSuggestion>> RequestAnalysis(string imageFilePath, params ImageAnalysisType[] categories)
         {
             if (categories.Length == 0 || categories.Contains(ImageAnalysisType.all))
                 categories = (ImageAnalysisType[])Enum.GetValues(typeof(ImageAnalysisType));

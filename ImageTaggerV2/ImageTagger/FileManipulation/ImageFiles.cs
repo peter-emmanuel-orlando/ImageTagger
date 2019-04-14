@@ -28,6 +28,11 @@ namespace ImageTagger
         
         public int Count { get { return FileNames.Count; } }
 
+        public List<string> GetAll()
+        {
+            return new List<string>(FileNames);
+        }
+
         public string Get(int index)
         {
             return FileNames[index];

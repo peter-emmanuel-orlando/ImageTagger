@@ -21,6 +21,14 @@ namespace ImageTagger
             return ApplyTagsToImage(imageInfo.ImgPath, tags);
         }
 
+        public static void BatchApplyTagsToImages(Dictionary<string, IEnumerable<ImageTag>> toCombine)
+        {
+            foreach (var path in toCombine.Keys)
+            {
+                ApplyTagsToImage(path, toCombine[path].GetEnumerator());
+            }
+        }
+
         public static bool ApplyTagsToImage(string imagePath, IEnumerator<ImageTag> tags)
         {
             try

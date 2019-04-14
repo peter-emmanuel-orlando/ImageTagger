@@ -259,7 +259,7 @@ namespace ImageTagger
                         UsedPositions.Add(coord);
                         try
                         {
-                            SuggestedTagGridItems.Add(new SuggestedTagGridItem(suggestion.tag.TagName, coord.row, coord.column, color));
+                            SuggestedTagGridItems.Add(new SuggestedTagGridItem(suggestion.TagName, coord.row, coord.column, color));
                         }
                         catch (Exception e) { Debug.WriteLine(e); }
                         break;

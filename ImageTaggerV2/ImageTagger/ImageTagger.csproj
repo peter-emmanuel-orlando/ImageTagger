@@ -64,6 +64,7 @@
       <DependentUpon>Launcher.xaml</DependentUpon>
     </Compile>
     <Compile Include="TagManipulation\ReservedTagCategories.cs" />
+    <Compile Include="TagManipulation\TagSuggestion.cs" />
     <Compile Include="TagQueryCriteria.cs" />
     <Compile Include="UI\AddNewTagComponent.cs" />
     <Compile Include="TagManipulation\MyTagsRecord.cs" />
