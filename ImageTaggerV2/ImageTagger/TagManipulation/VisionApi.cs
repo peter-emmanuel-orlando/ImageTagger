@@ -7,7 +7,6 @@ using System.Windows;
 using Google.Cloud.Vision.V1;
 using Google.ColorUtil;
 using ImageTagger;
-using ImageTagger.DataModels;
 using ImageTagger.UI;
 
 namespace VisionAPISuggestions
@@ -49,10 +48,36 @@ namespace VisionAPISuggestions
         }
 
 
-        public static List<ImageTag> RequestVisionAnalysis(string imageFilePath)
+        public static Dictionary<string, List<TagSuggestion>> RequestBatchVisionAnalysis(IEnumerable<string> paths)
         {
             if (client == null) SetVisionAuthViaDialog();
-            if (client == null) return new List<ImageTag>();
+            if (client == null) return new Dictionary<string, List<TagSuggestion>>();
+            var result = new Dictionary<string, List<TagSuggestion>>();
+
+            var req = new List<AnnotateImageRequest>();
+            var imageFilePaths = new List<string>(paths);
+            for (int i = 0; i < imageFilePaths.Count; i++)
+            {
+                var reqItem = new AnnotateImageRequest();
+                reqItem.Image = Image.FromFile(imageFilePaths[i]);
+                reqItem.AddAllFeatures();
+                req.Add(reqItem);
+            }
+
+            var batchResponse = client.BatchAnnotateImages(req);
+            for (int i = 0; i < imageFilePaths.Count; i++)
+            {
+                var res = batchResponse.Responses[i];
+                result.Add(imageFilePaths[i], ParseAnnotations(res));
+            }
+            return result;
+        }
+
+
+        public static List<TagSuggestion> RequestVisionAnalysis(string imageFilePath)
+        {
+            if (client == null) SetVisionAuthViaDialog();
+            if (client == null) return new List<TagSuggestion>();
 
             var req = new AnnotateImageRequest() { Image = Image.FromFile(imageFilePath) };
             req.AddAllFeatures();
@@ -61,9 +86,9 @@ namespace VisionAPISuggestions
             return ParseAnnotations(res);
         }
 
-        private static List<ImageTag> ParseAnnotations(AnnotateImageResponse res)
+        private static List<TagSuggestion> ParseAnnotations(AnnotateImageResponse res)
         {
-            var result = new HashSet<ImageTag>();
+            var result = new HashSet<TagSuggestion>();
             var threshold = Likelihood.Possible;
             //parse all annotations
             #region
@@ -76,19 +101,19 @@ namespace VisionAPISuggestions
                 foreach (var annotation in res.FaceAnnotations)
                 {
                     if (annotation.AngerLikelihood.MeetsThreshold(threshold))
-                        result.Add(new ImageTag("angry"));
+                        result.Add(new TagSuggestion("angry", 1, "FaceAnnotation"));
                     if (annotation.BlurredLikelihood.MeetsThreshold(threshold))
-                        result.Add(new ImageTag("blurry"));
+                        result.Add(new TagSuggestion("blurry", 1, "FaceAnnotation"));
                     if (annotation.HeadwearLikelihood.MeetsThreshold(threshold))
-                        result.Add(new ImageTag("headwear"));
+                        result.Add(new TagSuggestion("headwear", 1, "FaceAnnotation"));
                     if (annotation.JoyLikelihood.MeetsThreshold(threshold))
-                        result.Add(new ImageTag("joyful"));
+                        result.Add(new TagSuggestion("joyful", 1, "FaceAnnotation"));
                     if (annotation.SorrowLikelihood.MeetsThreshold(threshold))
-                        result.Add(new ImageTag("sad"));
+                        result.Add(new TagSuggestion("sad", 1, "FaceAnnotation"));
                     if (annotation.SurpriseLikelihood.MeetsThreshold(threshold))
-                        result.Add(new ImageTag("suprised"));
+                        result.Add(new TagSuggestion("suprised", 1, "FaceAnnotation"));
                     if (annotation.UnderExposedLikelihood.MeetsThreshold(threshold))
-                        result.Add(new ImageTag("underExposed"));
+                        result.Add(new TagSuggestion("underExposed", 1, "FaceAnnotation"));
                 }
             }
             #endregion
@@ -106,7 +131,7 @@ namespace VisionAPISuggestions
                         colorArray += $"{{hue:{hue.ToString("0.#")},_saturation:{saturation.ToString("0.#")},_value:{value.ToString("0.#")}}},";
                 }
                 colorArray += "]";
-                result.Add(new ImageTag(colorArray));
+                result.Add(new TagSuggestion(colorArray, 1, "color" ));
             }
             #endregion
 
@@ -116,7 +141,7 @@ namespace VisionAPISuggestions
             {
                 foreach (var annotation in res.LabelAnnotations)
                 {
-                    result.Add(new ImageTag(annotation.Description));
+                    result.Add(new TagSuggestion(annotation.Description, annotation.Score, "labelAnnotations"));
                 }
             }
             #endregion
@@ -127,7 +152,7 @@ namespace VisionAPISuggestions
             {
                 foreach (var annotation in res.LocalizedObjectAnnotations)
                 {
-                    result.Add(new ImageTag(annotation.Name));
+                    result.Add(new TagSuggestion(annotation.Name, annotation.Score, "objectAnnotations"));
                 }
             }
             #endregion
@@ -138,7 +163,7 @@ namespace VisionAPISuggestions
             {
                 foreach (var annotation in res.LogoAnnotations)
                 {
-                    result.Add(new ImageTag(annotation.Description));
+                    result.Add(new TagSuggestion(annotation.Description, annotation.Score, "logoAnnotations"));
                 }
             }
             #endregion
@@ -149,7 +174,7 @@ namespace VisionAPISuggestions
             {
                 foreach (var annotation in res.ProductSearchResults.Results)
                 {
-                    result.Add(new ImageTag(annotation.Product.DisplayName));
+                    result.Add(new TagSuggestion(annotation.Product.DisplayName, annotation.Score, "productAnnotations"));
                 }
             }
             #endregion
@@ -160,17 +185,17 @@ namespace VisionAPISuggestions
             {
                 var isNSFW = false;
                 if (res.SafeSearchAnnotation.Adult.MeetsThreshold(threshold))
-                { result.Add(new ImageTag("Explicit")); isNSFW = true; }
+                { result.Add(new TagSuggestion("Explicit",1, "moderationAnnotations")); isNSFW = true; }
                 if (res.SafeSearchAnnotation.Medical.MeetsThreshold(threshold))
-                { result.Add(new ImageTag("Medical")); }
+                { result.Add(new TagSuggestion("Medical", 1, "moderationAnnotations")); }
                 if (res.SafeSearchAnnotation.Racy.MeetsThreshold(threshold))
-                { result.Add(new ImageTag("Suggestive")); isNSFW = true; }
+                { result.Add(new TagSuggestion("Suggestive", 1, "moderationAnnotations")); isNSFW = true; }
                 if (res.SafeSearchAnnotation.Spoof.MeetsThreshold(threshold))
-                { result.Add(new ImageTag("Spoof")); }
+                { result.Add(new TagSuggestion("Spoof", 1, "moderationAnnotations")); }
                 if (res.SafeSearchAnnotation.Violence.MeetsThreshold(threshold))
-                { result.Add(new ImageTag("Violence")); isNSFW = true; }
+                { result.Add(new TagSuggestion("Violence", 1, "moderationAnnotations")); isNSFW = true; }
                 if (isNSFW)
-                    result.Add(new ImageTag("nsfw"));
+                    result.Add(new TagSuggestion("nsfw", 1, "moderationAnnotations"));
             }
             #endregion
 
@@ -180,7 +205,7 @@ namespace VisionAPISuggestions
             {
                 foreach (var annotation in res.WebDetection.BestGuessLabels)
                 {
-                    result.Add(new ImageTag(annotation.Label));
+                    result.Add(new TagSuggestion(annotation.Label, 1, "webAnnotations"));
                 }
             }
             #endregion
@@ -188,8 +213,8 @@ namespace VisionAPISuggestions
             //end
             #endregion
 
-            result.Add(new ImageTag("autoTagged"));
-            return new List<ImageTag>(result);
+            result.Add(new TagSuggestion("autoTagged", 1, "General"));
+            return new List<TagSuggestion>(result);
         }
     }
 }

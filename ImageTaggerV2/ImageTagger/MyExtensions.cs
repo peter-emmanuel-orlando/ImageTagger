@@ -33,6 +33,24 @@ public static class MyExtensions
         }
     }
 
+    public static string ToColor(this string str)
+    {
+        var hash = 0;
+        for (var i = 0; i < str.Length; i++)
+        {
+            hash = str[i] + ((hash << 5) - hash);
+        }
+        var colour = "#";
+        for (var i = 0; i < 3; i++)
+        {
+            var value = (hash >> (i * 8)) & 0xFF;
+            var next = ("00" + value.ToString("X16"));
+            next = next.Substring(next.Length - 2);
+            colour += next;
+        }
+        return colour;
+    }
+
     public static bool MeetsThreshold(this Likelihood input, Likelihood minThreshold)
     {
         return (int)input >= (int)minThreshold;
