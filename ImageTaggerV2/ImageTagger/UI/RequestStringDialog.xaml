@@ -1,22 +1,20 @@
-﻿<Window x:Class="ImageTagger.UI.RequestClarafaiAPIDialog"
+﻿<Window x:Class="ImageTagger.UI.RequestStringDialog"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:ImageTagger.UI"
         mc:Ignorable="d"
-        Title="RequestClarafaiAPIDialog" Height="308.528" Width="476.421">
+        Title="RequestStringDialog" Height="308.528" Width="476.421">
     <DockPanel>
         <Grid VerticalAlignment="Center" DockPanel.Dock="Top" HorizontalAlignment="Center" MinWidth="120" MinHeight="40" Margin="0,70,0,0">
             <Grid.RowDefinitions>
                 <RowDefinition/>
                 <RowDefinition/>
-                <RowDefinition/>
             </Grid.RowDefinitions>
-            <TextBlock TextWrapping="Wrap" Text="You can get an API key from clarafai.com" Grid.Row="1" HorizontalAlignment="Center"/>
-            <TextBlock TextWrapping="Wrap" Text="Without an API key, suggestions are limited" HorizontalAlignment="Center"/>
-            <Label Content="[ enter your api key here]" Grid.Row="2" VerticalAlignment="Center"/>
-            <TextBox x:Name="inputBox" Grid.Row="2" TextWrapping="Wrap" TextChanged="TextBox_TextChanged"/>
+            <TextBlock x:Name="messageBox" TextWrapping="Wrap" HorizontalAlignment="Center"/>
+            <Label x:Name="emptyInputLabel" Grid.Row="1" VerticalAlignment="Center"/>
+            <TextBox x:Name="inputBox" Grid.Row="1" TextWrapping="Wrap" TextChanged="TextBox_TextChanged"/>
         </Grid>
 
         <Button x:Name="cancelButton" Content="Cancel" VerticalAlignment="Bottom" HorizontalAlignment="Right" DockPanel.Dock="Right" Margin="0,0,40,40" Click="CancelButton_Click"/>

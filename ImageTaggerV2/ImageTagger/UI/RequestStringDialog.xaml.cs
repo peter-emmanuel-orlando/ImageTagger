@@ -18,24 +18,26 @@ namespace ImageTagger.UI
     /// <summary>
     /// Interaction logic for RequestClarafaiAPIDialog.xaml
     /// </summary>
-    public partial class RequestClarafaiAPIDialog : Window
+    public partial class RequestStringDialog : Window
     {
-        public string ApiKey { get; private set; } = "";
-        private RequestClarafaiAPIDialog()
+        public string Result { get; private set; } = "";
+        private RequestStringDialog(string initialVal, string requestMessage, string requestLabel, string emptyInputLabel)
         {
             InitializeComponent();
-            var currentKey = SettingsPersistanceUtil.RetreiveSetting("apiKey");
-            this.inputBox.Text = currentKey;
+            this.messageBox.Text = requestMessage;
+
+            this.emptyInputLabel.Content = emptyInputLabel;
+            this.inputBox.Text = initialVal;
         }
 
-        public static string GetAPIKeyViaDialog()
+        public static string StartDialog(string initialVal, string requestMessage, string requestLabel, string emptyInputLabel)
         {
             var result = "";
-            var getKeyWindow = new RequestClarafaiAPIDialog();
+            var getKeyWindow = new RequestStringDialog( initialVal, requestMessage, requestLabel, emptyInputLabel);
             var success = getKeyWindow.ShowDialog() ?? false;
             if (success)
             {
-                result = getKeyWindow.ApiKey;
+                result = getKeyWindow.Result;
                 MessageBox.Show("api key is set to " + result);
                 SettingsPersistanceUtil.RecordSetting("apiKey", result);
             }
@@ -57,7 +59,7 @@ namespace ImageTagger.UI
         private void TextBox_TextChanged(object sender, TextChangedEventArgs e)
         {
             var inputBox = e.OriginalSource as TextBox;
-            ApiKey = inputBox.Text;
+            Result = inputBox.Text;
             if (inputBox.Text == "")
                 inputBox.Opacity = 0;
             else

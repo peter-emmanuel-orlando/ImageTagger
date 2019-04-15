@@ -86,7 +86,8 @@ namespace ImageTagger
 
         private void SetAPIKeysRecord_MenuItem_Click(object sender, RoutedEventArgs e)
         {
-            RequestClarafaiAPIDialog.GetAPIKeyViaDialog();
+            //RequestStringDialog.StartDialog("", "provide clarifai api key for suggestions", "", "empty values are not accepted");
+        
         }
 
         private void BatchTag_MenuItem_Click(object sender, RoutedEventArgs e)

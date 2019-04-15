@@ -60,7 +60,7 @@ namespace ImageAnalysisAPI
 
             if (apiKey == "")
             {
-                 apiKey = RequestClarafaiAPIDialog.GetAPIKeyViaDialog();
+                 apiKey = RequestStringDialog.StartDialog("", "provide clarifai api key for suggestions", "", "empty values are not accepted");
             }
                 
             else

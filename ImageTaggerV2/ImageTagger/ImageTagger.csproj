@@ -89,8 +89,8 @@
     <Compile Include="FileManipulation\PersistanceUtil.cs" />
     <Compile Include="TagManipulation\ImageAnalysis.cs" />
     <Compile Include="TagManipulation\FormatUtil.cs" />
-    <Compile Include="UI\RequestClarafaiAPIDialog.xaml.cs">
-      <DependentUpon>RequestClarafaiAPIDialog.xaml</DependentUpon>
+    <Compile Include="UI\RequestStringDialog.xaml.cs">
+      <DependentUpon>RequestStringDialog.xaml</DependentUpon>
     </Compile>
     <Compile Include="UI\TagSuggestionDisplay.cs" />
     <Compile Include="ThreadSafeRandom.cs" />
@@ -119,7 +119,7 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Page Include="UI\RequestClarafaiAPIDialog.xaml">
+    <Page Include="UI\RequestStringDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
