@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
+using System.Windows;
 using Google.Cloud.Vision.V1;
 using ImageTagger;
 using ImageTagger.UI;
@@ -10,43 +12,82 @@ namespace VisionAPISuggestions
     public static class VisionApi
     {
         private static ImageAnnotatorClient client;
+        private static string authPath { get; } = $"{Directory.GetCurrentDirectory()}/visionAPI.auth.json";
         static VisionApi()
         {
-            RefreshAPIKey();
+            RefreshAuthToken();
         }
 
-        public static void RefreshAPIKey()
+        public static void RefreshAuthToken()
         {
-            var authPath = $"{Directory.GetCurrentDirectory()}/visionAPI.auth.json";
-            if (!File.Exists(authPath))
+            if (File.Exists(authPath))
             {
-                //apiKey = RequestStringDialog.StartDialog(("", "provide clarifai api key for suggestions", "", "empty values are not accepted");
-            
-                File.WriteAllText("", "");
+                Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", authPath);
+                try
+                {
+                    client = ImageAnnotatorClient.Create();
+                }
+                catch (Exception)
+                {
+                    MessageBox.Show("the provided json file is not correct. Vision API will not work until a valid authentication json is provided");
+                    client = null;
+                }
             }
+            else 
+                SetVisionAuthViaDialog();
+        }
 
-            else
-            {
-                Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", Directory.GetCurrentDirectory());
-                client = ImageAnnotatorClient.Create();
-            }
+        public static void SetVisionAuthViaDialog()
+        {
+            var authJson = (File.Exists(authPath))? File.ReadAllText(authPath) : "";
+            authJson = RequestStringDialog.StartDialog(authJson, "provide vision auth json for suggestions. An authentication token can be retreived from cloud.google.com/vision", "auth json", "paste json here");
+            File.WriteAllText(authPath, authJson);
+            RefreshAuthToken();
         }
 
 
-        public static void Test()
+        public static void Test(string imageFilePath)
         {
+            if (client == null) SetVisionAuthViaDialog();
             if (client == null) return;
-            //CmdUtil.ProcessCommand();
-            // Instantiates a client
-            // Load the image file into memory
-            var image = Image.FromFile(@"C:\Users\YumeMura\Downloads\New folder\1cb088c7f8e9635b6154b5d40cdf014b.jpg");
-            // Performs label detection on the image file
-            var response = client.DetectWebInformation(image);
-            foreach (var annotation in response.WebEntities)
+            var req = new AnnotateImageRequest() { Image = Image.FromFile(imageFilePath) };
+            foreach (var item in Enum.GetValues(typeof(Feature.Types.Type)).Cast<Feature.Types.Type>())
             {
-                if (annotation.Description != null)
-                    Debug.WriteLine(annotation.Description);
+                req.Features.Add(new Feature() { Type = item });
             }
+
+            var res = client.Annotate(req);
+            foreach (var annotation in res.FaceAnnotations)
+            {
+                Debug.WriteLine(annotation);
+            }
+            foreach (var annotation in res.ImagePropertiesAnnotation.DominantColors.Colors)
+            {
+                Debug.WriteLine(annotation.Color);
+            }
+            foreach (var annotation in res.LabelAnnotations)
+            {
+                Debug.WriteLine(annotation);
+            }
+            foreach (var annotation in res.LocalizedObjectAnnotations)
+            {
+                Debug.WriteLine(annotation.Name);
+            }
+            foreach (var annotation in res.LogoAnnotations)
+            {
+                Debug.WriteLine(annotation.Description);
+            }
+            if(res.ProductSearchResults != null)
+                foreach (var annotation in res.ProductSearchResults.Results)
+                {
+                    Debug.WriteLine(annotation.Product.DisplayName);
+                }
+            Debug.WriteLine(res.SafeSearchAnnotation);
+            if (res.WebDetection != null)
+                foreach (var annotation in res.WebDetection.BestGuessLabels)
+                {
+                    Debug.WriteLine(annotation.Label);
+                }
         }
     }
 

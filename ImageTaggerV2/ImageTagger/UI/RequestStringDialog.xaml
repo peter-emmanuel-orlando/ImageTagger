@@ -6,7 +6,8 @@
         xmlns:local="clr-namespace:ImageTagger.UI"
         mc:Ignorable="d"
         Title="RequestStringDialog" Height="308.528" Width="476.421">
-    <DockPanel>
+    
+    <DockPanel AllowDrop="True" Drop="InputBox_Drop" DragOver="InputBox_DragOver" DragLeave="InputBox_DragLeave" Background="#FFEEEEEE" >
         <Grid VerticalAlignment="Center" DockPanel.Dock="Top" HorizontalAlignment="Center" MinWidth="120" MinHeight="40" Margin="0,70,0,0">
             <Grid.RowDefinitions>
                 <RowDefinition/>
@@ -14,7 +15,7 @@
             </Grid.RowDefinitions>
             <TextBlock x:Name="messageBox" TextWrapping="Wrap" HorizontalAlignment="Center"/>
             <Label x:Name="emptyInputLabel" Grid.Row="1" VerticalAlignment="Center"/>
-            <TextBox x:Name="inputBox" Grid.Row="1" TextWrapping="Wrap" TextChanged="TextBox_TextChanged"/>
+            <TextBox x:Name="inputBox" Grid.Row="1" Panel.ZIndex="1" TextWrapping="Wrap" TextChanged="TextBox_TextChanged"/>
         </Grid>
 
         <Button x:Name="cancelButton" Content="Cancel" VerticalAlignment="Bottom" HorizontalAlignment="Right" DockPanel.Dock="Right" Margin="0,0,40,40" Click="CancelButton_Click"/>

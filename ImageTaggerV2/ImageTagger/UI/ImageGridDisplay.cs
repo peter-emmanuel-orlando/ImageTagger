@@ -110,15 +110,6 @@ namespace ImageTagger
 
         private void ScrollViewer_ScrollChanged(object sender, ScrollChangedEventArgs e)
         {
-            Debug.WriteLine(
-                " e.VerticalChange:" + e.VerticalChange +
-                "e.ViewportHeight:" + e.ViewportHeight +
-                " e.VerticalOffset:" + e.VerticalOffset +
-                " e.ExtentHeight:" + e.ExtentHeight +
-                " e.ExtentHeightChange:" + e.ExtentHeightChange +
-                " scrollableHeight:" + (e.OriginalSource as ScrollViewer).ScrollableHeight
-            );
-
             if(IsFullyScrolled())
             {
                 RequestMoreImages();

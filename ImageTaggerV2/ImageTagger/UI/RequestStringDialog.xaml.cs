@@ -1,6 +1,7 @@
 ﻿using ImageAnalysisAPI;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -24,7 +25,7 @@ namespace ImageTagger.UI
         private RequestStringDialog(string initialVal, string requestMessage, string requestLabel, string emptyInputLabel)
         {
             InitializeComponent();
-            this.messageBox.Text = requestMessage;
+            this.messageBox.Text = requestMessage + ". \noptionally, drop in a file";
 
             this.emptyInputLabel.Content = emptyInputLabel;
             this.inputBox.Text = initialVal;
@@ -38,10 +39,8 @@ namespace ImageTagger.UI
             if (success)
             {
                 result = getKeyWindow.Result;
-                MessageBox.Show("api key is set to " + result);
-                SettingsPersistanceUtil.RecordSetting("apiKey", result);
+                MessageBox.Show($"{requestLabel} is set to {result}");
             }
-            ImageAnalysis.RefreshAPIKey();
             return result;
 
         }
@@ -64,6 +63,27 @@ namespace ImageTagger.UI
                 inputBox.Opacity = 0;
             else
                 inputBox.Opacity = 1;
+        }
+
+        private void InputBox_Drop(object sender, DragEventArgs e)
+        {
+            if (e.Data.GetDataPresent(DataFormats.FileDrop))
+            {
+                var files = (string[])e.Data.GetData(DataFormats.FileDrop);
+                inputBox.Text = File.ReadAllText(files[0]);
+            }
+
+        }
+
+        private void InputBox_DragOver(object sender, DragEventArgs e)
+        {
+            var elem = e.OriginalSource as TextBox;
+
+        }
+
+        private void InputBox_DragLeave(object sender, DragEventArgs e)
+        {
+
         }
     }
 }

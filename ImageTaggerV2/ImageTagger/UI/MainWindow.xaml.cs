@@ -86,8 +86,8 @@ namespace ImageTagger
 
         private void SetAPIKeysRecord_MenuItem_Click(object sender, RoutedEventArgs e)
         {
-            //RequestStringDialog.StartDialog("", "provide clarifai api key for suggestions", "", "empty values are not accepted");
-        
+            ImageAnalysisAPI.ImageAnalysis.SetAPIKeyViaDialog();
+            VisionAPISuggestions.VisionApi.SetVisionAuthViaDialog();
         }
 
         private void BatchTag_MenuItem_Click(object sender, RoutedEventArgs e)
@@ -100,6 +100,11 @@ namespace ImageTagger
             }
             var toCombine = ImageAnalysisAPI.ImageAnalysis.RequestBatchAnalysis(files);
             ImageFileUtil.BatchApplyTagsToImages(toCombine.ToDictionary(v => v.Key, v => v.Value.Cast<ImageTag>()));
+        }
+
+        private void TestVisionAnalysis_Click(object sender, RoutedEventArgs e)
+        {
+            VisionAPISuggestions.VisionApi.Test(ImageDisplay.mainImageInfo.ImgPath);
         }
     }
 }

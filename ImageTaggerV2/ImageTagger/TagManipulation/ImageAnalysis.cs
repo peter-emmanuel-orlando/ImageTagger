@@ -59,10 +59,7 @@ namespace ImageAnalysisAPI
             var apiKey = SettingsPersistanceUtil.RetreiveSetting("apiKey");
 
             if (apiKey == "")
-            {
-                 apiKey = RequestStringDialog.StartDialog("", "provide clarifai api key for suggestions", "", "empty values are not accepted");
-            }
-                
+                SetAPIKeyViaDialog();
             else
             {
                 httpClient = new HttpClient();
@@ -72,6 +69,15 @@ namespace ImageAnalysisAPI
 
                 clarifaiClient = new ClarifaiClient(apiKey);
             }
+        }
+
+        public static void SetAPIKeyViaDialog()
+        {
+            var apiKey = SettingsPersistanceUtil.RetreiveSetting("apiKey");
+            apiKey = RequestStringDialog.StartDialog(apiKey, "provide clarifai api key for suggestions", "clarifai key", "input key here");
+            SettingsPersistanceUtil.RecordSetting("apiKey", apiKey);
+            if(apiKey != "")
+                RefreshAPIKey();
         }
 
         public static Dictionary<string, List<TagSuggestion>> RequestBatchAnalysis(IEnumerable<string> imageFilePaths)
