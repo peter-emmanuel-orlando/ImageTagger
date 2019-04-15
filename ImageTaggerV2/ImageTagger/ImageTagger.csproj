@@ -61,6 +61,7 @@
       <SubType>Designer</SubType>
     </Page>
     <Compile Include="AddShortcutToStartupHelper.cs" />
+    <Compile Include="ColorConverter.cs" />
     <Compile Include="Launcher.xaml.cs">
       <DependentUpon>Launcher.xaml</DependentUpon>
     </Compile>

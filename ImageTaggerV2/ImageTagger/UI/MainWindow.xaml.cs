@@ -104,7 +104,11 @@ namespace ImageTagger
 
         private void TestVisionAnalysis_Click(object sender, RoutedEventArgs e)
         {
-            VisionAPISuggestions.VisionApi.Test(ImageDisplay.mainImageInfo.ImgPath);
+            var result = VisionAPISuggestions.VisionApi.RequestVisionAnalysis(ImageDisplay.mainImageInfo.ImgPath);
+            foreach (var tag in result)
+            {
+                Debug.WriteLine(tag.TagName);
+            }
         }
     }
 }

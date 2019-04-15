@@ -133,18 +133,20 @@ namespace ImageAnalysisAPI
 
         public static async Task<List<TagSuggestion>> RequestWorkflowAnalysis(string imageFilePath, params ImageAnalysisType[] categories)
         {
-            List<TagSuggestion> result = new List<TagSuggestion>();
+            HashSet<TagSuggestion> result = new HashSet<TagSuggestion>();
             var bytes = File.ReadAllBytes(imageFilePath);
             var input = new ClarifaiFileImage(bytes);
             var res = await clarifaiClient.WorkflowPredict("workflow", input).ExecuteAsync();
             if (res.IsSuccessful)
             {
                 var predictions = res.Get().WorkflowResult.Predictions;
-                result = ParsePredictions(imageFilePath, predictions);
+                result.AddRange( ParsePredictions(imageFilePath, predictions));
             }
             else
-                MessageBox.Show("Image Analysis was not successful! Check your internet connection and api key?");
-            return result;
+                MessageBox.Show("Image Analysis was not successful! Check your internet connection and api key, and you have a workflow named 'workflow'");
+
+            //result.AddRange(VisionAPISuggestions.VisionApi.RequestVisionAnalysis(imageFilePath));
+            return new List<TagSuggestion>(result);
         }
 
         private static List<TagSuggestion> ParsePredictions(string imageFilePath, IEnumerable<ClarifaiOutput> predictions)
@@ -197,7 +199,8 @@ namespace ImageAnalysisAPI
 
             return result;
         }
-
+        
+        /* non workflow analysis
         public static async Task<List<TagSuggestion>> RequestAnalysis(string imageFilePath, params ImageAnalysisType[] categories)
         {
             if (categories.Length == 0 || categories.Contains(ImageAnalysisType.all))
@@ -213,6 +216,7 @@ namespace ImageAnalysisAPI
 
             return result;
         }
+        */
 
         private static async Task<List<TagSuggestion>> RequestGeneralAnalysisAsync(string imageFilePath)
         {

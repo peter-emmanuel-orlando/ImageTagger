@@ -1,8 +1,11 @@
-﻿using System;
+﻿using Google.Cloud.Vision.V1;
+using Google.Protobuf.Collections;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
+using System.Linq;
 using System.Xml;
 using System.Xml.Serialization;
 
@@ -25,15 +28,27 @@ public static class MyExtensions
         {
             foreach (var item in enumerable)
             {
-                if (!col.Contains(item))
-                    col.Add(item);
+                col.Add(item);
             }
         }
     }
-    
-//-----------------------------------------------------
 
-public static void Shuffle<T>(this IList<T> list)
+    public static bool MeetsThreshold(this Likelihood input, Likelihood minThreshold)
+    {
+        return (int)input >= (int)minThreshold;
+    }
+
+    public static void AddAllFeatures(this AnnotateImageRequest req)
+    {
+        foreach (var item in Enum.GetValues(typeof(Feature.Types.Type)).Cast<Feature.Types.Type>())
+        {
+            req.Features.Add(new Feature() { Type = item });
+        }
+    }
+
+    //-----------------------------------------------------
+
+    public static void Shuffle<T>(this IList<T> list)
     {
         int n = list.Count;
         while (n > 1)

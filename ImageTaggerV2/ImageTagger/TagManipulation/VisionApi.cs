@@ -1,10 +1,13 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Windows;
 using Google.Cloud.Vision.V1;
+using Google.ColorUtil;
 using ImageTagger;
+using ImageTagger.DataModels;
 using ImageTagger.UI;
 
 namespace VisionAPISuggestions
@@ -46,62 +49,147 @@ namespace VisionAPISuggestions
         }
 
 
-        public static void Test(string imageFilePath)
+        public static List<ImageTag> RequestVisionAnalysis(string imageFilePath)
         {
             if (client == null) SetVisionAuthViaDialog();
-            if (client == null) return;
+            if (client == null) return new List<ImageTag>();
+
             var req = new AnnotateImageRequest() { Image = Image.FromFile(imageFilePath) };
-            foreach (var item in Enum.GetValues(typeof(Feature.Types.Type)).Cast<Feature.Types.Type>())
-            {
-                req.Features.Add(new Feature() { Type = item });
-            }
+            req.AddAllFeatures();
 
             var res = client.Annotate(req);
-            foreach (var annotation in res.FaceAnnotations)
+            return ParseAnnotations(res);
+        }
+
+        private static List<ImageTag> ParseAnnotations(AnnotateImageResponse res)
+        {
+            var result = new HashSet<ImageTag>();
+            var threshold = Likelihood.Possible;
+            //parse all annotations
+            #region
+            //start
+
+            // parse face annotations
+            #region
+            if (res.FaceAnnotations != null)
             {
-                Debug.WriteLine(annotation);
+                foreach (var annotation in res.FaceAnnotations)
+                {
+                    if (annotation.AngerLikelihood.MeetsThreshold(threshold))
+                        result.Add(new ImageTag("angry"));
+                    if (annotation.BlurredLikelihood.MeetsThreshold(threshold))
+                        result.Add(new ImageTag("blurry"));
+                    if (annotation.HeadwearLikelihood.MeetsThreshold(threshold))
+                        result.Add(new ImageTag("headwear"));
+                    if (annotation.JoyLikelihood.MeetsThreshold(threshold))
+                        result.Add(new ImageTag("joyful"));
+                    if (annotation.SorrowLikelihood.MeetsThreshold(threshold))
+                        result.Add(new ImageTag("sad"));
+                    if (annotation.SurpriseLikelihood.MeetsThreshold(threshold))
+                        result.Add(new ImageTag("suprised"));
+                    if (annotation.UnderExposedLikelihood.MeetsThreshold(threshold))
+                        result.Add(new ImageTag("underExposed"));
+                }
             }
-            foreach (var annotation in res.ImagePropertiesAnnotation.DominantColors.Colors)
+            #endregion
+
+            // parse dominant color annotations
+            #region
+            if (res.ImagePropertiesAnnotation != null)
             {
-                Debug.WriteLine(annotation.Color);
+                var colorArray = "[";
+                foreach (var annotation in res.ImagePropertiesAnnotation.DominantColors.Colors)
+                {
+                    double hue, saturation, value;
+                    ColorConverter.RGB2HSL(annotation.Color,out hue, out saturation,out value);
+                    if(annotation.Score > 0.05)
+                        colorArray += $"{{hue:{hue.ToString("0.#")},_saturation:{saturation.ToString("0.#")},_value:{value.ToString("0.#")}}},";
+                }
+                colorArray += "]";
+                result.Add(new ImageTag(colorArray));
             }
-            foreach (var annotation in res.LabelAnnotations)
+            #endregion
+
+            // parse label annotations
+            #region
+            if (res.LabelAnnotations != null)
             {
-                Debug.WriteLine(annotation);
+                foreach (var annotation in res.LabelAnnotations)
+                {
+                    result.Add(new ImageTag(annotation.Description));
+                }
             }
-            foreach (var annotation in res.LocalizedObjectAnnotations)
+            #endregion
+
+            // parse object annotations
+            #region
+            if (res.LocalizedObjectAnnotations != null)
             {
-                Debug.WriteLine(annotation.Name);
+                foreach (var annotation in res.LocalizedObjectAnnotations)
+                {
+                    result.Add(new ImageTag(annotation.Name));
+                }
             }
-            foreach (var annotation in res.LogoAnnotations)
+            #endregion
+
+            // parse logo annotations
+            #region
+            if (res.LogoAnnotations != null)
             {
-                Debug.WriteLine(annotation.Description);
+                foreach (var annotation in res.LogoAnnotations)
+                {
+                    result.Add(new ImageTag(annotation.Description));
+                }
             }
-            if(res.ProductSearchResults != null)
+            #endregion
+
+            // parse product search annotations
+            #region
+            if (res.ProductSearchResults != null)
+            {
                 foreach (var annotation in res.ProductSearchResults.Results)
                 {
-                    Debug.WriteLine(annotation.Product.DisplayName);
+                    result.Add(new ImageTag(annotation.Product.DisplayName));
                 }
-            Debug.WriteLine(res.SafeSearchAnnotation);
+            }
+            #endregion
+
+            // parse safe search annotations
+            #region
+            if (res.SafeSearchAnnotation != null)
+            {
+                var isNSFW = false;
+                if (res.SafeSearchAnnotation.Adult.MeetsThreshold(threshold))
+                { result.Add(new ImageTag("Explicit")); isNSFW = true; }
+                if (res.SafeSearchAnnotation.Medical.MeetsThreshold(threshold))
+                { result.Add(new ImageTag("Medical")); }
+                if (res.SafeSearchAnnotation.Racy.MeetsThreshold(threshold))
+                { result.Add(new ImageTag("Suggestive")); isNSFW = true; }
+                if (res.SafeSearchAnnotation.Spoof.MeetsThreshold(threshold))
+                { result.Add(new ImageTag("Spoof")); }
+                if (res.SafeSearchAnnotation.Violence.MeetsThreshold(threshold))
+                { result.Add(new ImageTag("Violence")); isNSFW = true; }
+                if (isNSFW)
+                    result.Add(new ImageTag("nsfw"));
+            }
+            #endregion
+
+            // parse web tags annotations
+            #region
             if (res.WebDetection != null)
+            {
                 foreach (var annotation in res.WebDetection.BestGuessLabels)
                 {
-                    Debug.WriteLine(annotation.Label);
+                    result.Add(new ImageTag(annotation.Label));
                 }
-        }
-    }
+            }
+            #endregion
 
-    public static class CmdUtil
-    {
-        public static void ProcessCommand(string command = @"set GOOGLE_APPLICATION_CREDENTIALS=C:\Users\YumeMura\Downloads\TestProject-f23fca2eca3e.private.json")
-        {
-            System.Diagnostics.Process process = new System.Diagnostics.Process();
-            System.Diagnostics.ProcessStartInfo startInfo = new System.Diagnostics.ProcessStartInfo();
-            startInfo.WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden;
-            startInfo.FileName = "cmd.exe";
-            startInfo.Arguments = "/C " + command;
-            process.StartInfo = startInfo;
-            process.Start();
+            //end
+            #endregion
+
+            result.Add(new ImageTag("autoTagged"));
+            return new List<ImageTag>(result);
         }
     }
 }
