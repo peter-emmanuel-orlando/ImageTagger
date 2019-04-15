@@ -19,33 +19,43 @@ namespace ImageTagger
         public Launcher()
         {
             InitializeComponent();
-            AddShortcutToStartupHelper.Add("pyo", "ImageTagger");
+            AddShortcutToStartupHelper.Add();
             this.Hide();
             this.ShowInTaskbar = true;
-
-            Stream iconStream = System.Windows.Application.GetResourceStream(new Uri("pack://application:,,,/ImageTagger;component/Resources/cherryBlossomIcon.ico")).Stream;
-            ni.Icon = new Icon(iconStream);
-            ni.Visible = true;
-            /*
-            ni.DoubleClick += delegate (object sender, EventArgs args)
-            {
-                this.Show();
-                this.WindowState = WindowState.Normal;
-            };
-            */
 
 
             PersistanceUtil.LoadLocations();
             ImageFiles.ItemAdded += HandleItemAddedEvent;
 
             main = new MainWindow();
-            main.Show();
+            main.StateChanged += HandleMainWindowStateChangedEvent;
             main.Closing += HandleMainWindowClosingEvent;
             main.Closed += HandleMainWindowClosedEvent;
+
+            SetUpNotificationIcon();
+
+            main.Show();
+        }
+        private void SetUpNotificationIcon()
+        {
+            Stream iconStream = System.Windows.Application.GetResourceStream(new Uri("pack://application:,,,/ImageTagger;component/Resources/cherryBlossomIcon.ico")).Stream;
+            ni.Icon = new Icon(iconStream);
+            ni.Text = "image tagger will remain active in background";
+            EventHandler OpenWindowEventHandler = delegate (object sender, EventArgs args)
+            {
+                main.Show();
+                ni.Visible = false;
+                main.WindowState = WindowState.Normal;
+            };
+            ni.DoubleClick += OpenWindowEventHandler;
+            ni.ContextMenu = new ContextMenu(new MenuItem[] {
+                new MenuItem("open", OpenWindowEventHandler),
+                new MenuItem("exit", (s, e)=>{this.Close(); }),
+            });
         }
 
         HashSet<string> newFiles { get; } = new HashSet<string>();
-        int showAfter = 5;
+        int showAfter = 8;
         private void HandleItemAddedEvent(object sender, FileSystemEventArgs e)
         {
             newFiles.Add(e.FullPath);
@@ -55,6 +65,7 @@ namespace ImageTagger
                 {
                     var tempWindow = new MainWindow(true, null, true);
                     newFiles.Clear();
+                    tempWindow.ShowActivated = true;
                     tempWindow.ShowDialog();
                 }));
             }
@@ -63,6 +74,15 @@ namespace ImageTagger
         private void HandleMainWindowClosingEvent(object sender, EventArgs e)
         {
 
+        }
+
+        private void HandleMainWindowStateChangedEvent(object sender, EventArgs e)
+        {
+            if (main.WindowState == WindowState.Minimized)
+            {
+                main.Hide();
+                ni.Visible = true;
+            }
         }
 
         private void HandleMainWindowClosedEvent(object sender, EventArgs e)

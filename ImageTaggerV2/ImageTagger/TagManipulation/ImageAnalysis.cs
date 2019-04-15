@@ -26,6 +26,7 @@ using Clarifai.DTOs.Models;
 using ImageTagger.DataModels;
 using ImageTagger.UI;
 using System.Text.RegularExpressions;
+using System.Threading;
 
 namespace ImageAnalysisAPI
 {
@@ -73,75 +74,122 @@ namespace ImageAnalysisAPI
             }
         }
 
-        public static async Task<Dictionary<string, List<TagSuggestion>>> RequestBatchAnalysis(IEnumerable<string> imageFilePaths)
+        public static Dictionary<string, List<TagSuggestion>> RequestBatchAnalysis(IEnumerable<string> imageFilePaths)
         {
             var result = new Dictionary<string, List<TagSuggestion>>();
-            var inputs = new List<ClarifaiFileImage>();
-            foreach (var imageFilePath in imageFilePaths)
+            var tokenSource = new CancellationTokenSource();
+            var token = tokenSource.Token;
+            var cancelContext = new CancelDialogDataContext()
             {
-                var input = new ClarifaiFileImage(File.ReadAllBytes(imageFilePath), imageFilePath);
-                inputs.Add(input);
-                if (inputs.Count > maxItemsPerBatchRequest) throw new ArgumentException($"A max of {maxItemsPerBatchRequest} items are allowed to be processed at once!");
-            }
-            var res = await clarifaiClient.WorkflowPredict("workflow", inputs).ExecuteAsync();
-            foreach (var workflow in res.Get().WorkflowResults)
+                OnCancel = (s, e) => { tokenSource.Cancel(); },
+                OnClosed = (s, e) => { tokenSource.Cancel(); }
+            };
+            var cancelWindow = new CancelDialog(cancelContext);
+            cancelWindow.Show();
+            Task.Run(async () =>
             {
-                var imageFilePath = workflow.Input.ID;
-                var suggestions = ParsePredictions(imageFilePath, workflow.Predictions);
-                suggestions.Add(new TagSuggestion(new ImageTag("autoTagged"), 1, "general"));
-                result.Add(imageFilePath, suggestions);
-            }
+                var splitPaths = new List<List<string>>();
+                splitPaths.Add(new List<string>());
+                foreach (var imageFilePath in imageFilePaths)
+                {
+                    var i = splitPaths.Count - 1;
+                    if (splitPaths[i].Count >= 8)
+                    {
+                        splitPaths.Add(new List<string>());
+                        i++;
+                    }
+                    //if (ImageFileUtil.GetImageTags(imageFilePath).Contains(new ImageTag("autoTagged"))) continue;
+                    splitPaths[i].Add(imageFilePath);
+                }
+                App.Current.Dispatcher.Invoke(() => cancelContext.MaxValue = splitPaths.Count);
+                foreach (var paths in splitPaths)
+                {
+                    var input = paths.Select((path) => new ClarifaiFileImage(File.ReadAllBytes(path), path));
+                    if (token.IsCancellationRequested) break;
+                    var res = await clarifaiClient.WorkflowPredict("workflow", input).ExecuteAsync();
+                    if(res.IsSuccessful)
+                        foreach (var workflow in res.Get().WorkflowResults)
+                        {
+                            var imageFilePath = workflow.Input.ID;
+                            var suggestions = ParsePredictions(imageFilePath, workflow.Predictions);
+                            suggestions.Add(new TagSuggestion(new ImageTag("autoTagged"), 1, "general"));
+                            result.Add(imageFilePath, suggestions);
+                        }
+                    Thread.Sleep(1000);//can only make a call every 1 sec
+                    App.Current.Dispatcher.Invoke(() => cancelContext.CurrentValue++);
+
+                }
+                App.Current.Dispatcher.Invoke(() => cancelWindow.Close());
+            }, token);
+
             return result;
         }
 
         public static async Task<List<TagSuggestion>> RequestWorkflowAnalysis(string imageFilePath, params ImageAnalysisType[] categories)
         {
+            List<TagSuggestion> result = new List<TagSuggestion>();
             var bytes = File.ReadAllBytes(imageFilePath);
             var input = new ClarifaiFileImage(bytes);
             var res = await clarifaiClient.WorkflowPredict("workflow", input).ExecuteAsync();
-            var predictions = res.Get().WorkflowResult.Predictions;
-            return ParsePredictions(imageFilePath, predictions);
+            if (res.IsSuccessful)
+            {
+                var predictions = res.Get().WorkflowResult.Predictions;
+                result = ParsePredictions(imageFilePath, predictions);
+            }
+            else
+                MessageBox.Show("Image Analysis was not successful! Check your internet connection and api key?");
+            return result;
         }
 
         private static List<TagSuggestion> ParsePredictions(string imageFilePath, IEnumerable<ClarifaiOutput> predictions)
         {
-            var result = new HashSet<TagSuggestion>();
-            foreach (var prediction in predictions)
+            var cacheWorkflowPath = imageFilePath + "/" + "workflow";
+            var result = new List<TagSuggestion>();
+            if(!RequestCachedResults(cacheWorkflowPath, out result))
             {
-                if (prediction.Model.ModelID == clarifaiClient.PublicModels.GeneralModel.ModelID)
+                Debug.WriteLine("cache miss! api request made");
+                var tmpResult = new HashSet<TagSuggestion>();
+                foreach (var prediction in predictions)
                 {
-                    var category = Enum.GetName(typeof(ImageAnalysisType), ImageAnalysisType.general);
-                    var cachePath = imageFilePath + "/" + category;
-                    var parsed = ParseGeneralData(prediction.Data.Cast<Concept>());
-                    CacheAnalyticsResults(cachePath, parsed);
-                    result.AddRange(parsed);
+                    if (prediction.Model.ModelID == clarifaiClient.PublicModels.GeneralModel.ModelID)
+                    {
+                        var category = Enum.GetName(typeof(ImageAnalysisType), ImageAnalysisType.general);
+                        var cachePath = imageFilePath + "/" + category;
+                        var parsed = ParseGeneralData(prediction.Data.Cast<Concept>());
+                        CacheAnalyticsResults(cachePath, parsed);
+                        tmpResult.AddRange(parsed);
+                    }
+                    else if (prediction.Model.ModelID == clarifaiClient.PublicModels.DemographicsModel.ModelID)
+                    {
+                        var category = Enum.GetName(typeof(ImageAnalysisType), ImageAnalysisType.demographics);
+                        var cachePath = imageFilePath + "/" + category;
+                        var parsed = ParseDemographicsData(prediction.Data.Cast<Demographics>());
+                        CacheAnalyticsResults(cachePath, parsed);
+                        tmpResult.AddRange(parsed);
+                    }
+                    else if (prediction.Model.ModelID == clarifaiClient.PublicModels.ModerationModel.ModelID)
+                    {
+                        var category = Enum.GetName(typeof(ImageAnalysisType), ImageAnalysisType.moderation);
+                        var cachePath = imageFilePath + "/" + category;
+                        var parsed = ParseModerationData(prediction.Data.Cast<Concept>());
+                        CacheAnalyticsResults(cachePath, parsed);
+                        tmpResult.AddRange(parsed);
+                    }
+                    else
+                    {
+                        var category = Enum.GetName(typeof(ImageAnalysisType), ImageAnalysisType.general);
+                        var cachePath = imageFilePath + "/" + category;
+                        var parsed = ParseGeneralData(prediction.Data);
+                        CacheAnalyticsResults(cachePath, parsed);
+                        tmpResult.AddRange(parsed);
+                    }
                 }
-                else if(prediction.Model.ModelID == clarifaiClient.PublicModels.DemographicsModel.ModelID)
-                {
-                    var category = Enum.GetName(typeof(ImageAnalysisType), ImageAnalysisType.demographics);
-                    var cachePath = imageFilePath + "/" + category;
-                    var parsed = ParseDemographicsData(prediction.Data.Cast<Demographics>());
-                    CacheAnalyticsResults(cachePath, parsed);
-                    result.AddRange(parsed);
-                }
-                else if (prediction.Model.ModelID == clarifaiClient.PublicModels.ModerationModel.ModelID)
-                {
-                    var category = Enum.GetName(typeof(ImageAnalysisType), ImageAnalysisType.moderation);
-                    var cachePath = imageFilePath + "/" + category;
-                    var parsed = ParseModerationData(prediction.Data.Cast<Concept>());
-                    CacheAnalyticsResults(cachePath, parsed);
-                    result.AddRange(parsed);
-                }
-                else
-                {
-                    var category = Enum.GetName(typeof(ImageAnalysisType), ImageAnalysisType.general);
-                    var cachePath = imageFilePath + "/" + category;
-                    var parsed = ParseGeneralData(prediction.Data);
-                    CacheAnalyticsResults(cachePath, parsed);
-                    result.AddRange(parsed);
-                }
+                result.AddRange(tmpResult);
+                CacheAnalyticsResults(cacheWorkflowPath, result);
             }
-            return new List<TagSuggestion>(result);
+            else Debug.WriteLine("cache hit! avoided a number of api requests");
+
+            return result;
         }
 
         public static async Task<List<TagSuggestion>> RequestAnalysis(string imageFilePath, params ImageAnalysisType[] categories)

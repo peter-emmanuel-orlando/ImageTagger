@@ -70,6 +70,9 @@
     <Compile Include="UI\AddNewTagComponent.cs" />
     <Compile Include="TagManipulation\MyTagsRecord.cs" />
     <Compile Include="SettingsPersistanceUtil.cs" />
+    <Compile Include="UI\CancelDialog.xaml.cs">
+      <DependentUpon>CancelDialog.xaml</DependentUpon>
+    </Compile>
     <Compile Include="UI\EditMyTags.xaml.cs">
       <DependentUpon>EditMyTags.xaml</DependentUpon>
     </Compile>
@@ -95,6 +98,10 @@
     <Page Include="Launcher.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="UI\CancelDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="UI\EditMyTags.xaml">
       <SubType>Designer</SubType>

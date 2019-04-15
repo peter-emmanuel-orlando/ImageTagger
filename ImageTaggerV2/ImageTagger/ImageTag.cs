@@ -1,45 +1,28 @@
 ﻿using ImageTagger;
 using System;
+using System.ComponentModel;
 using System.Diagnostics;
+using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Controls;
 
 namespace ImageTagger.DataModels
 {
-    public class ImageTag : ImageTag_Base, IComparable<ImageTag>
+    public class ImageTag : INotifyPropertyChanged, IComparable<ImageTag>
     {
-
-        public override string TagName { get { return base.TagName; } }
-        public ImageTag(string tagName) : base(tagName)
-        { }
-
-        public int CompareTo(ImageTag other)
-        {
-            return base.CompareTo(other);
-        }
-    }
-
-    public class EditableImageTag : ImageTag_Base, IComparable<ImageTag>
-    {
-        public EditableImageTag(string tagName) : base(tagName)
-        { }
-
-        public int CompareTo(ImageTag other)
-        {
-            return base.CompareTo(other);
-        }
-    }
-
-    public abstract class ImageTag_Base : IComparable<ImageTag_Base>
-    {
-
-        public virtual string TagName { get; set; }
+        private string tagName = "";
+        public string TagName { get=>tagName; set { tagName = FormatUtil.FixTag(value); NotifyPropertyChanged(); } }
         public static readonly ImageTag NoTagsPlaceholder = new ImageTag("[no tags yet...]");
 
-        public ImageTag_Base(string tagName)
+        public ImageTag(string tagName)
         {
-            var dump = new System.Collections.Generic.List<char>();
-            TagName = FormatUtil.FixTag(tagName, TagCasing.SnakeCase, out dump);
+            TagName = tagName;
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+        protected void NotifyPropertyChanged([CallerMemberName] String propertyName = "")
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
         public bool IsEmpty()
@@ -47,7 +30,7 @@ namespace ImageTagger.DataModels
             return TagName == null || TagName == "";
         }
 
-        public int CompareTo(ImageTag_Base other)
+        public int CompareTo(ImageTag other)
         {
             return TagName.CompareTo(other.TagName);
         }
@@ -64,7 +47,7 @@ namespace ImageTagger.DataModels
 
         public override int GetHashCode()
         {
-            return TagName.GetHashCode();
+            return base.GetHashCode();
         }
 
         public override string ToString()

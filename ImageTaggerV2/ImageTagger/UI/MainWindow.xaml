@@ -71,6 +71,8 @@
                             <Border DockPanel.Dock="Bottom" Padding="0">
                                 <DockPanel VerticalAlignment="Bottom" Panel.ZIndex="3" MinWidth="70" >
                                     <Button x:Name="reloadTagSuggestions" Content="Suggest"/>
+                                    <Button x:Name="applyAllTagSuggestions" Content="Apply All"/>
+                                    <Button x:Name="clearAllTagSuggestions" Content="Clear All"/>
                                     <Button x:Name="closeTagSuggestions" Content="Close"/>
                                     <Label Content="or" Background="#33000000"/>
                                     <DockPanel VerticalAlignment="Top" HorizontalAlignment="Right" Panel.ZIndex="3">
@@ -197,7 +199,7 @@
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate>
                                         <Border BorderBrush="Black" BorderThickness="1" HorizontalAlignment="Center" VerticalAlignment="Center" MaxHeight="30" MaxWidth="70">
-                                            <Button Content="{Binding TagText}" HorizontalAlignment="Center" VerticalAlignment="Center" Click="HandleTagSuggestionButtonClickEvent" Background="{Binding Color}"/>
+                                            <Button Content="{Binding TagName}" Opacity="{Binding Opacity}" Tag="{Binding IsSelected}" HorizontalAlignment="Center" VerticalAlignment="Center" Click="HandleTagSuggestionButtonClickEvent" Background="{Binding Color}"/>
                                         </Border>
                                     </DataTemplate>
                                 </ItemsControl.ItemTemplate>
@@ -277,7 +279,7 @@
                             <Image Source="/ImageTagger;component/cherryBlossomIcon.ico" />
                         </MenuItem.Icon>
                     </MenuItem>
-                    <MenuItem x:Name="batchTag_MenuItem"  Header="Batch Tags" IsEnabled="True" Click="BatchTag_MenuItem_Click">
+                    <MenuItem x:Name="batchTag_MenuItem"  Header="Batch Tag" IsEnabled="True" Click="BatchTag_MenuItem_Click">
                         <MenuItem.Icon>
                             <Image Source="/ImageTagger;component/cherryBlossomIcon.ico" />
                         </MenuItem.Icon>

@@ -16,7 +16,7 @@ namespace ImageTagger
     public static class ImageFileUtil
     {
 
-        public static bool ApplyTagsToImage(ImageInfo imageInfo, IEnumerator<ImageTag> tags) 
+        public static bool ApplyTagsToImage(ImageInfo imageInfo, IEnumerable<ImageTag> tags) 
         {
             return ApplyTagsToImage(imageInfo.ImgPath, tags);
         }
@@ -25,18 +25,17 @@ namespace ImageTagger
         {
             foreach (var path in toCombine.Keys)
             {
-                ApplyTagsToImage(path, toCombine[path].GetEnumerator());
+                ApplyTagsToImage(path, toCombine[path]);
             }
         }
 
-        public static bool ApplyTagsToImage(string imagePath, IEnumerator<ImageTag> tags)
+        public static bool ApplyTagsToImage(string imagePath, IEnumerable<ImageTag> tags)
         {
             try
             {
                 var tagString = "";
-                while (tags.MoveNext())
+                foreach (var tag in tags)
                 {
-                    var tag = tags.Current;
                     if (tag.TagName != "" && tag.TagName != ImageTag.NoTagsPlaceholder.TagName)
                         tagString += tag.TagName + "; ";
                 }

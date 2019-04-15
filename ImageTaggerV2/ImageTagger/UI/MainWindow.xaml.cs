@@ -89,9 +89,15 @@ namespace ImageTagger
             RequestClarafaiAPIDialog.GetAPIKeyViaDialog();
         }
 
-        private async void BatchTag_MenuItem_Click(object sender, RoutedEventArgs e)
+        private void BatchTag_MenuItem_Click(object sender, RoutedEventArgs e)
         {
-            var toCombine = await ImageAnalysisAPI.ImageAnalysis.RequestBatchAnalysis(ImageFiles.GetAll().Take(2));
+            var files = ImageFiles.GetAll();
+            if (files.Count > ImageAnalysisAPI.ImageAnalysis.maxItemsPerBatchRequest)
+            {
+                if (MessageBoxResult.No == MessageBox.Show(files.Count + " files are queued for process, do you want to continue?", "Warning:", MessageBoxButton.YesNo))
+                    return;
+            }
+            var toCombine = ImageAnalysisAPI.ImageAnalysis.RequestBatchAnalysis(files);
             ImageFileUtil.BatchApplyTagsToImages(toCombine.ToDictionary(v => v.Key, v => v.Value.Cast<ImageTag>()));
         }
     }

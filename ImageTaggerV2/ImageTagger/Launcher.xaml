@@ -10,4 +10,5 @@
         Height="0" 
         Width="0" 
         WindowStartupLocation="CenterOwner"
-></Window>
+    >
+</Window>

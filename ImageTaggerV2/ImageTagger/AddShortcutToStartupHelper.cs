@@ -7,7 +7,7 @@ namespace ImageTagger
 {
     public static class AddShortcutToStartupHelper
     {
-        public static void Add(string publisherName, string productName)
+        public static void Add()
         {
             var targetFileLocation = Assembly.GetExecutingAssembly().Location;
             string startupPath = Environment.GetFolderPath(Environment.SpecialFolder.Startup);
