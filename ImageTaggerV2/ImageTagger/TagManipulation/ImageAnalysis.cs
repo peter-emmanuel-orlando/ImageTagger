@@ -25,6 +25,8 @@ using Clarifai.DTOs;
 using Clarifai.DTOs.Models;
 using ImageTagger.DataModels;
 using ImageTagger.UI;
+using System.Text.RegularExpressions;
+using System.Threading;
 
 namespace ImageAnalysisAPI
 {
@@ -43,25 +45,21 @@ namespace ImageAnalysisAPI
 
     public static class ImageAnalysis
     {
-        private static readonly HttpClient httpClient;
-        private static readonly ClarifaiClient clarifaiClient;
+        private static HttpClient httpClient;
+        private static ClarifaiClient clarifaiClient; 
+        public const int maxItemsPerBatchRequest = 8;
 
         static ImageAnalysis()
         {
+            RefreshAPIKey();
+        }
+
+        public static void RefreshAPIKey()
+        { 
             var apiKey = SettingsPersistanceUtil.RetreiveSetting("apiKey");
 
             if (apiKey == "")
-            {
-                var getKeyWindow = new RequestClarafaiAPIDialog();
-                var success = getKeyWindow.ShowDialog() ?? false;
-                if (success)
-                {
-                    apiKey = getKeyWindow.ApiKey;
-                    MessageBox.Show("api key is set to " + apiKey);
-                    SettingsPersistanceUtil.RecordSetting("apiKey", apiKey);
-                }
-            }
-                
+                SetAPIKeyViaDialog();
             else
             {
                 httpClient = new HttpClient();
@@ -73,29 +71,141 @@ namespace ImageAnalysisAPI
             }
         }
 
-
-        private class Suggestion : IPrediction
+        public static void SetAPIKeyViaDialog()
         {
-            public Suggestion(string iD, string name, DateTime? createdAt, string appID, decimal? value, string language)
-            {
-                ID = iD;
-                Name = name;
-                CreatedAt = createdAt;
-                AppID = appID;
-                Value = value;
-                Language = language;
-            }
-
-            public string TYPE => "concept";
-            public string ID { get; }
-            public string Name { get; }
-            public DateTime? CreatedAt { get; }
-            public string AppID { get; }
-            public decimal? Value { get; }
-            public string Language { get; }
+            var apiKey = SettingsPersistanceUtil.RetreiveSetting("apiKey");
+            apiKey = RequestStringDialog.StartDialog(apiKey, "provide clarifai api key for suggestions", "clarifai key", "input key here");
+            SettingsPersistanceUtil.RecordSetting("apiKey", apiKey);
+            if(apiKey != "")
+                RefreshAPIKey();
         }
 
+        public static async Task<Dictionary<string, List<TagSuggestion>>> RequestBatchAnalysis(IEnumerable<string> imageFilePaths)
+        {
+            var result = new Dictionary<string, List<TagSuggestion>>();
+            var tokenSource = new CancellationTokenSource();
+            var token = tokenSource.Token;
+            var cancelContext = new CancelDialogDataContext()
+            {
+                OnCancel = (s, e) => { tokenSource.Cancel(); },
+                OnClosed = (s, e) => { tokenSource.Cancel(); }
+            };
+            var cancelWindow = new CancelDialog(cancelContext);
+            cancelWindow.Show();
+            var splitPaths = new List<List<string>>();
+            splitPaths.Add(new List<string>());
+            foreach (var imageFilePath in imageFilePaths)
+            {
+                var i = splitPaths.Count - 1;
+                if (splitPaths[i].Count >= 8)
+                {
+                    splitPaths.Add(new List<string>());
+                    i++;
+                }
+                //if (ImageFileUtil.GetImageTags(imageFilePath).Contains(new ImageTag("autoTagged"))) continue;
+                splitPaths[i].Add(imageFilePath);
+            }
+            App.Current.Dispatcher.Invoke(() => cancelContext.MaxValue = splitPaths.Count * 2);
+            foreach (var paths in splitPaths)
+            {
+                if (token.IsCancellationRequested) break;
+                var vision = VisionAPISuggestions.VisionApi.RequestBatchVisionAnalysis(paths);
+                foreach (var key in vision.Keys)
+                {
+                    if (!result.ContainsKey(key)) result.Add(key, new List<TagSuggestion>());
+                    result[key].AddRange(vision[key]);
+                }
+                App.Current.Dispatcher.Invoke(() => cancelContext.CurrentValue++);
+
+                var input = paths.Select((path) => new ClarifaiFileImage(File.ReadAllBytes(path), path));
+                var res = await clarifaiClient.WorkflowPredict("workflow", input).ExecuteAsync();
+                if (res.IsSuccessful)
+                    foreach (var workflow in res.Get().WorkflowResults)
+                    {
+                        var imageFilePath = workflow.Input.ID;
+                        var suggestions = ParsePredictions(imageFilePath, workflow.Predictions);
+                        suggestions.Add(new TagSuggestion(new ImageTag("autoTagged"), 1, "general"));
+                        result.Add(imageFilePath, suggestions);
+                    }
+                Thread.Sleep(1000);//can only make a call every 1 sec
+                App.Current.Dispatcher.Invoke(() => cancelContext.CurrentValue++);
+
+            }
+            App.Current.Dispatcher.Invoke(() => cancelWindow.Close());
+
+            return result;
+        }
+
+        public static async Task<List<TagSuggestion>> RequestWorkflowAnalysis(string imageFilePath, params ImageAnalysisType[] categories)
+        {
+            HashSet<TagSuggestion> result = new HashSet<TagSuggestion>();
+            var bytes = File.ReadAllBytes(imageFilePath);
+            var input = new ClarifaiFileImage(bytes);
+            var res = await clarifaiClient.WorkflowPredict("workflow", input).ExecuteAsync();
+            if (res.IsSuccessful)
+            {
+                var predictions = res.Get().WorkflowResult.Predictions;
+                result.AddRange( ParsePredictions(imageFilePath, predictions));
+            }
+            else
+                MessageBox.Show("Image Analysis was not successful! Check your internet connection and api key, and you have a workflow named 'workflow'");
+
+            result.AddRange(VisionAPISuggestions.VisionApi.RequestVisionAnalysis(imageFilePath));
+            return new List<TagSuggestion>(result);
+        }
+
+        private static List<TagSuggestion> ParsePredictions(string imageFilePath, IEnumerable<ClarifaiOutput> predictions)
+        {
+            var cacheWorkflowPath = imageFilePath + "/" + "workflow";
+            var result = new List<TagSuggestion>();
+            if(!RequestCachedResults(cacheWorkflowPath, out result))
+            {
+                Debug.WriteLine("cache miss! api request made");
+                var tmpResult = new HashSet<TagSuggestion>();
+                foreach (var prediction in predictions)
+                {
+                    if (prediction.Model.ModelID == clarifaiClient.PublicModels.GeneralModel.ModelID)
+                    {
+                        var category = Enum.GetName(typeof(ImageAnalysisType), ImageAnalysisType.general);
+                        var cachePath = imageFilePath + "/" + category;
+                        var parsed = ParseGeneralData(prediction.Data.Cast<Concept>());
+                        CacheAnalyticsResults(cachePath, parsed);
+                        tmpResult.AddRange(parsed);
+                    }
+                    else if (prediction.Model.ModelID == clarifaiClient.PublicModels.DemographicsModel.ModelID)
+                    {
+                        var category = Enum.GetName(typeof(ImageAnalysisType), ImageAnalysisType.demographics);
+                        var cachePath = imageFilePath + "/" + category;
+                        var parsed = ParseDemographicsData(prediction.Data.Cast<Demographics>());
+                        CacheAnalyticsResults(cachePath, parsed);
+                        tmpResult.AddRange(parsed);
+                    }
+                    else if (prediction.Model.ModelID == clarifaiClient.PublicModels.ModerationModel.ModelID)
+                    {
+                        var category = Enum.GetName(typeof(ImageAnalysisType), ImageAnalysisType.moderation);
+                        var cachePath = imageFilePath + "/" + category;
+                        var parsed = ParseModerationData(prediction.Data.Cast<Concept>());
+                        CacheAnalyticsResults(cachePath, parsed);
+                        tmpResult.AddRange(parsed);
+                    }
+                    else
+                    {
+                        var category = Enum.GetName(typeof(ImageAnalysisType), ImageAnalysisType.general);
+                        var cachePath = imageFilePath + "/" + category;
+                        var parsed = ParseGeneralData(prediction.Data);
+                        CacheAnalyticsResults(cachePath, parsed);
+                        tmpResult.AddRange(parsed);
+                    }
+                }
+                result.AddRange(tmpResult);
+                CacheAnalyticsResults(cacheWorkflowPath, result);
+            }
+            else Debug.WriteLine("cache hit! avoided a number of api requests");
+
+            return result;
+        }
         
+        /* non workflow analysis
         public static async Task<List<TagSuggestion>> RequestAnalysis(string imageFilePath, params ImageAnalysisType[] categories)
         {
             if (categories.Length == 0 || categories.Contains(ImageAnalysisType.all))
@@ -111,6 +221,7 @@ namespace ImageAnalysisAPI
 
             return result;
         }
+        */
 
         private static async Task<List<TagSuggestion>> RequestGeneralAnalysisAsync(string imageFilePath)
         {
@@ -123,31 +234,34 @@ namespace ImageAnalysisAPI
             {
                 var request = new HttpRequestMessage(HttpMethod.Post, "aaa03c23b3724a16a56b629203edc62c/outputs");
                 var bytes = File.ReadAllBytes(imageFilePath);
-                var reqJSON = new
+                var res = await clarifaiClient.PublicModels.GeneralModel.Predict(new ClarifaiFileImage(bytes)).ExecuteAsync();
+                if(res.IsSuccessful)
                 {
-                    inputs = new[] {
-                            new {data = new{ image = new{ base64 = bytes } } }
-                        }
-                };
-                var stringContent = new StringContent(JsonConvert.SerializeObject(reqJSON), Encoding.UTF8, "application/json");
-                request.Content = stringContent;
-                var res = await httpClient.SendAsync(request);
-                Debug.WriteLine("server response: " + res.StatusCode);
-                var resString = await res.Content.ReadAsStringAsync();
-                var parsedJson = JToken.Parse(resString);
-                resString = parsedJson.ToString(Formatting.Indented);
-                //Debug.WriteLine(resString);
-                var obj = JsonConvert.DeserializeAnonymousType(resString, new { status = new { }, outputs = new[] { new { data = new { concepts = new Suggestion[] { } } } } }, new JsonSerializerSettings() { ConstructorHandling = ConstructorHandling.AllowNonPublicDefaultConstructor });
-                var concepts = obj.outputs[0].data.concepts;
-
-                foreach (var concept in concepts)
-                {
-                    result.Add(new TagSuggestion(new ImageTag(concept.Name), (concept.Value.HasValue) ? (double)concept.Value.Value : 0d, category));
+                    result = ParseGeneralData(res.Get().Data);
                 }
             }
             CacheAnalyticsResults(cachePath, result);
             return result;
         }
+
+        private static List<TagSuggestion> ParseGeneralData(IEnumerable<IPrediction> data)
+        {
+            var parsedJson = JToken.Parse(JsonConvert.SerializeObject(data));
+            var s = parsedJson.ToString(Formatting.Indented);
+            s = Regex.Replace(s, @"\]([\s\S]*?)\[", ",");
+            s = "[" + s.Split('[').Last();//Regex.Replace(s, @"[\s\S]*\[", "[");
+            s = s.Split(']').First() + "]"; //Regex.Replace(s, @"\]([\s\S]*)", "]");
+            Debug.WriteLine(s);
+            var concepts = JsonConvert.DeserializeObject<List<Concept>>(s);//s.Split(new string[] { "~break~" }, StringSplitOptions.RemoveEmptyEntries);
+            var category = Enum.GetName(typeof(ImageAnalysisType), ImageAnalysisType.general);
+            var result = new List<TagSuggestion>();
+            foreach (var concept in concepts)
+            {
+                result.Add(new TagSuggestion(new ImageTag(concept.Name), (concept.Value.HasValue) ? (double)concept.Value.Value : 0d, category));
+            }
+            return result;
+        }
+
 
         private static async Task<List<TagSuggestion>> RequestDemographicsAnalysisAsync(string imageFilePath)
         {
@@ -158,49 +272,55 @@ namespace ImageAnalysisAPI
 
             if (!cacheHit && clarifaiClient != null)
             {
-                // When using async/await
                 var bytes = File.ReadAllBytes(imageFilePath);
-                //var model = new ImageModels.DemographicsModel(client, ImageModels.)
-                var res = await clarifaiClient.PublicModels.DemographicsModel
-                    .Predict(new ClarifaiFileImage(bytes))
-                    .ExecuteAsync();
-                // Print the concepts
+                var modelId = clarifaiClient.PublicModels.DemographicsModel.ModelID;
+                var res = await clarifaiClient.Predict<Demographics>(modelId, new ClarifaiFileImage(bytes)).ExecuteAsync();
+                if(res.IsSuccessful)
+                    result = ParseDemographicsData(res.Get().Data);
 
-                Func<string, string> fixName = (string name) =>
-                {
-                    if (name == "middle eastern or north african") return "arab";
-                    else if (name == "american indian or alaska native") return "nativeAmerican";
-                    else if (name == "black or african american") return "africanOrigin";
-                    else if (name == "native hawaiian or pacific islander") return "pacificIslander";
-                    else if (name == "hispanic, latino, or spanish origin") return "hispanic";
-                    else if (name == "white") return "caucasian";
-                    else return name;
-                };
-                foreach (var person in res.Get().Data)
-                {
-                    //not using age right now
-                    /*foreach (var innerConcept in person.AgeAppearanceConcepts)
-                    {
-                        Debug.WriteLine($"{innerConcept.Name}: {innerConcept.Value}");
-                    }*/
-                    var gender = "unsure";
-                    var certainty = 0m;
-                    foreach (var innerConcept in person.GenderAppearanceConcepts)
-                    {
-                        if (innerConcept.Name == "feminine" && innerConcept.Value.Value > 0.6m) { gender = "female"; certainty = innerConcept.Value.Value; }
-                        else if (innerConcept.Name == "masculine" && innerConcept.Value.Value > 0.6m) { gender = "male"; certainty = innerConcept.Value.Value; }
-                    }
-                    result.Add(new TagSuggestion(new ImageTag(gender), (double)certainty, category));
-
-                    foreach (var innerConcept in person.MulticulturalAppearanceConcepts)
-                    {
-                        var threshold = 0.099m;
-                        if (innerConcept.Value.Value > threshold)
-                            result.Add(new TagSuggestion(new ImageTag(fixName(innerConcept.Name)), (double)innerConcept.Value.Value, category));
-                    }
-                }
             }
             CacheAnalyticsResults(cachePath, result);
+            return result;
+        }
+
+        private static List<TagSuggestion> ParseDemographicsData(IEnumerable<Demographics> data)
+        {
+
+            List<TagSuggestion> result = new List<TagSuggestion>();
+            var category = Enum.GetName(typeof(ImageAnalysisType), ImageAnalysisType.demographics);
+            Func<string, string> fixName = (string name) =>
+            {
+                if (name == "middle eastern or north african") return "arab";
+                else if (name == "american indian or alaska native") return "nativeAmerican";
+                else if (name == "black or african american") return "africanOrigin";
+                else if (name == "native hawaiian or pacific islander") return "pacificIslander";
+                else if (name == "hispanic, latino, or spanish origin") return "hispanic";
+                else if (name == "white") return "caucasian";
+                else return name;
+            };
+            foreach (var person in data)
+            {
+                //not using age right now
+                /*foreach (var innerConcept in person.AgeAppearanceConcepts)
+                {
+                    Debug.WriteLine($"{innerConcept.Name}: {innerConcept.Value}");
+                }*/
+                var gender = "unsure";
+                var certainty = 0m;
+                foreach (var innerConcept in person.GenderAppearanceConcepts)
+                {
+                    if (innerConcept.Name == "feminine" && innerConcept.Value.Value > 0.6m) { gender = "female"; certainty = innerConcept.Value.Value; }
+                    else if (innerConcept.Name == "masculine" && innerConcept.Value.Value > 0.6m) { gender = "male"; certainty = innerConcept.Value.Value; }
+                }
+                result.Add(new TagSuggestion(new ImageTag(gender), (double)certainty, category));
+
+                foreach (var innerConcept in person.MulticulturalAppearanceConcepts)
+                {
+                    var threshold = 0.099m;
+                    if (innerConcept.Value.Value > threshold)
+                        result.Add(new TagSuggestion(new ImageTag(fixName(innerConcept.Name)), (double)innerConcept.Value.Value, category));
+                }
+            }
             return result;
         }
 
@@ -220,22 +340,31 @@ namespace ImageAnalysisAPI
                     .Predict(new ClarifaiFileImage(bytes))
                     .ExecuteAsync();
                 // Print the concepts
-                var isSafe = false;
-                foreach (var concept in res.Get().Data)
-                {
-                    var name = concept.Name;
-                    var certainty = (double)concept.Value.Value;
-                    var threshold = 0.3;
-                    if(certainty > threshold)
-                    {
-                        result.Add(new TagSuggestion(new ImageTag( concept.Name), certainty, category));
-                        if (name == "safe") isSafe = true;
-                    }
-                }
-                if(!isSafe)
-                    result.Add(new TagSuggestion(new ImageTag("nsfw"), 1, category));
+                ParseModerationData(res.Get().Data);
             }
             CacheAnalyticsResults(cachePath, result);
+            return result;
+        }
+
+        private static List<TagSuggestion> ParseModerationData(IEnumerable<Concept> data)
+        {
+
+            var isSafe = false;
+            var category = Enum.GetName(typeof(ImageAnalysisType), ImageAnalysisType.moderation);
+            var result = new List<TagSuggestion>();
+            foreach (var concept in data)
+            {
+                var name = concept.Name;
+                var certainty = (double)concept.Value.Value;
+                var threshold = 0.3;
+                if (certainty > threshold)
+                {
+                    result.Add(new TagSuggestion(new ImageTag(concept.Name), certainty, category));
+                    if (name == "safe") isSafe = true;
+                }
+            }
+            if (!isSafe)
+                result.Add(new TagSuggestion(new ImageTag("nsfw"), 1, category));
             return result;
         }
 
@@ -310,3 +439,62 @@ namespace ImageAnalysisAPI
     }
 
 }
+/* general model via http
+private class Suggestion : IPrediction
+{
+    public Suggestion(string iD, string name, DateTime? createdAt, string appID, decimal? value, string language)
+    {
+        ID = iD;
+        Name = name;
+        CreatedAt = createdAt;
+        AppID = appID;
+        Value = value;
+        Language = language;
+    }
+
+    public string TYPE => "concept";
+    public string ID { get; }
+    public string Name { get; }
+    public DateTime? CreatedAt { get; }
+    public string AppID { get; }
+    public decimal? Value { get; }
+    public string Language { get; }
+}
+
+private static async Task<List<TagSuggestion>> RequestGeneralAnalysisAsync(string imageFilePath)
+{
+    List<TagSuggestion> result;
+    var category = Enum.GetName(typeof(ImageAnalysisType), ImageAnalysisType.general);
+    var cachePath = imageFilePath + "/" + category;
+    var cacheHit = RequestCachedResults(cachePath, out result);
+
+    if (!cacheHit && httpClient != null)
+    {
+        var request = new HttpRequestMessage(HttpMethod.Post, "aaa03c23b3724a16a56b629203edc62c/outputs");
+        var bytes = File.ReadAllBytes(imageFilePath);
+        var reqJSON = new
+        {
+            inputs = new[] {
+                    new {data = new{ image = new{ base64 = bytes } } }
+                }
+        };
+        var stringContent = new StringContent(JsonConvert.SerializeObject(reqJSON), Encoding.UTF8, "application/json");
+        request.Content = stringContent;
+        var res = await httpClient.SendAsync(request);
+        Debug.WriteLine("server response: " + res.StatusCode);
+        var resString = await res.Content.ReadAsStringAsync();
+        var parsedJson = JToken.Parse(resString);
+        resString = parsedJson.ToString(Formatting.Indented);
+        //Debug.WriteLine(resString);
+        var obj = JsonConvert.DeserializeAnonymousType(resString, new { status = new { }, outputs = new[] { new { data = new { concepts = new Suggestion[] { } } } } }, new JsonSerializerSettings() { ConstructorHandling = ConstructorHandling.AllowNonPublicDefaultConstructor });
+        var concepts = obj.outputs[0].data.concepts;
+        foreach (var concept in concepts)
+        {
+            result.Add(new TagSuggestion(new ImageTag(concept.Name), (concept.Value.HasValue) ? (double)concept.Value.Value : 0d, category));
+        }
+    }
+    CacheAnalyticsResults(cachePath, result);
+    return result;
+}
+*/
+

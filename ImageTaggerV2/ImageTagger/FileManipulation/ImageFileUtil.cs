@@ -4,6 +4,7 @@ using Microsoft.WindowsAPICodePack.Shell;
 using Microsoft.WindowsAPICodePack.Shell.PropertySystem;
 using System;
 using System.Collections.Generic;
+using System.Data.OleDb;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -15,19 +16,26 @@ namespace ImageTagger
     public static class ImageFileUtil
     {
 
-        public static bool ApplyTagsToImage(ImageInfo imageInfo, IEnumerator<ImageTag> tags) 
+        public static bool ApplyTagsToImage(ImageInfo imageInfo, IEnumerable<ImageTag> tags) 
         {
             return ApplyTagsToImage(imageInfo.ImgPath, tags);
         }
 
-        public static bool ApplyTagsToImage(string imagePath, IEnumerator<ImageTag> tags)
+        public static void BatchApplyTagsToImages(Dictionary<string, IEnumerable<ImageTag>> toCombine)
+        {
+            foreach (var path in toCombine.Keys)
+            {
+                ApplyTagsToImage(path, toCombine[path]);
+            }
+        }
+
+        public static bool ApplyTagsToImage(string imagePath, IEnumerable<ImageTag> tags)
         {
             try
             {
                 var tagString = "";
-                while (tags.MoveNext())
+                foreach (var tag in tags)
                 {
-                    var tag = tags.Current;
                     if (tag.TagName != "" && tag.TagName != ImageTag.NoTagsPlaceholder.TagName)
                         tagString += tag.TagName + "; ";
                 }
@@ -74,16 +82,29 @@ namespace ImageTagger
         }
         public static string[] acceptedFileTypes { get { return new string[] { ".jpg", ".jpeg" }; } }//, "jpeg", "gif", "png", };
 
-        public static List<string> GetImageFilenames(string sourcePath)
+        public static List<string> GetImageFilenames(string sourcePath = null, TagQueryCriteria tagQueryCriteria = null)
         {
+            sourcePath = sourcePath ?? PersistanceUtil.SourceDirectory;
+            tagQueryCriteria = tagQueryCriteria ?? new TagQueryCriteria();
+
             var result = new List<string>();
-            if(sourcePath != null)
+
+            var query = $"SELECT System.ItemPathDisplay FROM SystemIndex WHERE SCOPE='{PersistanceUtil.SourceDirectory}'" +
+                @" AND (System.ItemName LIKE '%.jpg' OR System.ItemName LIKE '%.jpeg')";
+            if (tagQueryCriteria != null) query += " AND " + tagQueryCriteria.GetQueryClause();
+
+
+            var windowsSearchConnection = @"Provider=Search.CollatorDSO;Extended Properties=""Application=Windows""";
+            using (OleDbConnection connection = new OleDbConnection(windowsSearchConnection))
             {
-                //try ccatch this
-                foreach (var fileName in Directory.EnumerateFiles(sourcePath, "*.*", SearchOption.AllDirectories))
+                connection.Open();
+                OleDbCommand command = new OleDbCommand(query, connection);
+                using (var r = command.ExecuteReader())
                 {
-                    if (acceptedFileTypes.Contains(Path.GetExtension(fileName)))
-                        result.Add(fileName);
+                    while (r.Read())
+                    {
+                        result.Add("" + r[0]);
+                    }
                 }
             }
             return result;
@@ -102,36 +123,5 @@ namespace ImageTagger
 
 
 
-        public static bool MoveToDestination(ImageInfo imgInfo, string newDirectory)
-        {
-            string newPath = "";
-            var success = MoveImageFile(imgInfo.ImgPath, newDirectory, out newPath);
-            if (success)
-            {
-                //change file path to new filepath
-                var fileNameIndex = ImageFiles.IndexOf(imgInfo.ImgPath);
-                if (fileNameIndex != -1) ImageFiles.Set(fileNameIndex, newPath);
-            }
-            return success;
-        }
-
-        private static bool MoveImageFile(string imgPath, string newDirectory, out string newPath)
-        {
-            newPath = imgPath;
-            var success = !string.IsNullOrEmpty(imgPath) &&
-                !string.IsNullOrWhiteSpace(imgPath) &&
-                !string.IsNullOrEmpty(newDirectory) &&
-                !string.IsNullOrWhiteSpace(newDirectory);
-            if(success)
-            {
-                //try-catch this
-                (new FileInfo(newDirectory)).Directory.Create();
-                var possibleNewPath = Path.Combine(newDirectory, Path.GetFileName(imgPath));
-                Debug.WriteLine("moved " + imgPath + " to " + possibleNewPath);
-                File.Move(imgPath, Path.Combine(imgPath, possibleNewPath));
-                newPath = possibleNewPath;
-            }
-            return success;
-        }
     }
 }

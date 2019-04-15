@@ -20,32 +20,23 @@ namespace ImageTagger
     /// 
 
 
-    public class SuggestedTagGridItem
+    public class SuggestedTagGridItem : ImageTag
     {
-        public SuggestedTagGridItem(string tagText, int row, int column, string color)
+        public SuggestedTagGridItem(string tagName, int row, int column, string color) : base(tagName)
         {
-            tag = new ImageTag( tagText);
             // 0 and 11 are used for spacing
             Row = row.Clamp(1, 10);
             Column = column;
             Color = color;
         }
-
-        public string TagText { get { return tag.TagName; } }
-        private ImageTag tag { get; }
+        
         public int Row { get; }
         public int Column { get; }
         public string Color { get; } = "#FFFF69B4";
-
-        public static implicit operator ImageTag(SuggestedTagGridItem sTag)
-        {
-            return sTag.tag;
-        }
-
-        public override string ToString()
-        {
-            return TagText;
-        }
+        private bool isSelected = false;
+        public bool IsSelected { get => isSelected; set { isSelected = value; NotifyPropertyChanged(); Opacity = !IsSelected? 1 : 0.5; } }
+        private double opacity = 1d;
+        public double Opacity { get => opacity; private set { opacity = value; NotifyPropertyChanged();  } }
     }
 
     public class TagCategory
@@ -65,7 +56,7 @@ namespace ImageTagger
         ItemsControl TagSuggestion { get { return main.tagSuggestionDisplay; } }
 
         private HashSet<Coordinate> UsedPositions { get; } = new HashSet<Coordinate>();
-        private ObservableCollection<SuggestedTagGridItem> SuggestedTagGridItems { get; } = new ObservableCollection<SuggestedTagGridItem>();
+        internal ObservableCollection<SuggestedTagGridItem> SuggestedTagGridItems { get; } = new ObservableCollection<SuggestedTagGridItem>();
         private ObservableCollection<TagCategory> TagCategories { get; } = new ObservableCollection<TagCategory>();
 
         private bool isDormant = false;
@@ -81,12 +72,13 @@ namespace ImageTagger
             main.imageGrid.SelectionChanged += HandleGridSelectionChanged;
             main.reloadTagSuggestions.Click += HandleChangeSuggestionsClickEvent;
             main.closeTagSuggestions.Click += HandleCloseSuggestionsClickEvent;
+            main.applyAllTagSuggestions.Click += HandleApplyAllSuggestionsClickEvent;
+            main.clearAllTagSuggestions.Click += HandleClearAllSuggestionsClickEvent;
             TagsManager.TagsLoaded += HandleTagsReloadedEvent;
 
             CloseSuggestionsPanel();
             TagsManager.Load();
         }
-
         private void UnsubscribeFromAllEvents(object sender, EventArgs e)
         {
             main.PreviewMainWindowUnload -= UnsubscribeFromAllEvents;
@@ -95,8 +87,44 @@ namespace ImageTagger
             main.imageGrid.SelectionChanged -= HandleGridSelectionChanged;
             main.reloadTagSuggestions.Click -= HandleChangeSuggestionsClickEvent;
             main.closeTagSuggestions.Click -= HandleCloseSuggestionsClickEvent;
+            main.applyAllTagSuggestions.Click -= HandleApplyAllSuggestionsClickEvent;
+            main.clearAllTagSuggestions.Click -= HandleClearAllSuggestionsClickEvent;
             TagsManager.TagsLoaded -= HandleTagsReloadedEvent;
         }
+
+        private void HandleApplyAllSuggestionsClickEvent(object sender, RoutedEventArgs e)
+        {
+            main.applyAllTagSuggestions.IsEnabled = false;
+            main.applyAllTagSuggestions.Visibility = Visibility.Collapsed;
+            main.clearAllTagSuggestions.IsEnabled = true;
+            main.clearAllTagSuggestions.Visibility = Visibility.Visible;
+
+            prevTags = main.ImageTagsDisplay.Tags;
+            main.ImageTagsDisplay.Add(SuggestedTagGridItems.Cast<ImageTag>());
+            main.ImageTagsDisplay.ApplyTagsToMainImage();
+            foreach (var item in SuggestedTagGridItems)
+            {
+                item.IsSelected = true;
+            }
+        }
+
+        private IEnumerable<ImageTag> prevTags;
+        private void HandleClearAllSuggestionsClickEvent(object sender, RoutedEventArgs e)
+        {
+            main.applyAllTagSuggestions.IsEnabled = true;
+            main.applyAllTagSuggestions.Visibility = Visibility.Visible;
+            main.clearAllTagSuggestions.IsEnabled = false;
+            main.clearAllTagSuggestions.Visibility = Visibility.Collapsed;
+            var btn = e.OriginalSource as Button;
+            main.ImageTagsDisplay.Remove(SuggestedTagGridItems.Cast<ImageTag>());
+            main.ImageTagsDisplay.Add(prevTags);
+            main.ImageTagsDisplay.ApplyTagsToMainImage();
+            foreach (var item in SuggestedTagGridItems)
+            {
+                item.IsSelected = false;
+            }
+        }
+
 
         private void HandleTagsReloadedEvent(object sender, EventArgs e)
         {
@@ -140,6 +168,12 @@ namespace ImageTagger
             //enable and show closeSuggestions button
             main.closeTagSuggestions.IsEnabled = true;
             main.closeTagSuggestions.Visibility = Visibility.Visible;
+            //enable and show applyAll button
+            main.applyAllTagSuggestions.IsEnabled = true;
+            main.applyAllTagSuggestions.Visibility = Visibility.Visible;
+            //disable and collapse clear all button
+            main.clearAllTagSuggestions.IsEnabled = false;
+            main.clearAllTagSuggestions.Visibility = Visibility.Collapsed;
             //disable and collapse openSuggestions button
             main.reloadTagSuggestions.IsEnabled = false;
             main.reloadTagSuggestions.Visibility = Visibility.Collapsed;
@@ -166,6 +200,12 @@ namespace ImageTagger
             //disable and hide closeSuggestions button
             main.closeTagSuggestions.IsEnabled = false;
             main.closeTagSuggestions.Visibility = Visibility.Collapsed;
+            //disable and hide applyAll button
+            main.applyAllTagSuggestions.IsEnabled = false;
+            main.applyAllTagSuggestions.Visibility = Visibility.Collapsed;
+            //disable and hide clearAll button
+            main.clearAllTagSuggestions.IsEnabled = false;
+            main.clearAllTagSuggestions.Visibility = Visibility.Collapsed;
             //enable and show openSuggestions button
             main.reloadTagSuggestions.IsEnabled = true;
             main.reloadTagSuggestions.Visibility = Visibility.Visible;
@@ -219,15 +259,9 @@ namespace ImageTagger
             if(category == "insight")
             {
                 TagsManager.GetImageAnalysisTags(mainImgPath, (result) => {
-                    var colorDict = new Dictionary<ImageAnalysisType, string>();
-                    colorDict.Add(ImageAnalysisType.moderation, "#f92983");
-                    colorDict.Add(ImageAnalysisType.demographics, "#6670e3");
-                    colorDict.Add(ImageAnalysisType.general, "#00f3a7");
                     foreach (var item in result)
                     {
-                        ImageAnalysisType analysisCategory;
-                        Enum.TryParse(item.category, out analysisCategory);
-                        AddSuggestions(new TagSuggestion[] { item }, colorDict[analysisCategory]);
+                        AddSuggestions(new TagSuggestion[] { item }, (item.category + "fgfhjgjhg").ToColor() );
                     }
                 });
             }
@@ -236,9 +270,7 @@ namespace ImageTagger
                 AddSuggestions(TagsManager.GetTagSuggestions(mainImgPath, category));
             }
         }
-
-
-
+        
         private void AddSuggestions(IEnumerable<TagSuggestion> toAdd, string color = "#ede7da")
         {
             var maxRows = (int)(1 + Math.Floor(TagSuggestion.ActualHeight / 30) % 30);
@@ -259,7 +291,7 @@ namespace ImageTagger
                         UsedPositions.Add(coord);
                         try
                         {
-                            SuggestedTagGridItems.Add(new SuggestedTagGridItem(suggestion.tag.TagName, coord.row, coord.column, color));
+                            SuggestedTagGridItems.Add(new SuggestedTagGridItem(suggestion.TagName, coord.row, coord.column, color));
                         }
                         catch (Exception e) { Debug.WriteLine(e); }
                         break;
@@ -276,15 +308,19 @@ namespace ImageTagger
         private void HandleTagSuggestionButtonClickEvent(object sender, RoutedEventArgs e)
         {
             var btn = e.OriginalSource as Button;
-            if(btn.Opacity == 0.5)
+            var tagName = btn.Content + "";
+            var item = TagSuggestionDisplay.SuggestedTagGridItems.First((i) => i.TagName == tagName);
+            var isSelected = (bool)btn.Tag;
+            if (isSelected)
             {
-                ImageTagsDisplay.Remove(btn.Content + "");
-                btn.Opacity = 1;
+                ImageTagsDisplay.Remove(tagName);
+                item.IsSelected = false;
             }
             else
             {
-                ImageTagsDisplay.Add(new ImageTag(btn.Content + ""));
-                btn.Opacity = 0.5;
+                ImageTagsDisplay.Add(new ImageTag(tagName));
+                item.IsSelected = true;
+
             }
             ImageTagsDisplay.ApplyTagsToMainImage();
         }

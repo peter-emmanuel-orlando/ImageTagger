@@ -1,9 +1,12 @@
 ﻿
 using ImageTagger.DataModels;
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
+using System.Data.OleDb;
 using System.Linq;
+using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -15,8 +18,8 @@ namespace ImageTagger
     public class ImageGridDisplay
     {
         MainWindow main { get; }
-        public ObservableCollection<ImageInfo> Images { get; } = new ObservableCollection<ImageInfo>();
-        public ListBox ImageGrid { get { return main.imageGrid; } }
+        private ObservableCollection<ImageInfo> Images { get; } = new ObservableCollection<ImageInfo>();
+        private ListBox ImageGrid { get { return main.imageGrid; } }
 
         private int maxLoadedImages = 40;
         private int currentImageOffset = 0;
@@ -31,7 +34,7 @@ namespace ImageTagger
             main.imageGrid_ScrollViewer.ScrollChanged += ScrollViewer_ScrollChanged;
             ImageGrid.Loaded += HandleGridLoaded;
             ImageFiles.FilesLoaded += HandleFilesLoaded;
-            ImageFiles.ItemChanged += HandleItemChanged;
+            //ImageFiles.ItemChanged += HandleItemChanged;
             main.loadNextPageButton.Click += HandleLoadNextPageButtonClick;
             Initialize();
 
@@ -46,7 +49,7 @@ namespace ImageTagger
             main.imageGrid_ScrollViewer.ScrollChanged -= ScrollViewer_ScrollChanged;
             ImageGrid.Loaded -= HandleGridLoaded;
             ImageFiles.FilesLoaded -= HandleFilesLoaded;
-            ImageFiles.ItemChanged -= HandleItemChanged;
+            //ImageFiles.ItemChanged -= HandleItemChanged;
             main.loadNextPageButton.Click -= HandleLoadNextPageButtonClick;
         }
 
@@ -107,15 +110,6 @@ namespace ImageTagger
 
         private void ScrollViewer_ScrollChanged(object sender, ScrollChangedEventArgs e)
         {
-            Debug.WriteLine(
-                " e.VerticalChange:" + e.VerticalChange +
-                "e.ViewportHeight:" + e.ViewportHeight +
-                " e.VerticalOffset:" + e.VerticalOffset +
-                " e.ExtentHeight:" + e.ExtentHeight +
-                " e.ExtentHeightChange:" + e.ExtentHeightChange +
-                " scrollableHeight:" + (e.OriginalSource as ScrollViewer).ScrollableHeight
-            );
-
             if(IsFullyScrolled())
             {
                 RequestMoreImages();
@@ -150,12 +144,12 @@ namespace ImageTagger
         {
             var startIndex = currentImageOffset + (currentPage * imagesPerChunk);
             var loadUpTo = startIndex + imagesPerChunk;
-            loadUpTo = Math.Min(loadUpTo, ImageFiles.Count);
+            loadUpTo = Math.Min(loadUpTo, main.ImageFiles.Count);
             loadUpTo = Math.Min(loadUpTo, startIndex + imagesPerChunk );
             
             for (int i = startIndex; i < loadUpTo; i++)
             {
-                var newSquare = new ImageInfo(ImageFiles.Get(i));
+                var newSquare = new ImageInfo(main.ImageFiles.Get(i));
                 Images.Add(newSquare);
                 newSquare.Load();
             }

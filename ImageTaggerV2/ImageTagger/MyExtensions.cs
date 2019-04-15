@@ -1,8 +1,11 @@
-﻿using System;
+﻿using Google.Cloud.Vision.V1;
+using Google.Protobuf.Collections;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
+using System.Linq;
 using System.Xml;
 using System.Xml.Serialization;
 
@@ -10,15 +13,60 @@ public static class MyExtensions
 {
     public static void Add<T>(this ObservableCollection<T> col, IEnumerable<T> enumerable)
     {
-        foreach( var item in enumerable)
+        if(enumerable != null)
         {
-            col.Add(item);
+            foreach (var item in enumerable)
+            {
+                col.Add(item);
+            }
         }
     }
-    
-        //-----------------------------------------------------
 
-        public static void Shuffle<T>(this IList<T> list)
+    public static void AddRange<T>(this HashSet<T> col, IEnumerable<T> enumerable)
+    {
+        if (enumerable != null)
+        {
+            foreach (var item in enumerable)
+            {
+                col.Add(item);
+            }
+        }
+    }
+
+    public static string ToColor(this string str)
+    {
+        var hash = 0;
+        for (var i = 0; i < str.Length; i++)
+        {
+            hash = str[i] + ((hash << 5) - hash);
+        }
+        var colour = "#";
+        for (var i = 0; i < 3; i++)
+        {
+            var value = (hash >> (i * 8)) & 0xFF;
+            var next = ("00" + value.ToString("X16"));
+            next = next.Substring(next.Length - 2);
+            colour += next;
+        }
+        return colour;
+    }
+
+    public static bool MeetsThreshold(this Likelihood input, Likelihood minThreshold)
+    {
+        return (int)input >= (int)minThreshold;
+    }
+
+    public static void AddAllFeatures(this AnnotateImageRequest req)
+    {
+        foreach (var item in Enum.GetValues(typeof(Feature.Types.Type)).Cast<Feature.Types.Type>())
+        {
+            req.Features.Add(new Feature() { Type = item });
+        }
+    }
+
+    //-----------------------------------------------------
+
+    public static void Shuffle<T>(this IList<T> list)
     {
         int n = list.Count;
         while (n > 1)

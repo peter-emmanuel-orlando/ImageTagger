@@ -13,5 +13,13 @@ namespace ImageTagger
     /// </summary>
     public partial class App : Application
     {
+        [STAThread]
+        public static void Main(string[] args)
+        {
+            //if(args.Contains(""))
+            var application = new App();
+            application.InitializeComponent();
+            application.Run();
+        }
     }
 }

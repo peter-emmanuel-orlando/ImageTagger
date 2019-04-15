@@ -19,7 +19,7 @@ namespace ImageTagger
         public MainImageDisplay ImageDisplay { get { return main.ImageDisplay; } }
 
         private ObservableCollection<ImageTag> mainImageTags { get; } = new ObservableCollection<ImageTag>();
-        public IEnumerator<ImageTag> Tags { get { return mainImageTags.GetEnumerator(); } }
+        public IEnumerable<ImageTag> Tags { get { return mainImageTags; } }
         public ImageInfo TagSource { get; private set; }
 
         public ImageTagsDisplay(MainWindow main)
@@ -88,10 +88,17 @@ namespace ImageTagger
             var success = ImageFileUtil.ApplyTagsToImage(ImageDisplay.mainImageInfo, Tags);
             if(mainImageTags.Count > 0 && success && PersistanceUtil.DestinationDirectory != PersistanceUtil.SourceDirectory)
             {
-                ImageFileUtil.MoveToDestination(ImageDisplay.mainImageInfo, PersistanceUtil.DestinationDirectory);
+                main.ImageFiles.MoveToDestination(ImageDisplay.mainImageInfo, PersistanceUtil.DestinationDirectory);
             }
         }
 
+        public void Add(IEnumerable<ImageTag> items)
+        {
+            foreach (var item in items)
+            {
+                Add(item);
+            }
+        }
         public bool Add(ImageTag item)
         {
             var success = false;
@@ -113,9 +120,20 @@ namespace ImageTagger
             return mainImageTags.Contains(tag);
         }
 
+        public void Remove(IEnumerable<ImageTag> items)
+        {
+            foreach (var item in items)
+            {
+                Remove(item);
+            }
+        }
         public void Remove(string tagName)
         {
-            mainImageTags.Remove(new ImageTag(tagName));
+            Remove(new ImageTag(tagName));
+        }
+        public void Remove(ImageTag tag)
+        {
+            mainImageTags.Remove(tag);
         }
 
         public void Clear()

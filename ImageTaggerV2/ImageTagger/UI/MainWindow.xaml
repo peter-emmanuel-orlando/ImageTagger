@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:ImageTagger"
         xmlns:System="clr-namespace:System;assembly=mscorlib" xmlns:DataModels="clr-namespace:ImageTagger.DataModels" x:Class="ImageTagger.MainWindow"
         mc:Ignorable="d"
-        Title="ImageTagger" Height="562.5" Width="1000" WindowStartupLocation="CenterOwner" Icon="/ImageTagger;component/Resources/64b6fbdc3036fe793216621435b981d3.jpg">
+        Title="ImageTagger" Height="562.5" Width="1000" WindowStartupLocation="CenterOwner" Icon="/ImageTagger;component/cherryBlossomIcon.ico">
     <Grid x:Name="MainPanel" Background="#FFFFF0F0">
         <Grid.ColumnDefinitions>
             <ColumnDefinition/>
@@ -70,7 +70,10 @@
 
                             <Border DockPanel.Dock="Bottom" Padding="0">
                                 <DockPanel VerticalAlignment="Bottom" Panel.ZIndex="3" MinWidth="70" >
+                                    <Button x:Name="testVisionAnalysis" Content="testVisionAPI" Click="TestVisionAnalysis_Click"/>
                                     <Button x:Name="reloadTagSuggestions" Content="Suggest"/>
+                                    <Button x:Name="applyAllTagSuggestions" Content="Apply All"/>
+                                    <Button x:Name="clearAllTagSuggestions" Content="Clear All"/>
                                     <Button x:Name="closeTagSuggestions" Content="Close"/>
                                     <Label Content="or" Background="#33000000"/>
                                     <DockPanel VerticalAlignment="Top" HorizontalAlignment="Right" Panel.ZIndex="3">
@@ -197,7 +200,7 @@
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate>
                                         <Border BorderBrush="Black" BorderThickness="1" HorizontalAlignment="Center" VerticalAlignment="Center" MaxHeight="30" MaxWidth="70">
-                                            <Button Content="{Binding TagText}" HorizontalAlignment="Center" VerticalAlignment="Center" Click="HandleTagSuggestionButtonClickEvent" Background="{Binding Color}"/>
+                                            <Button Content="{Binding TagName}" Opacity="{Binding Opacity}" Tag="{Binding IsSelected}" HorizontalAlignment="Center" VerticalAlignment="Center" Click="HandleTagSuggestionButtonClickEvent" Background="{Binding Color}"/>
                                         </Border>
                                     </DataTemplate>
                                 </ItemsControl.ItemTemplate>
@@ -249,27 +252,37 @@
                 <MenuItem x:Name="file_MenuItem" Background="#FFF0DBFF" Header="File">
                     <MenuItem x:Name="setSource_MenuItem" Header="Source" >
                         <MenuItem.Icon>
-                            <Image Source="Resources/64b6fbdc3036fe793216621435b981d3.jpg" />
+                            <Image Source="/ImageTagger;component/cherryBlossomIcon.ico" />
                         </MenuItem.Icon>
                     </MenuItem>
                     <MenuItem x:Name="setDestination_MenuItem"  Header="Destination" >
                         <MenuItem.Icon>
-                            <Image Source="Resources/64b6fbdc3036fe793216621435b981d3.jpg" />
+                            <Image Source="/ImageTagger;component/cherryBlossomIcon.ico" />
                         </MenuItem.Icon>
                     </MenuItem>
                     <MenuItem x:Name="editTagsRecord_MenuItem"  Header="Edit My Tags" Click="EditTagsRecord_MenuItem_Click" >
                         <MenuItem.Icon>
-                            <Image Source="Resources/64b6fbdc3036fe793216621435b981d3.jpg" />
+                            <Image Source="/ImageTagger;component/cherryBlossomIcon.ico" />
                         </MenuItem.Icon>
                     </MenuItem>
                 </MenuItem>
                 <MenuItem x:Name="settings_MenuItem" Background="#FFF0DBFF" Header="Settings">
                     <MenuItem x:Name="randomize_MenuItem"  Header="Randomize" IsCheckable="True" StaysOpenOnClick="True" />
+                    <MenuItem x:Name="setAPIKeysRecord_MenuItem"  Header="Set API Keys" Click="SetAPIKeysRecord_MenuItem_Click" >
+                        <MenuItem.Icon>
+                            <Image Source="/ImageTagger;component/cherryBlossomIcon.ico" />
+                        </MenuItem.Icon>
+                    </MenuItem>
                 </MenuItem>
                 <MenuItem x:Name="tools_MenuItem" Background="#FFF0DBFF" Header="Tools">
                     <MenuItem x:Name="setFilterByTags_MenuItem"  Header="Filter By Tags" IsEnabled="False">
                         <MenuItem.Icon>
-                            <Image Source="Resources/64b6fbdc3036fe793216621435b981d3.jpg" />
+                            <Image Source="/ImageTagger;component/cherryBlossomIcon.ico" />
+                        </MenuItem.Icon>
+                    </MenuItem>
+                    <MenuItem x:Name="batchTag_MenuItem"  Header="Batch Tag" IsEnabled="True" Click="BatchTag_MenuItem_Click">
+                        <MenuItem.Icon>
+                            <Image Source="/ImageTagger;component/cherryBlossomIcon.ico" />
                         </MenuItem.Icon>
                     </MenuItem>
                 </MenuItem>

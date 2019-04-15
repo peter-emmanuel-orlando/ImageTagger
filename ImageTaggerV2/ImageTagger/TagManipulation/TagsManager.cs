@@ -135,7 +135,7 @@ namespace ImageTagger
 
         public static async void GetImageAnalysisTags( string imagePath, Action<List<TagSuggestion>> callback, params ImageAnalysisType[] analysisTypes)
         {
-            var result = await ImageAnalysisAPI.ImageAnalysis.RequestAnalysis(imagePath, analysisTypes);
+            var result = await ImageAnalysisAPI.ImageAnalysis.RequestWorkflowAnalysis(imagePath, analysisTypes);
             App.Current.Dispatcher.Invoke(() => callback(result));
         }
 
@@ -235,19 +235,7 @@ namespace ImageTagger
         public string category { get; }
         public string newTagText { get; }
     }
-    public class TagSuggestion
-    {
-        public TagSuggestion(ImageTag tag, double confidenceLevel, string category)
-        {
-            this.tag = tag;
-            this.confidenceLevel = confidenceLevel;
-            this.category = category;
-        }
 
-        public ImageTag tag { get; }
-        public double confidenceLevel { get; }
-        public string category { get; }
-    }
 }
 
 

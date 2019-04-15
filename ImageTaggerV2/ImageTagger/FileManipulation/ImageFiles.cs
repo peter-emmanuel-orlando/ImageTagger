@@ -1,6 +1,9 @@
-﻿using System;
+﻿using ImageTagger.DataModels;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
+using System.IO;
 
 namespace ImageTagger
 {
@@ -19,46 +22,144 @@ namespace ImageTagger
     }
     */
 
-    public static class ImageFiles
+    public class ImageFiles
     {
-        private static ObservableCollection<string> ImageFileNames { get; } = new ObservableCollection<string>();
+        private ObservableCollection<string> FileNames { get; } = new ObservableCollection<string>();
+        
+        public int Count { get { return FileNames.Count; } }
 
-        public static int Count { get { return ImageFileNames.Count; } }
-
-        public static string Get(int index)
+        public List<string> GetAll()
         {
-            return ImageFileNames[index];
+            return new List<string>(FileNames);
         }
 
-        public static void Set(int index, string newFilePath)
+        public string Get(int index)
         {
-            var args = new ItemChangedEventArgs(index, ImageFileNames[index], newFilePath);
-            ImageFileNames[index] = newFilePath;
+            return FileNames[index];
+        }
+
+        public void Set(int index, string newFilePath)
+        {
+            var args = new ItemChangedEventArgs(index, FileNames[index], newFilePath);
+            FileNames[index] = newFilePath;
             ItemChanged(null, args);
         }
 
-        public static int IndexOf(string filePath)
+        public int IndexOf(string filePath)
         {
-            return ImageFileNames.IndexOf(filePath);
+            return FileNames.IndexOf(filePath);
         }
 
-        public static bool Contains(string filePath)
+        public bool Contains(string filePath)
         {
-            return ImageFileNames.Contains(filePath);
+            return FileNames.Contains(filePath);
         }
 
-        public static IEnumerator<string> GetEnumerator()
+        public IEnumerator<string> GetEnumerator()
         {
-            return ImageFileNames.GetEnumerator();
+            return FileNames.GetEnumerator();
         }
 
-        public static void Load(bool randomize = false)
+
+        public ImageFiles()
         {
-            ImageFileNames.Clear();
-            ImageFileNames.Add(ImageFileUtil.GetImageFilenames(PersistanceUtil.SourceDirectory));
-            if (randomize) ImageFileNames.Shuffle();
+            watcher.Changed += OnFilesChanged;
+        }
+
+
+
+        /// <summary>
+        /// loads with the default randomise setting
+        /// </summary>
+        /// <param name="tagQueryCriteria"></param>
+        public void Load(TagQueryCriteria tagQueryCriteria = null, bool newAdditionsOnly = false)
+        {
+            var randomize = SettingsPersistanceUtil.RetreiveSetting("randomizeItems") == "true";
+            Load(randomize, tagQueryCriteria, newAdditionsOnly);
+        }
+
+        public void Load(bool randomize, TagQueryCriteria tagQueryCriteria = null, bool newAdditionsOnly = false)
+        {
+            FileNames.Clear();
+            
+            //tagQueryCriteria = new TagQueryCriteria(new string[] { "female", }, null, new string[] { "hispanic", });
+            var persistancePath = PersistanceUtil.SourceDirectory;
+            if (newAdditionsOnly)
+                FileNames.Add(NewFiles);
+            else
+                FileNames.Add(ImageFileUtil.GetImageFilenames(persistancePath, tagQueryCriteria ));
+            if (randomize) FileNames.Shuffle();
+            watcher.Path = persistancePath;
+            watcher.EnableRaisingEvents = true;
             FilesLoaded(null, new EventArgs());
         }
+
+        public bool MoveToDestination(ImageInfo imgInfo, string newDirectory)
+        {
+            string newPath = "";
+            var success = MoveFile(imgInfo.ImgPath, newDirectory, out newPath);
+            if (success)
+            {
+                //change file path to new filepath
+                var fileNameIndex = IndexOf(imgInfo.ImgPath);
+                if (fileNameIndex != -1) Set(fileNameIndex, newPath);
+            }
+            return success;
+        }
+
+        private static bool MoveFile(string imgPath, string newDirectory, out string newPath)
+        {
+            newPath = imgPath;
+            var success = !string.IsNullOrEmpty(imgPath) &&
+                !string.IsNullOrWhiteSpace(imgPath) &&
+                !string.IsNullOrEmpty(newDirectory) &&
+                !string.IsNullOrWhiteSpace(newDirectory);
+            if (success)
+            {
+                //try-catch this
+                (new FileInfo(newDirectory)).Directory.Create();
+                var possibleNewPath = Path.Combine(newDirectory, Path.GetFileName(imgPath));
+                Debug.WriteLine("moved " + imgPath + " to " + possibleNewPath);
+                File.Move(imgPath, Path.Combine(imgPath, possibleNewPath));
+                newPath = possibleNewPath;
+            }
+            return success;
+        }
+
+
+        private void OnFilesChanged(object sender, FileSystemEventArgs e)
+        {
+            var path = e.FullPath;
+            var extension = Path.GetExtension(path);
+            if (!Contains(path) && (extension.Contains(".jpg") || extension.Contains(".jpeg")))
+            {
+                FileNames.Add(path);
+                NewFiles.Add(path);
+                ItemAdded(sender, e);
+                Debug.WriteLine("added " + path);
+            }
+        }
+
+        private static HashSet<string> NewFiles { get; } = new HashSet<string>();
+        private static FileSystemWatcher watcher { get; } = new FileSystemWatcher
+        {
+            NotifyFilter = NotifyFilters.Attributes |
+                NotifyFilters.CreationTime |
+                NotifyFilters.FileName |
+                NotifyFilters.LastAccess |
+                NotifyFilters.LastWrite |
+                NotifyFilters.Size |
+                NotifyFilters.Security,
+            Filter = "*.*",
+            IncludeSubdirectories = true
+        };
+        public static void MarkNewFilesReceived()
+        {
+            NewFiles.Clear();
+        }
+
+
+        public static event FileSystemEventHandler ItemAdded = delegate { };
         public static event ItemChangedEventHandler ItemChanged = delegate { };
         public static event FilesLoadedEventHandler FilesLoaded = delegate { };
 

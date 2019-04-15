@@ -104,6 +104,11 @@ namespace ImageTagger.DataModels
                    ImgPath == info.ImgPath;
         }
 
+        public override int GetHashCode()
+        {
+            return base.GetHashCode() -1090012821 + EqualityComparer<string>.Default.GetHashCode(ImgPath);
+        }
+
 
         //public int Width { get; set; }
         //public int Height { get; set; }

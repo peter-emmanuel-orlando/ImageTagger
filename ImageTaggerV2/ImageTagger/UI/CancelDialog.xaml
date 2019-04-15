@@ -1,0 +1,21 @@
+﻿<Window x:Class="ImageTagger.UI.CancelDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:ImageTagger.UI"
+        mc:Ignorable="d" Topmost="True" SizeToContent="WidthAndHeight" >
+    <DockPanel HorizontalAlignment="Center" VerticalAlignment="Center" Margin="20">
+        <TextBlock x:Name="progressText" DockPanel.Dock="Top">
+            <TextBlock.Text>
+                <MultiBinding StringFormat="{}{0} out of {1}">
+                    <Binding Path="CurrentValue" />
+                    <Binding Path="MaxValue" />
+                </MultiBinding>
+            </TextBlock.Text>
+        </TextBlock>
+        <ProgressBar x:Name="progressBar" VerticalAlignment="Center" DockPanel.Dock="Top" Height="24" Value="{Binding CurrentValue}" Maximum="{Binding MaxValue}"/>
+        <Button x:Name="cancelButton" Content="Cancel" HorizontalAlignment="Center" VerticalAlignment="Center" Width="75"/>
+
+    </DockPanel>
+</Window>
