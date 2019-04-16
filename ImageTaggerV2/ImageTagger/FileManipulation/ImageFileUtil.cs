@@ -56,7 +56,7 @@ namespace ImageTagger
 
         public static HashSet<ImageTag> GetImageTags(string imagePath)
         {
-            var result = new HashSet<ImageTag>();
+            var result = new HashSet<ImageTag>( new ImageTagEqualityComparer());
 
             Debug.WriteLine("tags at: " + imagePath);
             if (File.Exists(imagePath))

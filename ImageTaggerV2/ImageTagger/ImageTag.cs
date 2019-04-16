@@ -1,5 +1,6 @@
 ﻿using ImageTagger;
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
@@ -8,7 +9,7 @@ using System.Windows.Controls;
 
 namespace ImageTagger.DataModels
 {
-    public class ImageTag : INotifyPropertyChanged, IComparable<ImageTag>
+    public class ImageTag : INotifyPropertyChanged, IComparable<ImageTag>, IEquatable<ImageTag>
     {
         private string tagName = "";
         public string TagName { get=>tagName; set { tagName = FormatUtil.FixTag(value); NotifyPropertyChanged(); } }
@@ -38,9 +39,14 @@ namespace ImageTagger.DataModels
         public override bool Equals(object obj)
         {
             var asImgTag = obj as ImageTag;
-            if (asImgTag != null)
+            return this.Equals(asImgTag);
+        }
+
+        public bool Equals(ImageTag other)
+        {
+            if (other != null)
             {
-                return TagName.Equals(asImgTag.TagName);
+                return TagName.Equals(other.TagName);
             }
             else return false;
         }
@@ -53,6 +59,19 @@ namespace ImageTagger.DataModels
         public override string ToString()
         {
             return TagName;
+        }
+    }
+
+    public class ImageTagEqualityComparer : IEqualityComparer<ImageTag>
+    {
+        public bool Equals(ImageTag x, ImageTag y)
+        {
+            return x.Equals(y);
+        }
+
+        public int GetHashCode(ImageTag obj)
+        {
+            return obj.TagName.GetHashCode();
         }
     }
 }

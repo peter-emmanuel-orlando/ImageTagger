@@ -22,6 +22,7 @@ using Path = System.IO.Path;
 using System.ComponentModel;
 using ImageTagger.UI;
 using ImageTagger.DataModels;
+using System.Collections.Async;
 
 namespace ImageTagger
 {
@@ -100,8 +101,11 @@ namespace ImageTagger
             }
             Task.Run( async () =>
             {
-                var toCombine = await ImageAnalysisAPI.ImageAnalysis.RequestBatchAnalysis(files);
-                ImageFileUtil.BatchApplyTagsToImages(toCombine.ToDictionary(v => v.Key, v => v.Value.Cast<ImageTag>()));
+                var asyncEnumerable = ImageAnalysisAPI.ImageAnalysis.RequestBatchAnalysis(files);
+                await asyncEnumerable.ForEachAsync( toCombine =>
+                {
+                    ImageFileUtil.BatchApplyTagsToImages(toCombine.ToDictionary(v => v.Key, v => v.Value.Cast<ImageTag>()));
+                });
             });
         }
 

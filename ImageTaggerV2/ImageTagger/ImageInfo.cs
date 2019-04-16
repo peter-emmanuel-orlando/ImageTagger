@@ -34,7 +34,7 @@ namespace ImageTagger.DataModels
                 NotifyPropertyChanged();
             }
         }
-        private HashSet<ImageTag> imgTags = new HashSet<ImageTag>();
+        private HashSet<ImageTag> imgTags = new HashSet<ImageTag>(new ImageTagEqualityComparer());
         public HashSet<ImageTag> ImgTags { get => imgTags; set { imgTags = value; NotifyPropertyChanged(); } }
         private BitmapImage imgSource;
         public BitmapImage ImgSource { get => imgSource; set { imgSource = value; NotifyPropertyChanged(); } }
