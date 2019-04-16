@@ -128,7 +128,7 @@ namespace ImageAnalysisAPI
                         result.Add(imageFilePath, suggestions);
                     }
                 Thread.Sleep(1000);//can only make a call every 1 sec
-                App.Current.Dispatcher.Invoke(() => cancelContext.CurrentValue++);
+                App.Current.Dispatcher.Invoke(() => cancelContext.CurrentValue += 8);
 
             }
             App.Current.Dispatcher.Invoke(() => cancelWindow.Close());
