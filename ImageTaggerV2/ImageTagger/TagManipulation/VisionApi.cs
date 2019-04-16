@@ -128,16 +128,44 @@ namespace VisionAPISuggestions
             #region
             if (res.ImagePropertiesAnnotation != null)
             {
-                var colorArray = "[";
+                //var colorArray = "[";
                 foreach (var annotation in res.ImagePropertiesAnnotation.DominantColors.Colors)
                 {
+                    //color
+                    //pastel, normal, vibrant
+                    //dark, light
+                    //if value is below 0.25, color is black
+                    var colors = new string[]{ "red", "orange", "yellow", "green", "blue", "indigo", "violet" };
+                    var vibrancies = new string[] { "pastel", "", "vibrant", };
+                    var darknessValues = new string[] { "dark", "", "bright" };
+                    
                     double hue, saturation, value;
                     ColorConverter.RGB2HSL(annotation.Color,out hue, out saturation,out value);
                     if(annotation.Score > 0.05)
-                        colorArray += $"{{hue:{hue.ToString("0.#")},_saturation:{saturation.ToString("0.#")},_value:{value.ToString("0.#")}}},";
+                    {
+                        var color = colors[(int)Math.Round(hue * 6)];
+
+                        if (value > 0.9) color = darknessValues[2] + color;
+                        else if (value > 0.5) color = darknessValues[1] + color;
+                        else if (value > 0.3) color = darknessValues[0] + color;
+
+                        if (saturation > 0.8) color = vibrancies[2] + color;
+                        else if (saturation > 0.4) color = vibrancies[1] + color;
+                        else if (saturation > 0.1) color = vibrancies[0] + color;
+
+                        if (saturation < 0.1) {
+
+                            if (value > 0.9) color = "white";
+                            else if (value > 0.7) color = "lightgrey";
+                            else if (value > 0.3) color = "darkgrey";
+                        }
+                        if (value < 0.3) color = "black";
+
+                        result.Add(new TagSuggestion(color, 1, "color"));
+                        //colorArray += $"{{hue:{hue.ToString("0.#")},_saturation:{saturation.ToString("0.#")},_value:{value.ToString("0.#")}}},";
+                    }
                 }
-                colorArray += "]";
-                result.Add(new TagSuggestion(colorArray, 1, "color" ));
+                //colorArray += "]";
             }
             #endregion
 

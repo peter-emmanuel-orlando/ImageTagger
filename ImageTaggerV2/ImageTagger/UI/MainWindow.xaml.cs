@@ -105,6 +105,7 @@ namespace ImageTagger
             });
         }
 
+        /*
         private void TestVisionAnalysis_Click(object sender, RoutedEventArgs e)
         {
             var result = VisionAPISuggestions.VisionApi.RequestVisionAnalysis(ImageDisplay.mainImageInfo.ImgPath);
@@ -113,5 +114,6 @@ namespace ImageTagger
                 Debug.WriteLine(tag.TagName);
             }
         }
+        */
     }
 }
