@@ -8,6 +8,7 @@ using System.Data.OleDb;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Windows;
 using WinForms = System.Windows.Forms;
 
@@ -40,11 +41,18 @@ namespace ImageTagger
                         tagString += tag.TagName + "; ";
                 }
                 var sFile = ShellFile.FromParsingName(imagePath);
-                var w = sFile.Properties.GetPropertyWriter();
-                w.WriteProperty(SystemProperties.System.Keywords, tagString);
-                w.Close();
+                using (var w = sFile.Properties.GetPropertyWriter())
+                {
+                    w.WriteProperty(SystemProperties.System.Keywords, tagString);
+                }
                 Debug.WriteLine("applied tags to file successfully");
                 return true;
+            }
+            catch (InvalidComObjectException e)
+            {
+                MessageBox.Show("failed to apply changes! Error message:[ " + e + " ]");
+                Debug.WriteLine("unsuccessfully applied tags to file");
+                return false;
             }
             catch (Exception e)
             {

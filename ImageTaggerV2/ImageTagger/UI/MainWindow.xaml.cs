@@ -29,7 +29,7 @@ namespace ImageTagger
     public partial class MainWindow : Window
     {
         private string programDirectory = Directory.GetCurrentDirectory();
-
+        private RoutedEventHandler batchEvent;
         ///this is the generic, come back and fix
         public event EventHandler PreviewMainWindowUnload;
 
@@ -47,6 +47,7 @@ namespace ImageTagger
         public MainWindow(bool isDialog = false, TagQueryCriteria tagQueryCriteria = null, bool newAdditionsOnly = false)
         {
             InitializeComponent();
+            
             this.isDialog = isDialog;
 
             if (isDialog)
@@ -67,6 +68,8 @@ namespace ImageTagger
             AddNewTagComponent = new AddNewTagComponent(this);
             MenuDisplayComponent = new MenuDisplay(this);
             TagSuggestionDisplay = new TagSuggestionDisplay(this);
+
+            batchTag_MenuItem.Click += batchEvent = BatchTag_MenuItem_Click;
         }
 
         protected override void OnClosing(CancelEventArgs e)

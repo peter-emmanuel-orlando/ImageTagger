@@ -280,7 +280,7 @@
                             <Image Source="/ImageTagger;component/cherryBlossomIcon.ico" />
                         </MenuItem.Icon>
                     </MenuItem>
-                    <MenuItem x:Name="batchTag_MenuItem"  Header="Batch Tag" IsEnabled="True" Click="BatchTag_MenuItem_Click">
+                    <MenuItem x:Name="batchTag_MenuItem"  Header="Batch Tag" IsEnabled="True" >
                         <MenuItem.Icon>
                             <Image Source="/ImageTagger;component/cherryBlossomIcon.ico" />
                         </MenuItem.Icon>
