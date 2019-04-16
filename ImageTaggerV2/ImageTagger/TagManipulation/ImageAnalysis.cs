@@ -80,18 +80,24 @@ namespace ImageAnalysisAPI
                 RefreshAPIKey();
         }
 
-        public static async Task<Dictionary<string, List<TagSuggestion>>> RequestBatchAnalysis(IEnumerable<string> imageFilePaths)
+
+        public async static Task<Dictionary<string, List<TagSuggestion>>> RequestBatchAnalysis(IEnumerable<string> imageFilePaths)
         {
             var result = new Dictionary<string, List<TagSuggestion>>();
             var tokenSource = new CancellationTokenSource();
             var token = tokenSource.Token;
             var cancelContext = new CancelDialogDataContext()
             {
+                MaxValue = imageFilePaths.Count(),
                 OnCancel = (s, e) => { tokenSource.Cancel(); },
                 OnClosed = (s, e) => { tokenSource.Cancel(); }
             };
-            var cancelWindow = new CancelDialog(cancelContext);
-            cancelWindow.Show();
+            CancelDialog cancelWindow = null;
+            await App.Current.Dispatcher.InvokeAsync(() =>
+            {
+                cancelWindow = new CancelDialog(cancelContext);
+                cancelWindow.Show();
+            });
             var splitPaths = new List<List<string>>();
             splitPaths.Add(new List<string>());
             foreach (var imageFilePath in imageFilePaths)
@@ -105,19 +111,13 @@ namespace ImageAnalysisAPI
                 //if (ImageFileUtil.GetImageTags(imageFilePath).Contains(new ImageTag("autoTagged"))) continue;
                 splitPaths[i].Add(imageFilePath);
             }
-            App.Current.Dispatcher.Invoke(() => cancelContext.MaxValue = splitPaths.Count * 2);
+            //App.Current.Dispatcher.Invoke(() => cancelContext.MaxValue = splitPaths.Count*2);
             foreach (var paths in splitPaths)
             {
-                if (token.IsCancellationRequested) break;
-                var vision = VisionAPISuggestions.VisionApi.RequestBatchVisionAnalysis(paths);
-                foreach (var key in vision.Keys)
-                {
-                    if (!result.ContainsKey(key)) result.Add(key, new List<TagSuggestion>());
-                    result[key].AddRange(vision[key]);
-                }
-                App.Current.Dispatcher.Invoke(() => cancelContext.CurrentValue++);
+                result =  VisionAPISuggestions.VisionApi.RequestBatchVisionAnalysis(paths);
 
                 var input = paths.Select((path) => new ClarifaiFileImage(File.ReadAllBytes(path), path));
+                if (token.IsCancellationRequested) break;
                 var res = await clarifaiClient.WorkflowPredict("workflow", input).ExecuteAsync();
                 if (res.IsSuccessful)
                     foreach (var workflow in res.Get().WorkflowResults)
@@ -148,7 +148,7 @@ namespace ImageAnalysisAPI
                 result.AddRange( ParsePredictions(imageFilePath, predictions));
             }
             else
-                MessageBox.Show("Image Analysis was not successful! Check your internet connection and api key, and you have a workflow named 'workflow'");
+                MessageBox.Show("Clarifai Analysis was not successful! Check your internet connection and api key, and you have a workflow named 'workflow'");
 
             result.AddRange(VisionAPISuggestions.VisionApi.RequestVisionAnalysis(imageFilePath));
             return new List<TagSuggestion>(result);

@@ -84,6 +84,7 @@ namespace ImageTagger
             
             //tagQueryCriteria = new TagQueryCriteria(new string[] { "female", }, null, new string[] { "hispanic", });
             var persistancePath = PersistanceUtil.SourceDirectory;
+            //if(!Directory.Exists(persistancePath)) 
             if (newAdditionsOnly)
                 FileNames.Add(NewFiles);
             else

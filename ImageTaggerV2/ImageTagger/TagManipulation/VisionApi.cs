@@ -63,12 +63,18 @@ namespace VisionAPISuggestions
                 reqItem.AddAllFeatures();
                 req.Add(reqItem);
             }
-
-            var batchResponse = client.BatchAnnotateImages(req);
-            for (int i = 0; i < imageFilePaths.Count; i++)
+            try
             {
-                var res = batchResponse.Responses[i];
-                result.Add(imageFilePaths[i], ParseAnnotations(res));
+                var batchResponse = client.BatchAnnotateImages(req);
+                for (int i = 0; i < imageFilePaths.Count; i++)
+                {
+                    var res = batchResponse.Responses[i];
+                    result.Add(imageFilePaths[i], ParseAnnotations(res));
+                }
+            }
+            catch(Exception e)
+            {
+                MessageBox.Show($"vision API has encountered an error: \n\n {e}");
             }
             return result;
         }

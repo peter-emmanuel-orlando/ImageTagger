@@ -90,7 +90,7 @@ namespace ImageTagger
             VisionAPISuggestions.VisionApi.SetVisionAuthViaDialog();
         }
 
-        private async void BatchTag_MenuItem_Click(object sender, RoutedEventArgs e)
+        private void BatchTag_MenuItem_Click(object sender, RoutedEventArgs e)
         {
             var files = ImageFiles.GetAll();
             if (files.Count > ImageAnalysisAPI.ImageAnalysis.maxItemsPerBatchRequest)
@@ -98,8 +98,11 @@ namespace ImageTagger
                 if (MessageBoxResult.No == MessageBox.Show(files.Count + " files are queued for process, do you want to continue?", "Warning:", MessageBoxButton.YesNo))
                     return;
             }
-            var toCombine = await ImageAnalysisAPI.ImageAnalysis.RequestBatchAnalysis(files);
-            ImageFileUtil.BatchApplyTagsToImages(toCombine.ToDictionary(v => v.Key, v => v.Value.Cast<ImageTag>()));
+            Task.Run( async () =>
+            {
+                var toCombine = await ImageAnalysisAPI.ImageAnalysis.RequestBatchAnalysis(files);
+                ImageFileUtil.BatchApplyTagsToImages(toCombine.ToDictionary(v => v.Key, v => v.Value.Cast<ImageTag>()));
+            });
         }
 
         private void TestVisionAnalysis_Click(object sender, RoutedEventArgs e)
