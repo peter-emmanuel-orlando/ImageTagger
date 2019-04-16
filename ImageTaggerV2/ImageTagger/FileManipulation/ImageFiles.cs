@@ -82,7 +82,7 @@ namespace ImageTagger
         {
             FileNames.Clear();
             
-            //tagQueryCriteria = new TagQueryCriteria(new string[] { "female", }, null, new string[] { "hispanic", });
+            //tagQueryCriteria = new TagQueryCriteria(new string[] { }, new string[] { }, new string[] { "*red*", "*orange*", "*green*", "*yellow*", "*blue*", "*indigo*", "*violet*"});
             var persistancePath = PersistanceUtil.SourceDirectory;
             //if(!Directory.Exists(persistancePath)) 
             if (newAdditionsOnly)

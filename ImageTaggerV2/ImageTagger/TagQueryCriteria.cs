@@ -71,7 +71,7 @@ namespace ImageTagger
             //end criteria
 
             result += " ) ";
-            result.Replace('*', '%');
+            result = result.Replace('*', '%');
 
             return result;
         }
