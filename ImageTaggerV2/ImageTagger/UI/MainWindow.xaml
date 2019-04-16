@@ -42,7 +42,7 @@
                             </ListBox.Template>
                             <ListBox.ItemsPanel>
                                 <ItemsPanelTemplate >
-                                    <WrapPanel  IsItemsHost="True" Orientation="Vertical" ScrollViewer.VerticalScrollBarVisibility="Disabled" />
+                                    <WrapPanel  IsItemsHost="True" ScrollViewer.VerticalScrollBarVisibility="Disabled" />
                                 </ItemsPanelTemplate>
                             </ListBox.ItemsPanel>
 
@@ -276,7 +276,7 @@
                     </MenuItem>
                 </MenuItem>
                 <MenuItem x:Name="tools_MenuItem" Background="#FFF0DBFF" Header="Tools">
-                    <MenuItem x:Name="setFilterByTags_MenuItem"  Header="Filter By Tags" IsEnabled="False">
+                    <MenuItem x:Name="searchByTags_MenuItem"  Header="Search By Tags" Click="SearchByTags_MenuItem_Click" >
                         <MenuItem.Icon>
                             <Image Source="/ImageTagger;component/cherryBlossomIcon.ico" />
                         </MenuItem.Icon>

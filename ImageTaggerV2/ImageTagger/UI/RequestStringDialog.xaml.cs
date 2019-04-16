@@ -21,7 +21,7 @@ namespace ImageTagger.UI
     /// </summary>
     public partial class RequestStringDialog : Window
     {
-        public string Result { get; private set; } = "";
+        private string Result { get; set; } = "";
         private RequestStringDialog(string initialVal, string requestMessage, string requestLabel, string emptyInputLabel)
         {
             InitializeComponent();
@@ -42,7 +42,6 @@ namespace ImageTagger.UI
                 MessageBox.Show($"{requestLabel} is set to {result}");
             }
             return result;
-
         }
 
         private void CancelButton_Click(object sender, RoutedEventArgs e)

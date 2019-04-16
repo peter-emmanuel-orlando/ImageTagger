@@ -93,6 +93,9 @@
     <Compile Include="UI\RequestStringDialog.xaml.cs">
       <DependentUpon>RequestStringDialog.xaml</DependentUpon>
     </Compile>
+    <Compile Include="UI\SearchByTags.xaml.cs">
+      <DependentUpon>SearchByTags.xaml</DependentUpon>
+    </Compile>
     <Compile Include="UI\TagSuggestionDisplay.cs" />
     <Compile Include="ThreadSafeRandom.cs" />
     <Compile Include="TagManipulation\VisionApi.cs" />
@@ -121,6 +124,10 @@
       <SubType>Code</SubType>
     </Compile>
     <Page Include="UI\RequestStringDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UI\SearchByTags.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

@@ -41,16 +41,16 @@ namespace ImageTagger
         public TagSuggestionDisplay TagSuggestionDisplay { get; private set; }
         public ImageFiles ImageFiles{get;} = new ImageFiles();
 
-        public bool isDialog { get; } = false;
+        public bool isModal { get; } = false;
         
 
-        public MainWindow(bool isDialog = false, TagQueryCriteria tagQueryCriteria = null, bool newAdditionsOnly = false)
+        public MainWindow(bool isModal = false)
         {
             InitializeComponent();
             
-            this.isDialog = isDialog;
+            this.isModal = isModal;
 
-            if (isDialog)
+            if (isModal)
             {
                 setSource_MenuItem.IsEnabled = false;
                 setSource_MenuItem.Visibility = Visibility.Collapsed;
@@ -60,7 +60,7 @@ namespace ImageTagger
 
             var randomizeItems = SettingsPersistanceUtil.RetreiveSetting("randomizeItems") == "true";
             randomize_MenuItem.IsChecked = randomizeItems;
-            ImageFiles.Load(randomizeItems, tagQueryCriteria, newAdditionsOnly);
+            ImageFiles.Load(randomizeItems);
 
             ImageDisplay = new MainImageDisplay(this);
             ImageTagsDisplay = new ImageTagsDisplay(this);
@@ -72,15 +72,17 @@ namespace ImageTagger
             batchTag_MenuItem.Click += batchEvent = BatchTag_MenuItem_Click;
         }
 
+        public void SetSearch(TagQueryCriteria tagQueryCriteria = null, bool randomizeItems = false, bool newAdditionsOnly = false)
+        {
+            ImageFiles.Load(randomizeItems, tagQueryCriteria, newAdditionsOnly);
+        }
+
         protected override void OnClosing(CancelEventArgs e)
         {
             PreviewMainWindowUnload?.Invoke(this, new EventArgs());
-            if(this.isDialog)
+            if(this.isModal)
                 this.DialogResult = true;
         }
-        
-
-
 
         private void EditTagsRecord_MenuItem_Click(object sender, RoutedEventArgs e)
         {
@@ -110,6 +112,11 @@ namespace ImageTagger
                     ImageFileUtil.BatchApplyTagsToImages(toCombine.ToDictionary(v => v.Key, v => v.Value.Cast<ImageTag>()));
                 });
             });
+        }
+
+        private void SearchByTags_MenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            SearchByTags.OpenSearchDialog();
         }
 
         /*

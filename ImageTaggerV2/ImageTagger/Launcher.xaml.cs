@@ -63,7 +63,8 @@ namespace ImageTagger
             {
                 App.Current.Dispatcher.Invoke(new Action(() =>
                 {
-                    var tempWindow = new MainWindow(true, null, true);
+                    var tempWindow = new MainWindow();
+                    tempWindow.SetSearch(null, false, true);
                     newFiles.Clear();
                     tempWindow.ShowActivated = true;
                     tempWindow.ShowDialog();
