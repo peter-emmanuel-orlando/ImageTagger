@@ -7,6 +7,7 @@ using System.Collections.Specialized;
 using System.Data.OleDb;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -26,6 +27,10 @@ namespace ImageTagger
         private int currentPage = 0;
         private int imagesPerChunk = 25;
 
+        private const int minThumbnailSize = 100;
+        private const int maxThumbnailSize = 1000;
+        private int desiredThumbnailSize = minThumbnailSize;
+
         public ImageGridDisplay(MainWindow main)
         {
             this.main = main;
@@ -36,9 +41,21 @@ namespace ImageTagger
             ImageFiles.FilesLoaded += HandleFilesLoaded;
             //ImageFiles.ItemChanged += HandleItemChanged;
             main.loadNextPageButton.Click += HandleLoadNextPageButtonClick;
+            main.changeThumbnailSizeSlider.ValueChanged += HandleThumbnailSizeSliderChangeClick;
             Initialize();
 
             main.PreviewMainWindowUnload += UnsubscribeFromAllEvents;
+        }
+        
+        private void HandleThumbnailSizeSliderChangeClick(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            Slider s = e.OriginalSource as Slider;
+            var newVal = (int)(minThumbnailSize + (maxThumbnailSize - minThumbnailSize) * (s.Value / 100));
+            desiredThumbnailSize = newVal;
+            foreach (var image in Images)
+            {
+                image.DesiredDimensions = newVal;
+            }
         }
 
         private void UnsubscribeFromAllEvents(object sender, EventArgs e)
@@ -97,7 +114,7 @@ namespace ImageTagger
             {
                 ImageGrid.SelectedIndex = 0;
                 ListBoxItem myListBoxItem = (ListBoxItem)(ImageGrid.ItemContainerGenerator.ContainerFromItem(ImageGrid.Items[0]));
-                //ImageGrid.ScrollIntoView(myListBoxItem);
+                ImageGrid.ScrollIntoView(myListBoxItem);
                 myListBoxItem.Focus();
             }
         }
@@ -106,7 +123,8 @@ namespace ImageTagger
         {
             if (e.AddedItems.Count > 0)
             {
-                //var newImageInfo = (e.AddedItems[0] as ImageInfo);
+                var newImageInfo = (e.AddedItems[0] as ImageInfo);
+                newImageInfo.Load();
                 //Debug.WriteLine("selected: " + newImageInfo.ImgPath);
                 //main.ImageDisplay.ChangeImage(newImageInfo);
                 //main.ImageTagsDisplay.TagSource = newImageInfo;
@@ -156,7 +174,7 @@ namespace ImageTagger
             {
                 var newSquare = new ImageInfo(main.ImageFiles.Get(i));
                 Images.Add(newSquare);
-                newSquare.Load();
+                newSquare.Load(desiredThumbnailSize + 250);
             }
             currentPage++;
 
@@ -166,7 +184,7 @@ namespace ImageTagger
             if (selectedIndex != -1)
             {
                 ListBoxItem myListBoxItem = (ListBoxItem)(ImageGrid.ItemContainerGenerator.ContainerFromItem(ImageGrid.Items[selectedIndex]));
-                if(myListBoxItem != null) myListBoxItem.Focus();
+                if (myListBoxItem != null) myListBoxItem.Focus();// ImageGrid.ScrollIntoView(myListBoxItem);// 
             }
         }
 

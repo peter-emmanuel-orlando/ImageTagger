@@ -52,8 +52,6 @@ namespace ImageTagger
 
             if (isModal)
             {
-                setSource_MenuItem.IsEnabled = false;
-                setSource_MenuItem.Visibility = Visibility.Collapsed;
                 randomize_MenuItem.IsEnabled = false;
                 randomize_MenuItem.Visibility = Visibility.Collapsed;
             }

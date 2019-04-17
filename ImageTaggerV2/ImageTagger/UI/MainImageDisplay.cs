@@ -45,7 +45,7 @@ namespace ImageTagger
 
         private void ChangeImage(ImageInfo newInfo)
         {
-            mainImageInfo.CloneFrom(newInfo, DispatcherPriority.Send);
+            mainImageInfo.CloneFrom(newInfo, -1, DispatcherPriority.Send);
             //ImageDisplay.Source = mainImageInfo;
         }
     }

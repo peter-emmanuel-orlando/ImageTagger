@@ -34,6 +34,8 @@ namespace ImageTagger.DataModels
                 NotifyPropertyChanged();
             }
         }
+        private int desiredDimensions = 100;
+        public int DesiredDimensions { get => desiredDimensions.Clamp(0, int.MaxValue); set { desiredDimensions = value; NotifyPropertyChanged(); } }
         private HashSet<ImageTag> imgTags = new HashSet<ImageTag>(new ImageTagEqualityComparer());
         public HashSet<ImageTag> ImgTags { get => imgTags; set { imgTags = value; NotifyPropertyChanged(); } }
         private BitmapImage imgSource;
@@ -46,12 +48,17 @@ namespace ImageTagger.DataModels
         }
 
         private bool isLoading = false;
-        public void Load(DispatcherPriority priority = DispatcherPriority.ApplicationIdle)
+        /// <summary>
+        /// dimension of -1 will set to maxResolution
+        /// </summary>
+        /// <param name="pixelDimensions"></param>
+        /// <param name="priority"></param>
+        public void Load( int pixelDimensions = -1, DispatcherPriority priority = DispatcherPriority.ApplicationIdle)
         {
             if(ImgPath != null)
             {
                 isLoading = true;
-                ImgTags = ImageFileUtil.GetImageTags(ImgPath);
+                //ImgTags = ImageFileUtil.GetImageTags(ImgPath);
                 App.Current.Dispatcher.BeginInvoke(priority, new Action(() =>
                 {
                     FileStream stream = null;
@@ -63,10 +70,15 @@ namespace ImageTagger.DataModels
                         imgBitMap.BeginInit();
                         imgBitMap.StreamSource = stream;
                         imgBitMap.CacheOption = BitmapCacheOption.OnLoad;
+                        if (pixelDimensions >= 0)
+                            imgBitMap.DecodePixelWidth = pixelDimensions;
                         imgBitMap.EndInit();
 
                         imgBitMap.Freeze();
-                        if (isLoading) ImgSource = imgBitMap;
+                        if (isLoading)
+                        {
+                            ImgSource = imgBitMap;
+                        }
                     }
                     catch (Exception) { }
                     finally
@@ -89,12 +101,12 @@ namespace ImageTagger.DataModels
             ImgSource = null;
         }
 
-        public void CloneFrom(ImageInfo other, DispatcherPriority priority = DispatcherPriority.ApplicationIdle)
+        public void CloneFrom(ImageInfo other, int pixelDimensions = -1, DispatcherPriority priority = DispatcherPriority.ApplicationIdle)
         {
             ImgPath = other.ImgPath;
             ImgSource = other.ImgSource;
             ImgTags = other.ImgTags;
-            if (other.isLoading) this.Load(priority);
+            this.Load(pixelDimensions, priority);
         }
 
         public override bool Equals(object obj)

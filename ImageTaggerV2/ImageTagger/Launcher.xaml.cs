@@ -110,7 +110,7 @@ namespace ImageTagger
                 base.OnClosing(e);
                 //Debug.WriteLine(Environment.StackTrace);
                 // close all active threads
-                Environment.Exit(0);
+                //Environment.Exit(0);
             }, System.Windows.Threading.DispatcherPriority.ApplicationIdle);
         }
     }
