@@ -28,18 +28,20 @@ namespace ImageTagger.UI
 
 
         private HashSet<string> Result { get; set; } = new HashSet<string>();
-        public AddSearchTagComponent all_AddSearchTagComponent { get; }
-        public SearchTagsDisplay all_SearchTagsDisplay { get; }
-        public AddSearchTagComponent any_AddSearchTagComponent { get; }
-        public SearchTagsDisplay any_SearchTagsDisplay { get; }
-        public AddSearchTagComponent none_AddSearchTagComponent { get; }
-        public SearchTagsDisplay none_SearchTagsDisplay { get; }
+        private AddSearchTagComponent all_AddSearchTagComponent { get; }
+        private SearchTagsDisplay all_SearchTagsDisplay { get; }
+        private AddSearchTagComponent any_AddSearchTagComponent { get; }
+        private SearchTagsDisplay any_SearchTagsDisplay { get; }
+        private AddSearchTagComponent none_AddSearchTagComponent { get; }
+        private SearchTagsDisplay none_SearchTagsDisplay { get; }
+        private MainWindow viewSearchWindow { get; }
+        private TagQueryCriteria currentQueryCriteria { get; set; } = new TagQueryCriteria();
 
         private SearchByTags()
         {
             InitializeComponent();
 
-            var viewSearchWindow = new MainWindow(true);
+            viewSearchWindow = new MainWindow(true);
             viewSearchWindow.Closed += (s, e) => Close();
             viewSearchWindow.Show();
             this.Owner = viewSearchWindow;
@@ -105,22 +107,27 @@ namespace ImageTagger.UI
 
         private void CheckBox_None_Unchecked(object sender, RoutedEventArgs e)
         {
-
+            none_SearchTagsDisplay.Alert_CheckBox_Unchecked(sender, e);
         }
 
         private void CheckBox_Any_Unchecked(object sender, RoutedEventArgs e)
         {
-
+            any_SearchTagsDisplay.Alert_CheckBox_Unchecked(sender, e);
         }
 
         private void CheckBox_All_Unchecked(object sender, RoutedEventArgs e)
         {
-
+            all_SearchTagsDisplay.Alert_CheckBox_Unchecked(sender, e);
         }
 
         private void SearchButton_Click(object sender, RoutedEventArgs e)
         {
-            //var criteria = 
+            var anyTags = any_SearchTagsDisplay.Select(tag => tag.TagName);
+            var allTags = all_SearchTagsDisplay.Select(tag => tag.TagName);
+            var noneTags = none_SearchTagsDisplay.Select(tag => tag.TagName);
+            currentQueryCriteria = new TagQueryCriteria( anyTags, allTags, noneTags);
+            viewSearchWindow.SetSearch(currentQueryCriteria);
+            ToggleMainPanel();
         }
         
     }

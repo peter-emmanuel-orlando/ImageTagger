@@ -55,7 +55,12 @@ namespace ImageTagger
 
         public void Initialize()
         {
+            foreach (var image in Images)
+            {
+                image.Unload();
+            }
             Images.Clear();
+            GC.Collect();
             currentImageOffset = 0;
             currentPage = 0;
             RequestMoreImages();

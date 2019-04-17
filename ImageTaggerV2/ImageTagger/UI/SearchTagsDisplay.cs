@@ -9,24 +9,22 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using ImageTagger.UI;
+using System.Collections;
 
 namespace ImageTagger
 {
-    public class SearchTagsDisplay
+    public class SearchTagsDisplay : IEnumerable<ImageTag>
     {
         //need to make rules for tags
-        public SearchByTags searchWindow { get; private set; }
-        public ListBox TagsDisplay { get; private set; }
-        public Label noTagsMessage { get; private set; }
-        public TextBox addTagsTextBox { get; private set; }
+        private SearchByTags searchWindow { get; set; }
+        private ListBox TagsDisplay { get; set; }
+        private Label noTagsMessage { get; set; }
+        private TextBox addTagsTextBox { get; set; }
 
-        private ObservableCollection<ImageTag> mainImageTags { get; } = new ObservableCollection<ImageTag>();
-        public IEnumerable<ImageTag> Tags { get { return mainImageTags; } }
-        public ImageInfo TagSource { get; private set; }
+        private ObservableCollection<ImageTag> searchTags { get; } = new ObservableCollection<ImageTag>();
 
         public SearchTagsDisplay()
-        {
-        }
+        { }
 
         public void Initialize(SearchByTags searchWindow, ListBox tagsDisplay, Label noTagsMessage, TextBox addTagsTextBox)
         {
@@ -35,8 +33,8 @@ namespace ImageTagger
             this.noTagsMessage = noTagsMessage ?? throw new ArgumentNullException(nameof(noTagsMessage));
             this.addTagsTextBox = addTagsTextBox ?? throw new ArgumentNullException(nameof(addTagsTextBox));
 
-            TagsDisplay.ItemsSource = mainImageTags;
-            mainImageTags.CollectionChanged += HandleCollectionChanged;
+            TagsDisplay.ItemsSource = searchTags;
+            searchTags.CollectionChanged += HandleCollectionChanged;
 
             //searchWindow.PreviewMainWindowUnload += UnsubscribeFromAllEvents;
         }
@@ -45,12 +43,12 @@ namespace ImageTagger
         {
             //searchWindow.PreviewMainWindowUnload -= UnsubscribeFromAllEvents;
             // unsubscribe from anything else here
-            mainImageTags.CollectionChanged -= HandleCollectionChanged;
+            searchTags.CollectionChanged -= HandleCollectionChanged;
         }
 
         private void HandleCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
-            if (mainImageTags.Count == 0)
+            if (searchTags.Count == 0)
                 noTagsMessage.Opacity = 1;
             else
                 noTagsMessage.Opacity = 0;
@@ -75,10 +73,10 @@ namespace ImageTagger
         public bool Add(ImageTag item)
         {
             var success = false;
-            if (!item.IsEmpty() && !mainImageTags.Contains(item))
+            if (!item.IsEmpty() && !searchTags.Contains(item))
             {
                 success = true;
-                mainImageTags.Add(item);
+                searchTags.Add(item);
             }
             return success;
         }
@@ -90,7 +88,7 @@ namespace ImageTagger
 
         public bool Contains(ImageTag tag)
         {
-            return mainImageTags.Contains(tag);
+            return searchTags.Contains(tag);
         }
 
         public void Remove(IEnumerable<ImageTag> items)
@@ -106,18 +104,22 @@ namespace ImageTagger
         }
         public void Remove(ImageTag tag)
         {
-            mainImageTags.Remove(tag);
+            searchTags.Remove(tag);
         }
 
         public void Clear()
         {
-            mainImageTags.Clear();
+            searchTags.Clear();
         }
 
-        public void Refresh()
+        public IEnumerator<ImageTag> GetEnumerator()
         {
-            TagSource = TagSource;
+            return ((IEnumerable<ImageTag>)searchTags).GetEnumerator();
         }
 
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return ((IEnumerable<ImageTag>)searchTags).GetEnumerator();
+        }
     }
 }
