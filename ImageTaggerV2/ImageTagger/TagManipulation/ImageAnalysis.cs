@@ -81,13 +81,19 @@ namespace ImageAnalysisAPI
                 RefreshAPIKey();
         }
 
-
+        public static bool IsPerformingBatchOperation { get; private set; } = false;
         public static System.Collections.Async.IAsyncEnumerable<Dictionary<string, List<TagSuggestion>>> RequestBatchAnalysis(IEnumerable<string> imageFilePaths, bool skipAutoTagged = true)
         {
             return new AsyncEnumerable<Dictionary<string, List<TagSuggestion>>>( async yield =>
             {
-
                 var result = new Dictionary<string, List<TagSuggestion>>();
+                if (IsPerformingBatchOperation)
+                {
+                    MessageBox.Show("only one batch operation may be performed at a time!");
+                    yield.Break();
+                }
+
+                IsPerformingBatchOperation = true;
                 var tokenSource = new CancellationTokenSource();
                 var token = tokenSource.Token;
                 var cancelContext = new CancelDialogDataContext()
@@ -164,7 +170,7 @@ namespace ImageAnalysisAPI
 
                 }
                 App.Current.Dispatcher.Invoke(() => cancelWindow.Close());
-
+                IsPerformingBatchOperation = false;
             });
         }
 

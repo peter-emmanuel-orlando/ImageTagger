@@ -16,7 +16,7 @@ namespace ImageTagger
     public class SearchTagsDisplay : IEnumerable<ImageTag>
     {
         //need to make rules for tags
-        private SearchByTags searchWindow { get; set; }
+        private SearchWindow searchWindow { get; set; }
         private ListBox TagsDisplay { get; set; }
         private Label noTagsMessage { get; set; }
         private TextBox addTagsTextBox { get; set; }
@@ -26,7 +26,7 @@ namespace ImageTagger
         public SearchTagsDisplay()
         { }
 
-        public void Initialize(SearchByTags searchWindow, ListBox tagsDisplay, Label noTagsMessage, TextBox addTagsTextBox)
+        public void Initialize(SearchWindow searchWindow, ListBox tagsDisplay, Label noTagsMessage, TextBox addTagsTextBox)
         {
             this.searchWindow = searchWindow ?? throw new ArgumentNullException(nameof(searchWindow));
             TagsDisplay = tagsDisplay ?? throw new ArgumentNullException(nameof(tagsDisplay));

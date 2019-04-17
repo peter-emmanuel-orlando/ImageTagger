@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ImageTagger.UI;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -17,7 +18,7 @@ using System.Windows.Shapes;
 
 namespace ImageTagger.UI
 {
-    public partial class SearchByTags : Window
+    public partial class SearchWindow : Window
     {
         private const int GWL_STYLE = -16;
         private const int WS_SYSMENU = 0x80000;
@@ -37,7 +38,7 @@ namespace ImageTagger.UI
         private MainWindow viewSearchWindow { get; }
         private TagQueryCriteria currentQueryCriteria { get; set; } = new TagQueryCriteria();
 
-        private SearchByTags()
+        internal SearchWindow()
         {
             InitializeComponent();
 
@@ -66,22 +67,6 @@ namespace ImageTagger.UI
             none_SearchTagsDisplay = new SearchTagsDisplay();
             none_AddSearchTagComponent.Initialize(this, addNoneTag_TextBox, addNoneTag_AcceptButton, none_SearchTagsDisplay);
             none_SearchTagsDisplay.Initialize(this, noneTagsDisplay, noNoneTagsMessage, addNoneTag_TextBox);
-        }
-
-
-        public static void OpenSearchDialog()
-        {
-            var searchByTagsWindow = new SearchByTags();
-            searchByTagsWindow.Show();
-
-            Launcher.instance.main.IsEnabled = false;
-            Launcher.instance.main.Hide();
-
-            searchByTagsWindow.Closed += (s, e) =>
-            {
-                Launcher.instance.main.IsEnabled = true;
-                Launcher.instance.main.Show();
-            };
         }
 
         private void ToggleCollapseButton_Click(object sender, RoutedEventArgs e)
@@ -130,5 +115,17 @@ namespace ImageTagger.UI
             ToggleMainPanel();
         }
         
+    }
+
+}
+
+namespace ImageTagger
+{
+    public partial class Launcher
+    {
+        private static SearchWindow GetNewSearchWindow()
+        {
+            return new SearchWindow();
+        }
     }
 }

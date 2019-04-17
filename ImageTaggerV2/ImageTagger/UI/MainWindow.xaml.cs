@@ -112,9 +112,9 @@ namespace ImageTagger
             });
         }
 
-        private void SearchByTags_MenuItem_Click(object sender, RoutedEventArgs e)
+        private void NewWindow_MenuItem_Click(object sender, RoutedEventArgs e)
         {
-            SearchByTags.OpenSearchDialog();
+            Launcher.OpenNewWindow();
         }
 
         /*

@@ -10,12 +10,12 @@ namespace ImageTagger
 {
     public class AddSearchTagComponent
     {
-        private SearchByTags searchWindow;
+        private SearchWindow searchWindow;
         public TextBox AddNewTag_TextBox { get; private set; }
         public Button AddNewTag_AcceptButton { get; private set; }
         public SearchTagsDisplay SearchTagsDisplay { get; private set; }
 
-        public void Initialize(SearchByTags searchWindow, TextBox addNewTag_TextBox, Button addNewTag_AcceptButton, SearchTagsDisplay imageTagsDisplay)
+        public void Initialize(SearchWindow searchWindow, TextBox addNewTag_TextBox, Button addNewTag_AcceptButton, SearchTagsDisplay imageTagsDisplay)
         {
             AddNewTag_TextBox = addNewTag_TextBox ?? throw new ArgumentNullException(nameof(addNewTag_TextBox));
             AddNewTag_AcceptButton = addNewTag_AcceptButton ?? throw new ArgumentNullException(nameof(addNewTag_AcceptButton));
