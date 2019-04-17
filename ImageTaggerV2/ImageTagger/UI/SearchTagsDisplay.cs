@@ -20,8 +20,9 @@ namespace ImageTagger
         private ListBox TagsDisplay { get; set; }
         private Label noTagsMessage { get; set; }
         private TextBox addTagsTextBox { get; set; }
-
+        public event NotifyCollectionChangedEventHandler CollectionChanged { add { searchTags.CollectionChanged += value; } remove { searchTags.CollectionChanged -= value; } }
         private ObservableCollection<ImageTag> searchTags { get; } = new ObservableCollection<ImageTag>();
+
 
         public SearchTagsDisplay()
         { }
@@ -60,7 +61,7 @@ namespace ImageTagger
             Debug.WriteLine(tagName);
             Remove(tagName);
             addTagsTextBox.Text = tagName;
-            addTagsTextBox .Focus();
+            addTagsTextBox.Focus();
         }
 
         public void Add(IEnumerable<ImageTag> items)
@@ -80,7 +81,7 @@ namespace ImageTagger
             }
             return success;
         }
-        
+
         public bool Contains(string tagName)
         {
             return Contains(new ImageTag(tagName));
@@ -121,5 +122,28 @@ namespace ImageTagger
         {
             return ((IEnumerable<ImageTag>)searchTags).GetEnumerator();
         }
+    }
+
+}
+namespace ImageTagger.UI
+{
+    public partial class SearchWindow
+    {
+
+        private void CheckBox_None_Unchecked(object sender, RoutedEventArgs e)
+        {
+            none_SearchTagsDisplay.Alert_CheckBox_Unchecked(sender, e);
+        }
+
+        private void CheckBox_Any_Unchecked(object sender, RoutedEventArgs e)
+        {
+            any_SearchTagsDisplay.Alert_CheckBox_Unchecked(sender, e);
+        }
+
+        private void CheckBox_All_Unchecked(object sender, RoutedEventArgs e)
+        {
+            all_SearchTagsDisplay.Alert_CheckBox_Unchecked(sender, e);
+        }
+
     }
 }

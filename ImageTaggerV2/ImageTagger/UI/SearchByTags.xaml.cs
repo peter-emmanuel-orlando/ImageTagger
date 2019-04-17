@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -57,16 +58,19 @@ namespace ImageTagger.UI
             all_SearchTagsDisplay = new SearchTagsDisplay();
             all_AddSearchTagComponent.Initialize(this, addAllTag_TextBox, addAllTag_AcceptButton, all_SearchTagsDisplay);
             all_SearchTagsDisplay.Initialize(this, allTagsDisplay, noAllTagsMessage, addAllTag_TextBox);
+            all_SearchTagsDisplay.CollectionChanged += Search;
 
             any_AddSearchTagComponent = new AddSearchTagComponent();
             any_SearchTagsDisplay = new SearchTagsDisplay();
             any_AddSearchTagComponent.Initialize(this, addAnyTag_TextBox, addAnyTag_AcceptButton, any_SearchTagsDisplay);
             any_SearchTagsDisplay.Initialize(this, anyTagsDisplay, noAnyTagsMessage, addAnyTag_TextBox);
+            any_SearchTagsDisplay.CollectionChanged += Search;
 
             none_AddSearchTagComponent = new AddSearchTagComponent();
             none_SearchTagsDisplay = new SearchTagsDisplay();
             none_AddSearchTagComponent.Initialize(this, addNoneTag_TextBox, addNoneTag_AcceptButton, none_SearchTagsDisplay);
             none_SearchTagsDisplay.Initialize(this, noneTagsDisplay, noNoneTagsMessage, addNoneTag_TextBox);
+            none_SearchTagsDisplay.CollectionChanged += Search;
         }
 
         private void ToggleCollapseButton_Click(object sender, RoutedEventArgs e)
@@ -90,29 +94,13 @@ namespace ImageTagger.UI
             }
         }
 
-        private void CheckBox_None_Unchecked(object sender, RoutedEventArgs e)
-        {
-            none_SearchTagsDisplay.Alert_CheckBox_Unchecked(sender, e);
-        }
-
-        private void CheckBox_Any_Unchecked(object sender, RoutedEventArgs e)
-        {
-            any_SearchTagsDisplay.Alert_CheckBox_Unchecked(sender, e);
-        }
-
-        private void CheckBox_All_Unchecked(object sender, RoutedEventArgs e)
-        {
-            all_SearchTagsDisplay.Alert_CheckBox_Unchecked(sender, e);
-        }
-
-        private void SearchButton_Click(object sender, RoutedEventArgs e)
+        private void Search(object sender, EventArgs e)
         {
             var anyTags = any_SearchTagsDisplay.Select(tag => tag.TagName);
             var allTags = all_SearchTagsDisplay.Select(tag => tag.TagName);
             var noneTags = none_SearchTagsDisplay.Select(tag => tag.TagName);
             currentQueryCriteria = new TagQueryCriteria( anyTags, allTags, noneTags);
             viewSearchWindow.SetSearch(currentQueryCriteria);
-            ToggleMainPanel();
         }
         
     }
