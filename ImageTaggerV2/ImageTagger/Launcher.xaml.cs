@@ -14,11 +14,14 @@ namespace ImageTagger
 {
     public partial class Launcher : Window
     {
-        MainWindow main;
+        public static Launcher instance { get; private set; }
+        public MainWindow main { get; }
         NotifyIcon ni = new NotifyIcon();
         public Launcher()
         {
             InitializeComponent();
+            instance = this;
+
             AddShortcutToStartupHelper.Add();
             this.Hide();
             this.ShowInTaskbar = true;

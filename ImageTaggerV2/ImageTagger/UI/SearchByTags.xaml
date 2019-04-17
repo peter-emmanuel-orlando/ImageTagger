@@ -5,22 +5,24 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:ImageTagger.UI"
         mc:Ignorable="d"
-        Title="SearchByTags" Height="362.903" Width="673.502">
-    <Border ScrollViewer.VerticalScrollBarVisibility="Disabled">
-        <StackPanel HorizontalAlignment="Center" MinWidth="100" MinHeight="100" VerticalAlignment="Center" >
-            <Label Content="Type search tags seperated by a semicolon.  Either &quot;*&quot; or &quot;%&quot; may be used as wildcard characters."/>
-            <Label Content="All of these tags"/>
-            <DockPanel VerticalAlignment="Top" HorizontalAlignment="Left" Panel.ZIndex="3">
-                <Grid HorizontalAlignment="Right">
-                    <Label Content="[type tags]" Background="White" />
-                    <TextBox x:Name="addNewTag_TextBox" TextWrapping="Wrap" MinWidth="60" MinHeight="20" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" Background="#FFFAFAFA" Foreground="Black" Opacity="0"/>
-                </Grid>
-                <Button x:Name="addNewTag_AcceptButton" HorizontalAlignment="Right" Content="  ✓  " />
-            </DockPanel>
+        Title="SearchByTags" Topmost="True" WindowStartupLocation="CenterOwner" SizeToContent="WidthAndHeight">
+    <DockPanel>
+        <Button x:Name="toggleCollapseButton" Content="Collapse" DockPanel.Dock="Bottom" HorizontalAlignment="Center" VerticalAlignment="Top" Click="ToggleCollapseButton_Click" Margin="0,0,0,10"/>
+        <Border x:Name="mainPanel" DockPanel.Dock="Bottom">
+            <StackPanel HorizontalAlignment="Center" MinWidth="100" MinHeight="100" VerticalAlignment="Center" DockPanel.Dock="Top" Margin="40" >
+                <Label Content="Type search tags seperated by a semicolon.  Either &quot;*&quot; or &quot;%&quot; may be used as wildcard characters."/>
+                <Label Content="All of these tags"/>
+                <DockPanel VerticalAlignment="Top" HorizontalAlignment="Left" Panel.ZIndex="3">
+                    <Grid HorizontalAlignment="Right">
+                        <Label Content="[type tags]" Background="White" />
+                        <TextBox x:Name="addNewTag_TextBox" TextWrapping="Wrap" MinWidth="60" MinHeight="20" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" Background="#FFFAFAFA" Foreground="Black" Opacity="0"/>
+                    </Grid>
+                    <Button x:Name="addNewTag_AcceptButton" HorizontalAlignment="Right" Content="  ✓  " />
+                </DockPanel>
 
-            <Label Content="Any of these tags"/>
-            <Label Content="None of these tags"/>
-        </StackPanel>
-
-    </Border>
+                <Label Content="Any of these tags"/>
+                <Label Content="None of these tags"/>
+            </StackPanel>
+        </Border>
+    </DockPanel>
 </Window>

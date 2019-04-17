@@ -80,8 +80,6 @@ namespace ImageTagger
         protected override void OnClosing(CancelEventArgs e)
         {
             PreviewMainWindowUnload?.Invoke(this, new EventArgs());
-            if(this.isModal)
-                this.DialogResult = true;
         }
 
         private void EditTagsRecord_MenuItem_Click(object sender, RoutedEventArgs e)
