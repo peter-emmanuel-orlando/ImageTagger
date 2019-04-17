@@ -1,24 +1,27 @@
 ﻿
 using ImageTagger.DataModels;
+using ImageTagger.UI;
 using System;
-using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 
 namespace ImageTagger
 {
-    public class AddNewTagComponent
+    public class AddSearchTagComponent
     {
-        private MainWindow main;
-        public TextBox AddNewTag_TextBox { get { return main.addNewTag_TextBox; } }
-        public Button AddNewTag_AcceptButton { get { return main.addNewTag_AcceptButton; } }
-        public ImageTagsDisplay ImageTagsDisplay { get { return main.ImageTagsDisplay; } }
-        public MainImageDisplay ImageDisplay { get { return main.ImageDisplay; } }
+        private SearchByTags searchWindow;
+        public TextBox AddNewTag_TextBox { get; private set; }
+        public Button AddNewTag_AcceptButton { get; private set; }
+        public SearchTagsDisplay SearchTagsDisplay { get; private set; }
 
-        public AddNewTagComponent(MainWindow main)
+        public void Initialize(SearchByTags searchWindow, TextBox addNewTag_TextBox, Button addNewTag_AcceptButton, SearchTagsDisplay imageTagsDisplay)
         {
-            this.main = main;
+            AddNewTag_TextBox = addNewTag_TextBox ?? throw new ArgumentNullException(nameof(addNewTag_TextBox));
+            AddNewTag_AcceptButton = addNewTag_AcceptButton ?? throw new ArgumentNullException(nameof(addNewTag_AcceptButton));
+            SearchTagsDisplay = imageTagsDisplay ?? throw new ArgumentNullException(nameof(imageTagsDisplay));
+
+            this.searchWindow = searchWindow;
             AddNewTag_TextBox.KeyDown += HandleKeyDown;
             AddNewTag_AcceptButton.Click += HandleButtonClick;
             AddNewTag_TextBox.LostFocus += HandleTextBoxLostFocus;
@@ -27,7 +30,7 @@ namespace ImageTagger
             AddNewTag_TextBox.MouseLeftButtonUp += HandleTextBoxClick;
             AddNewTag_TextBox.PreviewTextInput += HandlePreviewTextInput;
 
-            main.PreviewMainWindowUnload += UnsubscribeFromAllEvents;
+            //searchWindow.PreviewMainWindowUnload += UnsubscribeFromAllEvents;
         }
 
         private void HandlePreviewTextInput(object sender, TextCompositionEventArgs e)
@@ -38,7 +41,7 @@ namespace ImageTagger
 
         private void UnsubscribeFromAllEvents(object sender, EventArgs e)
         {
-            main.PreviewMainWindowUnload -= UnsubscribeFromAllEvents;
+            //searchWindow.PreviewMainWindowUnload -= UnsubscribeFromAllEvents;
             // unsubscribe from anything else here
             AddNewTag_TextBox.KeyDown -= HandleKeyDown;
             AddNewTag_AcceptButton.Click -= HandleButtonClick;
@@ -71,13 +74,13 @@ namespace ImageTagger
 
         private void HandleTextBoxLostFocus(object sender, RoutedEventArgs e)
         {
-            
+
             if (Keyboard.FocusedElement != AddNewTag_AcceptButton)
             {
                 //AddTags();
                 AddNewTag_TextBox.Text = "";
             }
-            
+
             if (AddNewTag_TextBox.Text == "") AddNewTag_TextBox.Opacity = 0;
         }
 
@@ -89,26 +92,16 @@ namespace ImageTagger
 
         private void HandleTextChanged(object sender, TextChangedEventArgs e)
         {
-            if ( AddNewTag_TextBox.Text == "" && !AddNewTag_TextBox.IsFocused ) AddNewTag_TextBox.Background.Opacity = 1;
-            
+            if (AddNewTag_TextBox.Text == "" && !AddNewTag_TextBox.IsFocused) AddNewTag_TextBox.Background.Opacity = 1;
+
         }
-
-
 
         private void AddTags()
         {
             var currentText = AddNewTag_TextBox.Text;
             if (currentText != "")
             {
-                var suggestionIndex = main.TagSuggestionDisplay.SuggestedTagGridItems.IndexOf(new SuggestedTagGridItem(currentText, 0, 0, ""));
-                if (suggestionIndex != -1)
-                {
-                    var item = main.TagSuggestionDisplay.SuggestedTagGridItems[suggestionIndex];
-                    item.IsSelected = true;
-                }
-
-                ImageTagsDisplay.Add(new ImageTag(currentText));
-                ImageTagsDisplay.ApplyTagsToMainImage();
+                SearchTagsDisplay.Add(new ImageTag(currentText));
                 AddNewTag_TextBox.Clear();
             }
         }
@@ -117,4 +110,4 @@ namespace ImageTagger
 
 
 
-}
+    }

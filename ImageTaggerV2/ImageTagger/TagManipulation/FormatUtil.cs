@@ -60,7 +60,7 @@ namespace ImageTagger
 
         private static bool IsCharValid(char c)
         {
-            return char.IsLetterOrDigit(c) || c == '-' || c == '_' || c == '{' || c == '}' || c == '[' || c == ']' || c == '"' || c == '!' || c == ':' || c == '.' || c == ',';
+            return char.IsLetterOrDigit(c) || c == '-' || c == '_' || c == '{' || c == '}' || c == '[' || c == ']' || c == '"' || c == '!' || c == ':' || c == '.' || c == ',' || c == '*' || c == '%';
         }
 
         public static bool ContainsInvalidCharacters(string tagText)

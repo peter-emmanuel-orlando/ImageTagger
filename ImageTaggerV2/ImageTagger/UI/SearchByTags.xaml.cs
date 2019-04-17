@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -27,30 +28,55 @@ namespace ImageTagger.UI
 
 
         private HashSet<string> Result { get; set; } = new HashSet<string>();
+        public AddSearchTagComponent all_AddSearchTagComponent { get; }
+        public SearchTagsDisplay all_SearchTagsDisplay { get; }
+        public AddSearchTagComponent any_AddSearchTagComponent { get; }
+        public SearchTagsDisplay any_SearchTagsDisplay { get; }
+        public AddSearchTagComponent none_AddSearchTagComponent { get; }
+        public SearchTagsDisplay none_SearchTagsDisplay { get; }
+
         private SearchByTags()
         {
             InitializeComponent();
+
+            var viewSearchWindow = new MainWindow(true);
+            viewSearchWindow.Closed += (s, e) => Close();
+            viewSearchWindow.Show();
+            this.Owner = viewSearchWindow;
+
             this.Loaded += (s, e) =>
             {
                 var hwnd = new WindowInteropHelper(this).Handle;
                 SetWindowLong(hwnd, GWL_STYLE, GetWindowLong(hwnd, GWL_STYLE) & ~WS_SYSMENU);
             };
+
+            all_AddSearchTagComponent = new AddSearchTagComponent();
+            all_SearchTagsDisplay = new SearchTagsDisplay();
+            all_AddSearchTagComponent.Initialize(this, addAllTag_TextBox, addAllTag_AcceptButton, all_SearchTagsDisplay);
+            all_SearchTagsDisplay.Initialize(this, allTagsDisplay, noAllTagsMessage, addAllTag_TextBox);
+
+            any_AddSearchTagComponent = new AddSearchTagComponent();
+            any_SearchTagsDisplay = new SearchTagsDisplay();
+            any_AddSearchTagComponent.Initialize(this, addAnyTag_TextBox, addAnyTag_AcceptButton, any_SearchTagsDisplay);
+            any_SearchTagsDisplay.Initialize(this, anyTagsDisplay, noAnyTagsMessage, addAnyTag_TextBox);
+
+            none_AddSearchTagComponent = new AddSearchTagComponent();
+            none_SearchTagsDisplay = new SearchTagsDisplay();
+            none_AddSearchTagComponent.Initialize(this, addNoneTag_TextBox, addNoneTag_AcceptButton, none_SearchTagsDisplay);
+            none_SearchTagsDisplay.Initialize(this, noneTagsDisplay, noNoneTagsMessage, addNoneTag_TextBox);
         }
+
 
         public static void OpenSearchDialog()
         {
-            var viewSearchWindow = new MainWindow(true);
             var searchByTagsWindow = new SearchByTags();
+            searchByTagsWindow.Show();
 
             Launcher.instance.main.IsEnabled = false;
             Launcher.instance.main.Hide();
 
-            viewSearchWindow.Show();
-            searchByTagsWindow.Show();
-            searchByTagsWindow.Owner = viewSearchWindow;
-            viewSearchWindow.Closed += (s, e ) =>
+            searchByTagsWindow.Closed += (s, e) =>
             {
-                searchByTagsWindow.Close();
                 Launcher.instance.main.IsEnabled = true;
                 Launcher.instance.main.Show();
             };
@@ -58,14 +84,21 @@ namespace ImageTagger.UI
 
         private void ToggleCollapseButton_Click(object sender, RoutedEventArgs e)
         {
+            ToggleMainPanel();
+        }
+
+        private void ToggleMainPanel()
+        {
             if (mainPanel.Visibility == Visibility.Collapsed)
             {
                 mainPanel.Visibility = Visibility.Visible;
+                //this.Title = this.Title.Replace("Expand", "Collapse");
                 toggleCollapseButton.Content = "Collapse";
             }
             else
             {
                 mainPanel.Visibility = Visibility.Collapsed;
+                //this.Title = this.Title.Replace("Collapse", "Expand");
                 toggleCollapseButton.Content = "Expand";
             }
         }
@@ -84,5 +117,11 @@ namespace ImageTagger.UI
         {
 
         }
+
+        private void SearchButton_Click(object sender, RoutedEventArgs e)
+        {
+            //var criteria = 
+        }
+        
     }
 }

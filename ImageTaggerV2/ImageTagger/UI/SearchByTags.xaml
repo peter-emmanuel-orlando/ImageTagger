@@ -5,12 +5,15 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:ImageTagger.UI"
         mc:Ignorable="d"
-        Title="SearchByTags" Topmost="True" WindowStartupLocation="CenterOwner" SizeToContent="WidthAndHeight" Background="#FFDECFDF">
+        Title="SearchByTags" Topmost="True" WindowStartupLocation="CenterOwner" SizeToContent="WidthAndHeight" Background="#FFDECFDF" ShowInTaskbar="False" ResizeMode="NoResize" WindowStyle="ToolWindow">
     <DockPanel>
-        <Button x:Name="toggleCollapseButton" Content="Collapse" DockPanel.Dock="Bottom" HorizontalAlignment="Center" VerticalAlignment="Top" Click="ToggleCollapseButton_Click" Margin="0,0,0,10"/>
-        <Border x:Name="mainPanel" DockPanel.Dock="Bottom">
+        <DockPanel x:Name="windowLabelPanel" DockPanel.Dock="Top" LastChildFill="False">
+            <!--<Label x:Name="titleLabel" Content="SearchByTags [click to Collapse]" />-->
+            <Button x:Name="toggleCollapseButton" Content="Collapse" Margin="5,5,5,5" DockPanel.Dock="Right" HorizontalAlignment="Center" VerticalAlignment="Top" Click="ToggleCollapseButton_Click" Panel.ZIndex="3"/>
+        </DockPanel>
+        <Border x:Name="mainPanel" DockPanel.Dock="Top">
             <StackPanel HorizontalAlignment="Center" MinWidth="100" MinHeight="100" VerticalAlignment="Center" DockPanel.Dock="Top" Margin="40" >
-                <Label Content="Type search tags seperated by a semicolon.  Either &quot;*&quot; or &quot;%&quot; may be used as wildcard characters."/>
+                <Label Content="Type search tags below.  Either &quot;*&quot; or &quot;%&quot; may be used as wildcard characters."/>
                 
                 <Label Content="All of these tags"/>
                 <DockPanel VerticalAlignment="Top" Panel.ZIndex="3" Margin="0,0,0,10">
@@ -78,7 +81,7 @@
                         <Label x:Name="noAnyTagsMessage" Content="[enter tags to search including any]" />
                         <!--<ScrollViewer VerticalScrollBarVisibility="Disabled" HorizontalScrollBarVisibility="Hidden" Background="#33FF8D8D" >
                             </ScrollViewer>-->
-                        <ListBox x:Name="AnyTagsDisplay" ScrollViewer.HorizontalScrollBarVisibility="Hidden" ScrollViewer.VerticalScrollBarVisibility="Disabled" VerticalContentAlignment="Center" Background="#FF00E8FF" ScrollViewer.CanContentScroll="False">
+                        <ListBox x:Name="anyTagsDisplay" ScrollViewer.HorizontalScrollBarVisibility="Hidden" ScrollViewer.VerticalScrollBarVisibility="Disabled" VerticalContentAlignment="Center" Background="#FF00E8FF" ScrollViewer.CanContentScroll="False">
                             <!-- listbox.template portion essentially changes the controls to be the same as listbox, but without the scrollviewer in it. -->
                             <!-- see answer here: https://stackoverflow.com/questions/2976240/how-can-make-scrollviewer-scroll-when-mouse-is-over-any-content -->
                             <ListBox.Template>
@@ -169,6 +172,10 @@
 
 
 
+                </DockPanel>
+
+                <DockPanel DockPanel.Dock="Top" LastChildFill="False">
+                    <Button x:Name="searchButton" Content="Search Images" DockPanel.Dock="Top" HorizontalAlignment="Center" Click="SearchButton_Click" VerticalAlignment="Center" Margin="10"/>
                 </DockPanel>
 
             </StackPanel>

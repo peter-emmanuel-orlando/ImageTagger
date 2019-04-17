@@ -71,6 +71,7 @@
     <Compile Include="UI\AddNewTagComponent.cs" />
     <Compile Include="TagManipulation\MyTagsRecord.cs" />
     <Compile Include="SettingsPersistanceUtil.cs" />
+    <Compile Include="UI\AddSearchTagComponent.cs" />
     <Compile Include="UI\CancelDialog.xaml.cs">
       <DependentUpon>CancelDialog.xaml</DependentUpon>
     </Compile>
@@ -82,6 +83,8 @@
     <Compile Include="UI\ImageGridDisplay.cs" />
     <Compile Include="ImageInfo.cs" />
     <Compile Include="ImageTag.cs" />
+    <Compile Include="MimeTypes.cs" />
+    <Compile Include="UI\SearchTagsDisplay.cs" />
     <Compile Include="UI\ImageTagsDisplay.cs" />
     <Compile Include="TagManipulation\TagsManager.cs" />
     <Compile Include="UI\MainImageDisplay.cs" />
