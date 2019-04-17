@@ -8,6 +8,7 @@ using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Linq;
 
 namespace ImageTagger
 {
@@ -155,6 +156,14 @@ namespace ImageTagger
             string tagName = (e.OriginalSource as CheckBox).Content + "";
             Debug.WriteLine(tagName);
             ImageTagsDisplay.Remove(tagName);
+            addNewTag_TextBox.Text = tagName;
+            addNewTag_TextBox.Focus();
+            var suggestionIndex = TagSuggestionDisplay.SuggestedTagGridItems.IndexOf(new SuggestedTagGridItem(tagName, 0, 0, ""));
+            if (suggestionIndex != -1)
+            {
+                var item = TagSuggestionDisplay.SuggestedTagGridItems[suggestionIndex];
+                item.IsSelected = !item.IsSelected;
+            }
         }
     }
 }

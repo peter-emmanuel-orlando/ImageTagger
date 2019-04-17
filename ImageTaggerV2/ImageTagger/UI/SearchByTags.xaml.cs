@@ -69,5 +69,20 @@ namespace ImageTagger.UI
                 toggleCollapseButton.Content = "Expand";
             }
         }
+
+        private void CheckBox_None_Unchecked(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void CheckBox_Any_Unchecked(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void CheckBox_All_Unchecked(object sender, RoutedEventArgs e)
+        {
+
+        }
     }
 }

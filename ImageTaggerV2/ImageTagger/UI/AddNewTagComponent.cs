@@ -71,10 +71,13 @@ namespace ImageTagger
 
         private void HandleTextBoxLostFocus(object sender, RoutedEventArgs e)
         {
-            if (!AddNewTag_AcceptButton.IsFocused)
+            
+            if (Keyboard.FocusedElement != AddNewTag_AcceptButton)
             {
-                AddTags();
+                //AddTags();
+                AddNewTag_TextBox.Text = "";
             }
+            
             if (AddNewTag_TextBox.Text == "") AddNewTag_TextBox.Opacity = 0;
         }
 
@@ -97,6 +100,13 @@ namespace ImageTagger
             var currentText = AddNewTag_TextBox.Text;
             if(currentText != "")
             {
+                var suggestionIndex = main.TagSuggestionDisplay.SuggestedTagGridItems.IndexOf(new SuggestedTagGridItem(currentText, 0, 0, ""));
+                if (suggestionIndex != -1)
+                {
+                    var item = main.TagSuggestionDisplay.SuggestedTagGridItems[suggestionIndex];
+                    item.IsSelected = true;
+                }
+
                 ImageTagsDisplay.Add(new ImageTag(currentText));
                 ImageTagsDisplay.ApplyTagsToMainImage();
                 AddNewTag_TextBox.Clear();

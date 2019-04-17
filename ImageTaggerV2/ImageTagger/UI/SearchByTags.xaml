@@ -5,23 +5,172 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:ImageTagger.UI"
         mc:Ignorable="d"
-        Title="SearchByTags" Topmost="True" WindowStartupLocation="CenterOwner" SizeToContent="WidthAndHeight">
+        Title="SearchByTags" Topmost="True" WindowStartupLocation="CenterOwner" SizeToContent="WidthAndHeight" Background="#FFDECFDF">
     <DockPanel>
         <Button x:Name="toggleCollapseButton" Content="Collapse" DockPanel.Dock="Bottom" HorizontalAlignment="Center" VerticalAlignment="Top" Click="ToggleCollapseButton_Click" Margin="0,0,0,10"/>
         <Border x:Name="mainPanel" DockPanel.Dock="Bottom">
             <StackPanel HorizontalAlignment="Center" MinWidth="100" MinHeight="100" VerticalAlignment="Center" DockPanel.Dock="Top" Margin="40" >
                 <Label Content="Type search tags seperated by a semicolon.  Either &quot;*&quot; or &quot;%&quot; may be used as wildcard characters."/>
+                
                 <Label Content="All of these tags"/>
-                <DockPanel VerticalAlignment="Top" HorizontalAlignment="Left" Panel.ZIndex="3">
+                <DockPanel VerticalAlignment="Top" Panel.ZIndex="3" Margin="0,0,0,10">
                     <Grid HorizontalAlignment="Right">
                         <Label Content="[type tags]" Background="White" />
-                        <TextBox x:Name="addNewTag_TextBox" TextWrapping="Wrap" MinWidth="60" MinHeight="20" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" Background="#FFFAFAFA" Foreground="Black" Opacity="0"/>
+                        <TextBox x:Name="addAllTag_TextBox" TextWrapping="Wrap" MinWidth="60" MinHeight="20" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" Background="#FFFAFAFA" Foreground="Black" Opacity="0"/>
                     </Grid>
-                    <Button x:Name="addNewTag_AcceptButton" HorizontalAlignment="Right" Content="  ✓  " />
+                    <Button x:Name="addAllTag_AcceptButton" HorizontalAlignment="Right" Content="  ✓  " />
+
+
+                    <Grid ScrollViewer.VerticalScrollBarVisibility="Disabled">
+                        <Label x:Name="noAllTagsMessage" Content="[enter tags to search including all]" />
+                        <!--<ScrollViewer VerticalScrollBarVisibility="Disabled" HorizontalScrollBarVisibility="Hidden" Background="#33FF8D8D" >
+                            </ScrollViewer>-->
+                        <ListBox x:Name="allTagsDisplay" ScrollViewer.HorizontalScrollBarVisibility="Hidden" ScrollViewer.VerticalScrollBarVisibility="Disabled" VerticalContentAlignment="Center" Background="#FF00E8FF" ScrollViewer.CanContentScroll="False">
+                            <!-- listbox.template portion essentially changes the controls to be the same as listbox, but without the scrollviewer in it. -->
+                            <!-- see answer here: https://stackoverflow.com/questions/2976240/how-can-make-scrollviewer-scroll-when-mouse-is-over-any-content -->
+                            <ListBox.Template>
+                                <ControlTemplate TargetType="{x:Type ListBox}">
+                                    <Border BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderBrush}">
+                                        <ItemsPresenter/>
+                                    </Border>
+                                </ControlTemplate>
+                            </ListBox.Template>
+                            <ListBox.ItemsPanel>
+                                <ItemsPanelTemplate >
+                                    <WrapPanel  IsItemsHost="True" ScrollViewer.VerticalScrollBarVisibility="Disabled" />
+                                </ItemsPanelTemplate>
+                            </ListBox.ItemsPanel>
+
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <Border BorderBrush="Black" BorderThickness="1">
+                                        <CheckBox Content="{Binding TagName}" IsChecked="True" Unchecked="CheckBox_All_Unchecked"/>
+                                    </Border>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+
+                        </ListBox>
+
+                    </Grid>
+
+
+
+
+
+
+
+
+
+
+
                 </DockPanel>
 
                 <Label Content="Any of these tags"/>
+                <DockPanel VerticalAlignment="Top" Panel.ZIndex="3" Margin="0,0,0,10">
+                    <Grid HorizontalAlignment="Right">
+                        <Label Content="[type tags]" Background="White" />
+                        <TextBox x:Name="addAnyTag_TextBox" TextWrapping="Wrap" MinWidth="60" MinHeight="20" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" Background="#FFFAFAFA" Foreground="Black" Opacity="0"/>
+                    </Grid>
+                    <Button x:Name="addAnyTag_AcceptButton" HorizontalAlignment="Right" Content="  ✓  " />
+
+
+                    <Grid ScrollViewer.VerticalScrollBarVisibility="Disabled">
+                        <Label x:Name="noAnyTagsMessage" Content="[enter tags to search including any]" />
+                        <!--<ScrollViewer VerticalScrollBarVisibility="Disabled" HorizontalScrollBarVisibility="Hidden" Background="#33FF8D8D" >
+                            </ScrollViewer>-->
+                        <ListBox x:Name="AnyTagsDisplay" ScrollViewer.HorizontalScrollBarVisibility="Hidden" ScrollViewer.VerticalScrollBarVisibility="Disabled" VerticalContentAlignment="Center" Background="#FF00E8FF" ScrollViewer.CanContentScroll="False">
+                            <!-- listbox.template portion essentially changes the controls to be the same as listbox, but without the scrollviewer in it. -->
+                            <!-- see answer here: https://stackoverflow.com/questions/2976240/how-can-make-scrollviewer-scroll-when-mouse-is-over-any-content -->
+                            <ListBox.Template>
+                                <ControlTemplate TargetType="{x:Type ListBox}">
+                                    <Border BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderBrush}">
+                                        <ItemsPresenter/>
+                                    </Border>
+                                </ControlTemplate>
+                            </ListBox.Template>
+                            <ListBox.ItemsPanel>
+                                <ItemsPanelTemplate >
+                                    <WrapPanel  IsItemsHost="True" ScrollViewer.VerticalScrollBarVisibility="Disabled" />
+                                </ItemsPanelTemplate>
+                            </ListBox.ItemsPanel>
+
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <Border BorderBrush="Black" BorderThickness="1">
+                                        <CheckBox Content="{Binding TagName}" IsChecked="True" Unchecked="CheckBox_Any_Unchecked"/>
+                                    </Border>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+
+                        </ListBox>
+
+                    </Grid>
+
+
+
+
+
+
+
+
+
+
+
+                </DockPanel>
+
                 <Label Content="None of these tags"/>
+                <DockPanel VerticalAlignment="Top" Panel.ZIndex="3" Margin="0,0,0,10">
+                    <Grid HorizontalAlignment="Right">
+                        <Label Content="[type tags]" Background="White" />
+                        <TextBox x:Name="addNoneTag_TextBox" TextWrapping="Wrap" MinWidth="60" MinHeight="20" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" Background="#FFFAFAFA" Foreground="Black" Opacity="0"/>
+                    </Grid>
+                    <Button x:Name="addNoneTag_AcceptButton" HorizontalAlignment="Right" Content="  ✓  " />
+
+
+                    <Grid ScrollViewer.VerticalScrollBarVisibility="Disabled">
+                        <Label x:Name="noNoneTagsMessage" Content="[enter tags to exclude from search]" />
+                        <!--<ScrollViewer VerticalScrollBarVisibility="Disabled" HorizontalScrollBarVisibility="Hidden" Background="#33FF8D8D" >
+                            </ScrollViewer>-->
+                        <ListBox x:Name="noneTagsDisplay" ScrollViewer.HorizontalScrollBarVisibility="Hidden" ScrollViewer.VerticalScrollBarVisibility="Disabled" VerticalContentAlignment="Center" Background="#FF00E8FF" ScrollViewer.CanContentScroll="False">
+                            <!-- listbox.template portion essentially changes the controls to be the same as listbox, but without the scrollviewer in it. -->
+                            <!-- see answer here: https://stackoverflow.com/questions/2976240/how-can-make-scrollviewer-scroll-when-mouse-is-over-any-content -->
+                            <ListBox.Template>
+                                <ControlTemplate TargetType="{x:Type ListBox}">
+                                    <Border BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderBrush}">
+                                        <ItemsPresenter/>
+                                    </Border>
+                                </ControlTemplate>
+                            </ListBox.Template>
+                            <ListBox.ItemsPanel>
+                                <ItemsPanelTemplate >
+                                    <WrapPanel  IsItemsHost="True" ScrollViewer.VerticalScrollBarVisibility="Disabled" />
+                                </ItemsPanelTemplate>
+                            </ListBox.ItemsPanel>
+
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <Border BorderBrush="Black" BorderThickness="1">
+                                        <CheckBox Content="{Binding TagName}" IsChecked="True" Unchecked="CheckBox_None_Unchecked"/>
+                                    </Border>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+
+                        </ListBox>
+
+                    </Grid>
+
+
+
+
+
+
+
+
+
+
+
+                </DockPanel>
+
             </StackPanel>
         </Border>
     </DockPanel>
