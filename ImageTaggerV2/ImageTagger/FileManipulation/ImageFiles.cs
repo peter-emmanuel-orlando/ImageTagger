@@ -25,7 +25,7 @@ namespace ImageTagger
     public class ImageFiles
     {
         private ObservableCollection<string> FileNames { get; } = new ObservableCollection<string>();
-        
+
         public int Count { get { return FileNames.Count; } }
 
         public List<string> GetAll()
@@ -81,14 +81,14 @@ namespace ImageTagger
         public void Load(bool randomize, TagQueryCriteria tagQueryCriteria = null, bool newAdditionsOnly = false)
         {
             FileNames.Clear();
-            
+
             //tagQueryCriteria = new TagQueryCriteria(new string[] { }, new string[] { }, new string[] { "*red*", "*orange*", "*green*", "*yellow*", "*blue*", "*indigo*", "*violet*"});
             var persistancePath = PersistanceUtil.SourceDirectory;
             //if(!Directory.Exists(persistancePath)) 
             if (newAdditionsOnly)
                 FileNames.Add(NewFiles);
             else
-                FileNames.Add(ImageFileUtil.GetImageFilenames(persistancePath, tagQueryCriteria ));
+                FileNames.Add(ImageFileUtil.GetImageFilenames(persistancePath, tagQueryCriteria));
             if (randomize) FileNames.Shuffle();
             watcher.Path = persistancePath;
             watcher.EnableRaisingEvents = true;
@@ -141,8 +141,8 @@ namespace ImageTagger
             }
         }
 
-        private static HashSet<string> NewFiles { get; } = new HashSet<string>();
-        private static FileSystemWatcher watcher { get; } = new FileSystemWatcher
+        private HashSet<string> NewFiles { get; } = new HashSet<string>();
+        private FileSystemWatcher watcher { get; } = new FileSystemWatcher
         {
             NotifyFilter = NotifyFilters.Attributes |
                 NotifyFilters.CreationTime |
@@ -154,15 +154,15 @@ namespace ImageTagger
             Filter = "*.*",
             IncludeSubdirectories = true
         };
-        public static void MarkNewFilesReceived()
+        public void MarkNewFilesReceived()
         {
             NewFiles.Clear();
         }
 
 
-        public static event FileSystemEventHandler ItemAdded = delegate { };
-        public static event ItemChangedEventHandler ItemChanged = delegate { };
-        public static event FilesLoadedEventHandler FilesLoaded = delegate { };
+        public event FileSystemEventHandler ItemAdded = delegate { };
+        public event ItemChangedEventHandler ItemChanged = delegate { };
+        public event FilesLoadedEventHandler FilesLoaded = delegate { };
 
     }
 

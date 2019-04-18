@@ -96,8 +96,8 @@
     <Compile Include="UI\RequestStringDialog.xaml.cs">
       <DependentUpon>RequestStringDialog.xaml</DependentUpon>
     </Compile>
-    <Compile Include="UI\SearchByTags.xaml.cs">
-      <DependentUpon>SearchByTags.xaml</DependentUpon>
+    <Compile Include="UI\SearchWindow.xaml.cs">
+      <DependentUpon>SearchWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="UI\TagSuggestionDisplay.cs" />
     <Compile Include="ThreadSafeRandom.cs" />
@@ -114,7 +114,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="UI\MainWindow.xaml">
+    <Page Include="UI\ViewSearchWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -122,15 +122,15 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="UI\MainWindow.xaml.cs">
-      <DependentUpon>MainWindow.xaml</DependentUpon>
+    <Compile Include="UI\ViewSearchWindow.xaml.cs">
+      <DependentUpon>ViewSearchWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
     <Page Include="UI\RequestStringDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="UI\SearchByTags.xaml">
+    <Page Include="UI\SearchWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

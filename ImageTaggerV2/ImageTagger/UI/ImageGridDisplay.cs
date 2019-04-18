@@ -18,7 +18,7 @@ namespace ImageTagger
 {
     public class ImageGridDisplay
     {
-        MainWindow main { get; }
+        ViewSearchWindow main { get; }
         private ObservableCollection<ImageInfo> Images { get; } = new ObservableCollection<ImageInfo>();
         private ListBox ImageGrid { get { return main.imageGrid; } }
 
@@ -31,14 +31,14 @@ namespace ImageTagger
         private const int maxThumbnailSize = 1000;
         private int desiredThumbnailSize = minThumbnailSize;
 
-        public ImageGridDisplay(MainWindow main)
+        public ImageGridDisplay(ViewSearchWindow main)
         {
             this.main = main;
             ImageGrid.ItemsSource = Images;
             ImageGrid.SelectionChanged += ImgGrid_SelectionChanged;
             main.imageGrid_ScrollViewer.ScrollChanged += ScrollViewer_ScrollChanged;
             ImageGrid.Loaded += HandleGridLoaded;
-            ImageFiles.FilesLoaded += HandleFilesLoaded;
+            main.ImageFiles.FilesLoaded += HandleFilesLoaded;
             //ImageFiles.ItemChanged += HandleItemChanged;
             main.loadNextPageButton.Click += HandleLoadNextPageButtonClick;
             main.changeThumbnailSizeSlider.ValueChanged += HandleThumbnailSizeSliderChangeClick;
@@ -65,7 +65,7 @@ namespace ImageTagger
             ImageGrid.SelectionChanged -= ImgGrid_SelectionChanged;
             main.imageGrid_ScrollViewer.ScrollChanged -= ScrollViewer_ScrollChanged;
             ImageGrid.Loaded -= HandleGridLoaded;
-            ImageFiles.FilesLoaded -= HandleFilesLoaded;
+            main.ImageFiles.FilesLoaded -= HandleFilesLoaded;
             //ImageFiles.ItemChanged -= HandleItemChanged;
             main.loadNextPageButton.Click -= HandleLoadNextPageButtonClick;
         }

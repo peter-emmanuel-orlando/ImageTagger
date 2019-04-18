@@ -4,7 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:ImageTagger"
-        xmlns:System="clr-namespace:System;assembly=mscorlib" xmlns:DataModels="clr-namespace:ImageTagger.DataModels" x:Class="ImageTagger.MainWindow"
+        xmlns:System="clr-namespace:System;assembly=mscorlib" xmlns:DataModels="clr-namespace:ImageTagger.DataModels" x:Class="ImageTagger.ViewSearchWindow"
         mc:Ignorable="d"
         Title="ImageTagger" Height="562.5" Width="1000" WindowStartupLocation="CenterOwner" Icon="/ImageTagger;component/cherryBlossomIcon.ico">
     <Grid x:Name="MainPanel" Background="#FFFFF0F0">

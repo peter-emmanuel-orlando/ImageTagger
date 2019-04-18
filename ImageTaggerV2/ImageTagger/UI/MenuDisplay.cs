@@ -7,8 +7,8 @@ namespace ImageTagger
 
     public class MenuDisplay
     {
-        MainWindow main { get; }
-        public MenuDisplay(MainWindow main)
+        ViewSearchWindow main { get; }
+        public MenuDisplay(ViewSearchWindow main)
         {
             this.main = main;
             main.PreviewMainWindowUnload += UnsubscribeFromAllEvents;

@@ -12,11 +12,11 @@ namespace ImageTagger
 
     public class MainImageDisplay
     {
-        MainWindow main { get; }
+        ViewSearchWindow main { get; }
         public Image ImageDisplay { get { return main.mainImageDisplay; } }
         public ImageInfo mainImageInfo { get; private set; } = new ImageInfo();
 
-        public MainImageDisplay(MainWindow main)
+        public MainImageDisplay(ViewSearchWindow main)
         {
             this.main = main;
             ImageDisplay.DataContext = mainImageInfo;

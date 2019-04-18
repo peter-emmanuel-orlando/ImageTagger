@@ -62,30 +62,11 @@ namespace ImageTagger
 
 
             PersistanceUtil.LoadLocations();
-            ImageFiles.ItemAdded += HandleItemAddedEvent;
 
             OpenNewWindow();
 
             SetUpNotificationIcon();
             ni.Visible = true;
-        }
-
-        HashSet<string> newFiles { get; } = new HashSet<string>();
-        int showAfter = 8;
-        private void HandleItemAddedEvent(object sender, FileSystemEventArgs e)
-        {
-            newFiles.Add(e.FullPath);
-            if(newFiles.Count >= showAfter)
-            {
-                App.Current.Dispatcher.Invoke(new Action(() =>
-                {
-                    var tempWindow = new MainWindow();
-                    tempWindow.SetSearch(null, false, true);
-                    newFiles.Clear();
-                    tempWindow.ShowActivated = true;
-                    tempWindow.ShowDialog();
-                }));
-            }
         }
 
         private void HandleSearchWindowClosedEvent(object sender, EventArgs e)

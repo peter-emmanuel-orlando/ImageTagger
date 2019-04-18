@@ -26,7 +26,7 @@ using System.Collections.Async;
 
 namespace ImageTagger
 {
-    public partial class MainWindow : Window
+    public partial class ViewSearchWindow : Window
     {
         private string programDirectory = Directory.GetCurrentDirectory();
         private RoutedEventHandler batchEvent;
@@ -44,7 +44,7 @@ namespace ImageTagger
         public bool isModal { get; } = false;
         
 
-        public MainWindow(bool isModal = false)
+        public ViewSearchWindow(bool isModal = false)
         {
             InitializeComponent();
             

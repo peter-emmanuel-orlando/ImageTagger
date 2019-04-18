@@ -15,7 +15,7 @@ namespace ImageTagger
     public class ImageTagsDisplay
     {
         //need to make rules for tags
-        MainWindow main { get; }
+        ViewSearchWindow main { get; }
         public ListBox TagsDisplay { get { return main.tagsDisplay; } }
         public MainImageDisplay ImageDisplay { get { return main.ImageDisplay; } }
 
@@ -23,7 +23,7 @@ namespace ImageTagger
         public IEnumerable<ImageTag> Tags { get { return mainImageTags; } }
         public ImageInfo TagSource { get; private set; }
 
-        public ImageTagsDisplay(MainWindow main)
+        public ImageTagsDisplay(ViewSearchWindow main)
         {
             this.main = main;
             TagsDisplay.ItemsSource = mainImageTags;
@@ -149,7 +149,7 @@ namespace ImageTagger
 
     }
 
-    public partial class MainWindow
+    public partial class ViewSearchWindow
     {
         public void CheckBox_Unchecked(object sender, RoutedEventArgs e)
         {

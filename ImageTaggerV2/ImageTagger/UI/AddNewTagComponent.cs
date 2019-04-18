@@ -10,13 +10,13 @@ namespace ImageTagger
 {
     public class AddNewTagComponent
     {
-        private MainWindow main;
+        private ViewSearchWindow main;
         public TextBox AddNewTag_TextBox { get { return main.addNewTag_TextBox; } }
         public Button AddNewTag_AcceptButton { get { return main.addNewTag_AcceptButton; } }
         public ImageTagsDisplay ImageTagsDisplay { get { return main.ImageTagsDisplay; } }
         public MainImageDisplay ImageDisplay { get { return main.ImageDisplay; } }
 
-        public AddNewTagComponent(MainWindow main)
+        public AddNewTagComponent(ViewSearchWindow main)
         {
             this.main = main;
             AddNewTag_TextBox.KeyDown += HandleKeyDown;

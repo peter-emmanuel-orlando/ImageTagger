@@ -52,7 +52,7 @@ namespace ImageTagger
 
     public class TagSuggestionDisplay
     {
-        MainWindow main { get; }
+        ViewSearchWindow main { get; }
         ItemsControl TagSuggestion { get { return main.tagSuggestionDisplay; } }
 
         private HashSet<Coordinate> UsedPositions { get; } = new HashSet<Coordinate>();
@@ -61,7 +61,7 @@ namespace ImageTagger
 
         private bool isDormant = false;
 
-        public TagSuggestionDisplay(MainWindow main)
+        public TagSuggestionDisplay(ViewSearchWindow main)
         {
             this.main = main;
             main.PreviewMainWindowUnload += UnsubscribeFromAllEvents;
@@ -302,7 +302,7 @@ namespace ImageTagger
     }
 
 
-    public partial class MainWindow
+    public partial class ViewSearchWindow
     {
 
         private void HandleTagSuggestionButtonClickEvent(object sender, RoutedEventArgs e)
