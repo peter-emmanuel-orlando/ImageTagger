@@ -2,6 +2,7 @@
 using ImageTagger.UI;
 using Microsoft.WindowsAPICodePack.Shell;
 using System;
+using System.Linq;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -40,7 +41,7 @@ namespace ImageTagger
             ni.Visible = true;
         }
 
-        public static void OpenNewWindow()
+        public static Window OpenNewWindow()
         {
             var newSearchWindow = GetNewSearchWindow();
             //newSearchWindow.Owner = Launcher.instance;
@@ -48,6 +49,8 @@ namespace ImageTagger
             newSearchWindow.Show();
 
             newSearchWindow.Closed += Launcher.instance.HandleSearchWindowClosedEvent;
+
+            return newSearchWindow;
         }
 
         public Launcher()
@@ -63,7 +66,14 @@ namespace ImageTagger
 
             PersistanceUtil.LoadLocations();
 
-            OpenNewWindow();
+            var newWindow = OpenNewWindow();
+            var v = Environment.GetCommandLineArgs();
+            foreach (var item in v)
+            {
+                System.Windows.Forms.MessageBox.Show(item);
+                if (item.ToLower().Replace(" ", "").Contains("minimized"))
+                    newWindow.Hide();
+            }
 
             SetUpNotificationIcon();
             ni.Visible = true;

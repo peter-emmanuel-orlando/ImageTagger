@@ -45,6 +45,13 @@ namespace ImageTagger.UI
 
             viewSearchWindow = new ViewSearchWindow(true);
             viewSearchWindow.Closed += (s, e) => Close();
+            this.IsVisibleChanged += (s, e) => {
+                if (this.Visibility == Visibility.Hidden)
+                {
+                    this.Visibility = Visibility.Visible;
+                    viewSearchWindow.Visibility = Visibility.Hidden;
+                }
+            };
             viewSearchWindow.Show();
             this.Owner = viewSearchWindow;
 

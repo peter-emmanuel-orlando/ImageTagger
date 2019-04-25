@@ -254,6 +254,11 @@
         <DockPanel Background="#4CF4FF00">
             <Menu>
                 <MenuItem x:Name="file_MenuItem" Background="#FFF0DBFF" Header="File">
+                    <MenuItem x:Name="newWindow_MenuItem"  Header="New Window" Click="NewWindow_MenuItem_Click" >
+                        <MenuItem.Icon>
+                            <Image Source="/ImageTagger;component/cherryBlossomIcon.ico" />
+                        </MenuItem.Icon>
+                    </MenuItem>
                     <MenuItem x:Name="setSource_MenuItem" Header="Source" >
                         <MenuItem.Icon>
                             <Image Source="/ImageTagger;component/cherryBlossomIcon.ico" />
@@ -279,11 +284,6 @@
                     </MenuItem>
                 </MenuItem>
                 <MenuItem x:Name="tools_MenuItem" Background="#FFF0DBFF" Header="Tools">
-                    <MenuItem x:Name="searchByTags_MenuItem"  Header="Search By Tags" Click="NewWindow_MenuItem_Click" >
-                        <MenuItem.Icon>
-                            <Image Source="/ImageTagger;component/cherryBlossomIcon.ico" />
-                        </MenuItem.Icon>
-                    </MenuItem>
                     <MenuItem x:Name="batchTag_MenuItem"  Header="Batch Tag" IsEnabled="True" >
                         <MenuItem.Icon>
                             <Image Source="/ImageTagger;component/cherryBlossomIcon.ico" />

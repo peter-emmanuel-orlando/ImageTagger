@@ -14,7 +14,7 @@ namespace VisionAPISuggestions
     public static class VisionApi
     {
         private static ImageAnnotatorClient client;
-        private static string authPath { get; } = $"{Directory.GetCurrentDirectory()}/visionAPI.auth.json";
+        private static string authPath { get; } = $"{Directory.GetCurrentDirectory()}\\visionAPI.auth.json";
         static VisionApi()
         {
             RefreshAuthToken();
@@ -27,11 +27,12 @@ namespace VisionAPISuggestions
                 Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", authPath);
                 try
                 {
+                    MessageBox.Show(File.ReadAllText(Environment.GetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS")));
                     client = ImageAnnotatorClient.Create();
                 }
-                catch (Exception)
+                catch (Exception e)
                 {
-                    MessageBox.Show("the provided json file is not correct. Vision API will not work until a valid authentication json is provided");
+                    MessageBox.Show("the provided json file is not correct. Vision API will not work until a valid authentication json is provided\n\n" + e);
                     client = null;
                 }
             }

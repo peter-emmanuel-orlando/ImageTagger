@@ -52,9 +52,10 @@ namespace ImageTagger
 
             if (isModal)
             {
-                randomize_MenuItem.IsEnabled = false;
-                randomize_MenuItem.Visibility = Visibility.Collapsed;
             }
+
+            setDestination_MenuItem.IsEnabled = false;
+            setDestination_MenuItem.Visibility = Visibility.Collapsed;
 
             var randomizeItems = SettingsPersistanceUtil.RetreiveSetting("randomizeItems") == "true";
             randomize_MenuItem.IsChecked = randomizeItems;
