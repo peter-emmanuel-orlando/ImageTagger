@@ -54,6 +54,9 @@ namespace ImageTagger
             {
             }
 
+            //todo: currently doesnt work
+            this.Closing += HandleWindowClosingEvent;
+
             setDestination_MenuItem.IsEnabled = false;
             setDestination_MenuItem.Visibility = Visibility.Collapsed;
 
@@ -70,7 +73,6 @@ namespace ImageTagger
 
             batchTag_MenuItem.Click += batchEvent = BatchTag_MenuItem_Click;
         }
-
         public void SetSearch(TagQueryCriteria tagQueryCriteria = null, bool randomizeItems = false, bool newAdditionsOnly = false)
         {
             ImageFiles.Load(randomizeItems, tagQueryCriteria, newAdditionsOnly);
@@ -116,15 +118,14 @@ namespace ImageTagger
             Launcher.OpenNewWindow();
         }
 
-        /*
-        private void TestVisionAnalysis_Click(object sender, RoutedEventArgs e)
+        private void HandleWindowClosingEvent(object sender, CancelEventArgs e)
         {
-            var result = VisionAPISuggestions.VisionApi.RequestVisionAnalysis(ImageDisplay.mainImageInfo.ImgPath);
-            foreach (var tag in result)
+            var result = MessageBox.Show("Would you like to keep ImageTagger open in the background?", "Confirm exit", MessageBoxButton.YesNo);
+            if(result == MessageBoxResult.Yes)
             {
-                Debug.WriteLine(tag.TagName);
+                e.Cancel = true;
+                this.Hide();
             }
         }
-        */
     }
 }
