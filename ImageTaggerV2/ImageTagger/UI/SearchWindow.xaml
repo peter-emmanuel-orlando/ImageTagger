@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:ImageTagger.UI"
         mc:Ignorable="d"
         Title="SearchByTags" WindowStartupLocation="CenterOwner" SizeToContent="WidthAndHeight" Background="#FFDECFDF" ShowInTaskbar="False" ResizeMode="NoResize" WindowStyle="ToolWindow">
-    <DockPanel>
+    <Grid>
         <DockPanel x:Name="windowLabelPanel" DockPanel.Dock="Top" LastChildFill="False">
             <!--<Label x:Name="titleLabel" Content="SearchByTags [click to Collapse]" />-->
             <Button x:Name="toggleCollapseButton" Content="Collapse" Margin="5,5,5,5" DockPanel.Dock="Right" HorizontalAlignment="Center" VerticalAlignment="Top" Click="ToggleCollapseButton_Click" Panel.ZIndex="3"/>
@@ -180,5 +180,5 @@
 
             </StackPanel>
         </Border>
-    </DockPanel>
+    </Grid>
 </Window>

@@ -18,33 +18,82 @@ namespace ImageTagger
     {
         public static Launcher instance { get; private set; }
         public IEnumerable<SearchWindow> SearchWindows { get => searchWindows; }
-        private HashSet<SearchWindow> searchWindows { get; } = new HashSet<SearchWindow>();
-        private static NotifyIcon ni { get; } = new NotifyIcon();
+        private ObservableCollection<SearchWindow> searchWindows { get; } = new ObservableCollection<SearchWindow>();
+        private NotifyIcon nIcon { get; } = new NotifyIcon();
 
-        static Launcher()
-        {
-            SetUpNotificationIcon();
-        }
-
-        private static void SetUpNotificationIcon()
+        private void SetUpNotificationIcon()
         {
             Stream iconStream = System.Windows.Application.GetResourceStream(new Uri("pack://application:,,,/ImageTagger;component/Resources/cherryBlossomIcon.ico")).Stream;
-            ni.Icon = new Icon(iconStream);
-            ni.Text = "image tagger will remain active in background";
-            EventHandler OpenWindowEventHandler = delegate (object sender, EventArgs args)
-            { };
-            ni.DoubleClick += OpenWindowEventHandler;
-            ni.ContextMenu = new ContextMenu(new MenuItem[] {
-                new MenuItem("open", OpenWindowEventHandler),
-                new MenuItem("exit", (s, e)=>{Launcher.instance.Close(); }),
-            });
-            ni.Visible = true;
+            nIcon.Icon = new Icon(iconStream);
+            nIcon.Text = "image tagger will remain active in background";
+            var defaultItems = new MenuItem[]
+            {
+                new MenuItem("new window", (s, e) => OpenNewWindow()),
+                new MenuItem("exit", (s, e) => { Launcher.instance?.Close(); }),
+            };
+
+
+            searchWindows.CollectionChanged += (source, eventArgs) =>
+            {
+                var mItems = new List<MenuItem>(searchWindows.Select((item, index) =>
+                {
+                    var result = new MenuItem($"window {index}", (s, e) => 
+                    {
+                        if (!item.viewSearchWindow.IsVisible)
+                        {
+                            item.viewSearchWindow.Show();
+                            item.viewSearchWindow.WindowState = WindowState.Normal;
+                            item.viewSearchWindow.Activate();
+                        }
+                        else
+                            item.viewSearchWindow.Hide();
+                    });
+                    return result;
+                }));
+                mItems.AddRange(defaultItems);
+                nIcon.ContextMenu = new ContextMenu(mItems.ToArray());
+            };
+            nIcon.DoubleClick += (s,e)=>
+            {
+                /*
+                var anyVisible = false;
+                foreach (var item in searchWindows)
+                {
+                    if (item.viewSearchWindow.IsVisible && item.viewSearchWindow.WindowState == WindowState.Normal)
+                    {
+                        anyVisible = true;
+                        break;
+                    }
+                }
+                foreach (var item in searchWindows)
+                {
+                    if (anyVisible)
+                    {
+                        //item.viewSearchWindow.Hide();
+                        item.viewSearchWindow.WindowState = WindowState.Minimized;
+                    }
+                    else
+                    {
+                        item.viewSearchWindow.Show();
+                        item.viewSearchWindow.WindowState = WindowState.Normal;
+                    }
+                }
+                */
+                var first = searchWindows.FirstOrDefault();
+                if(first != null)
+                {
+                    first.viewSearchWindow.Show();
+                    first.viewSearchWindow.WindowState = WindowState.Normal;
+                    first.viewSearchWindow.Activate();
+                }
+            };
+            nIcon.ContextMenu = new ContextMenu(defaultItems);
+            nIcon.Visible = true;
         }
 
-        public static Window OpenNewWindow()
+        public static SearchWindow OpenNewWindow()
         {
             var newSearchWindow = GetNewSearchWindow();
-            //newSearchWindow.Owner = Launcher.instance;
             Launcher.instance.searchWindows.Add(newSearchWindow);
             newSearchWindow.Show();
 
@@ -59,10 +108,15 @@ namespace ImageTagger
             instance = this;
 
             AddShortcutToStartupUtil.Add();
+
+            SetUpNotificationIcon();
+
             this.Show();
             this.Hide();
             this.ShowInTaskbar = false;
 
+            SetUpNotificationIcon();
+            nIcon.Visible = true;
 
             PersistanceUtil.LoadLocations();
 
@@ -70,13 +124,10 @@ namespace ImageTagger
             var v = Environment.GetCommandLineArgs();
             foreach (var item in v)
             {
-                System.Windows.Forms.MessageBox.Show(item);
+                //System.Windows.Forms.MessageBox.Show(item);
                 if (item.ToLower().Replace(" ", "").Contains("minimized"))
-                    newWindow.Hide();
+                    newWindow.viewSearchWindow.Hide();
             }
-
-            SetUpNotificationIcon();
-            ni.Visible = true;
         }
 
         private void HandleSearchWindowClosedEvent(object sender, EventArgs e)
@@ -85,7 +136,7 @@ namespace ImageTagger
             searchWindows.Remove(searchWindow);
             if(searchWindows.Count == 0)
             {
-                ni.Visible = false;
+                nIcon.Visible = false;
                 this.Close();
             }
         }
@@ -95,13 +146,17 @@ namespace ImageTagger
         protected override void OnClosing(CancelEventArgs e)
         {
             this.Hide();
-            ni.Visible = false;
+            nIcon.Visible = false;
             App.Current.Dispatcher.Invoke(() =>
             {
+                foreach (var window in searchWindows)
+                {
+                    window.Close();
+                }
                 base.OnClosing(e);
                 //Debug.WriteLine(Environment.StackTrace);
                 // close all active threads
-                //Environment.Exit(0);
+                Environment.Exit(0);
             }, System.Windows.Threading.DispatcherPriority.ApplicationIdle);
         }
     }

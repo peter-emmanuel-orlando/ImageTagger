@@ -36,7 +36,7 @@ namespace ImageTagger.UI
         private SearchTagsDisplay any_SearchTagsDisplay { get; }
         private AddSearchTagComponent none_AddSearchTagComponent { get; }
         private SearchTagsDisplay none_SearchTagsDisplay { get; }
-        private ViewSearchWindow viewSearchWindow { get; }
+        public ViewSearchWindow viewSearchWindow { get; }
         private TagQueryCriteria currentQueryCriteria { get; set; } = new TagQueryCriteria();
 
         internal SearchWindow()
@@ -45,13 +45,6 @@ namespace ImageTagger.UI
 
             viewSearchWindow = new ViewSearchWindow(true);
             viewSearchWindow.Closed += (s, e) => Close();
-            this.IsVisibleChanged += (s, e) => {
-                if (this.Visibility == Visibility.Hidden)
-                {
-                    this.Visibility = Visibility.Visible;
-                    viewSearchWindow.Visibility = Visibility.Hidden;
-                }
-            };
             viewSearchWindow.Show();
             this.Owner = viewSearchWindow;
 
