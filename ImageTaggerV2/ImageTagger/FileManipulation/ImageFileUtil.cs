@@ -97,9 +97,10 @@ namespace ImageTagger
 
             var result = new List<string>();
 
-            var query = $"SELECT System.ItemPathDisplay FROM SystemIndex WHERE SCOPE='{PersistanceUtil.SourceDirectory}'" +
+            var query = $"SELECT System.ItemPathDisplay, System.ItemDate FROM SystemIndex WHERE SCOPE='{PersistanceUtil.SourceDirectory}'" +
                 @" AND (System.ItemName LIKE '%.jpg' OR System.ItemName LIKE '%.jpeg')";
             if (tagQueryCriteria != null) query += " AND " + tagQueryCriteria.GetQueryClause();
+            query += " ORDER BY" + " System.ItemDate DESC";
 
 
             var windowsSearchConnection = @"Provider=Search.CollatorDSO;Extended Properties=""Application=Windows""";
