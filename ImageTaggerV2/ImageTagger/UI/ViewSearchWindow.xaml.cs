@@ -60,9 +60,7 @@ namespace ImageTagger
             setDestination_MenuItem.IsEnabled = false;
             setDestination_MenuItem.Visibility = Visibility.Collapsed;
 
-            var randomizeItems = SettingsPersistanceUtil.RetreiveSetting("randomizeItems") == "true";
-            randomize_MenuItem.IsChecked = randomizeItems;
-            ImageFiles.Load(randomizeItems);
+            ImageFiles.Load();
 
             ImageDisplay = new MainImageDisplay(this);
             ImageTagsDisplay = new ImageTagsDisplay(this);
@@ -73,9 +71,9 @@ namespace ImageTagger
 
             batchTag_MenuItem.Click += batchEvent = BatchTag_MenuItem_Click;
         }
-        public void SetSearch(TagQueryCriteria tagQueryCriteria = null, bool randomizeItems = false, bool newAdditionsOnly = false)
+        public void SetSearch(TagQueryCriteria tagQueryCriteria = null, bool newAdditionsOnly = false)
         {
-            ImageFiles.Load(randomizeItems, tagQueryCriteria, newAdditionsOnly);
+            ImageFiles.Load( tagQueryCriteria, newAdditionsOnly);
         }
 
         protected override void OnClosing(CancelEventArgs e)

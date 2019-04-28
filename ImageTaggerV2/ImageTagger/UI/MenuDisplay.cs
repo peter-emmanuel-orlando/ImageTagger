@@ -15,8 +15,6 @@ namespace ImageTagger
 
             main.setSource_MenuItem.Click += SetSource_MenuItem_Click;
             main.setDestination_MenuItem.Click += SetDestination_MenuItem_Click;
-            main.randomize_MenuItem.Checked += Randomize_MenuItem_Checked;
-            main.randomize_MenuItem.Unchecked += Randomize_MenuItem_Unchecked;
 
         }
 
@@ -26,8 +24,6 @@ namespace ImageTagger
             // unsubscribe from anything else here
             main.setSource_MenuItem.Click -= SetSource_MenuItem_Click;
             main.setDestination_MenuItem.Click -= SetDestination_MenuItem_Click;
-            main.randomize_MenuItem.Checked -= Randomize_MenuItem_Checked;
-            main.randomize_MenuItem.Unchecked -= Randomize_MenuItem_Unchecked;
         }
 
 
@@ -52,16 +48,5 @@ namespace ImageTagger
             }
         }
 
-        private void Randomize_MenuItem_Checked(object sender, RoutedEventArgs e)
-        {
-            main.ImageFiles.Load(true);
-            SettingsPersistanceUtil.RecordSetting("randomizeItems", "true");
-        }
-
-        private void Randomize_MenuItem_Unchecked(object sender, RoutedEventArgs e)
-        {
-            main.ImageFiles.Load(false);
-            SettingsPersistanceUtil.RecordSetting("randomizeItems", "false");
-        }
     }
 }

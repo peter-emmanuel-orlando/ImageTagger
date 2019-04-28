@@ -96,11 +96,7 @@ namespace ImageTagger
             tagQueryCriteria = tagQueryCriteria ?? new TagQueryCriteria();
 
             var result = new List<string>();
-            var query = $"SELECT System.ItemPathDisplay,System.Keywords, System.ItemDate FROM SystemIndex WHERE SCOPE='{PersistanceUtil.SourceDirectory}'" +
-                @" AND (System.ItemName LIKE '%.jpg' OR System.ItemName LIKE '%.jpeg')";
-            query += " AND " + tagQueryCriteria.GetQueryClause(out bool randomize);
-            //if(false) query +=  @" AND (System.Keywords IS NULL)";
-            //query += $" ORDER BY System.ItemDate DESC";
+            var query = tagQueryCriteria.GetQueryClause(PersistanceUtil.SourceDirectory, out bool randomize);
 
             var windowsSearchConnection = @"Provider=Search.CollatorDSO;Extended Properties=""Application=Windows""";
             using (OleDbConnection connection = new OleDbConnection(windowsSearchConnection))

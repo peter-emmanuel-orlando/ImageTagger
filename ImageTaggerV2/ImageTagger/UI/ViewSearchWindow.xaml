@@ -276,7 +276,6 @@
                     </MenuItem>
                 </MenuItem>
                 <MenuItem x:Name="settings_MenuItem" Background="#FFF0DBFF" Header="Settings">
-                    <MenuItem x:Name="randomize_MenuItem"  Header="Randomize" IsCheckable="True" StaysOpenOnClick="True" />
                     <MenuItem x:Name="setAPIKeysRecord_MenuItem"  Header="Set API Keys" Click="SetAPIKeysRecord_MenuItem_Click" >
                         <MenuItem.Icon>
                             <Image Source="/ImageTagger;component/cherryBlossomIcon.ico" />

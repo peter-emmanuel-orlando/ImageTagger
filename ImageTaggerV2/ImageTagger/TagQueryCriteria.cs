@@ -1,6 +1,7 @@
 ﻿using ImageTagger.DataModels;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace ImageTagger
 {
@@ -64,7 +65,7 @@ namespace ImageTagger
             filterByClauses.Add(FilterBy.NSFW, @" System.Keywords LIKE 'nsfw'");
             filterByClauses.Add(FilterBy.Explicit, @" System.Keywords LIKE 'explicit'");
             filterByClauses.Add(FilterBy.Suggestive, @" System.Keywords LIKE 'suggestive'");
-            filterByClauses.Add(FilterBy.Untagged, @" System.Keywords IS NULL");
+            filterByClauses.Add(FilterBy.Untagged, @" (System.Keywords = '' OR System.Keywords IS NULL)");
         }
         public TagQueryCriteria(IEnumerable<string> anyOfThese = null, IEnumerable<string> allOfThese = null, IEnumerable<string> noneOfThese = null, OrderBy orderBy = OrderBy.Date, OrderDirection orderDirection = OrderDirection.DESC, params Filter[] filters)
         {
@@ -81,13 +82,14 @@ namespace ImageTagger
             throw new System.NotImplementedException();
         }
 
-        public string GetQueryClause( out bool randomize)
+        public string GetQueryClause( string searchPath, out bool randomize)
         {
             var evalsToTrue = @"(System.Keywords IS NULL OR System.Keywords IS NOT NULL )";
             var evalsToFalse = @"(System.Keywords IS NULL AND System.Keywords IS NOT NULL )";
-            var result = $" ({evalsToTrue}";
 
-
+            var result = $"SELECT System.ItemPathDisplay, System.Keywords, System.ItemDate FROM SystemIndex WHERE SCOPE='{searchPath}'" +
+                @" AND (System.ItemName LIKE '%.jpg' OR System.ItemName LIKE '%.jpeg')";
+            result += $" AND  ({evalsToTrue}";
             //begin criteria
             //begin criteria
             //begin criteria
@@ -156,6 +158,7 @@ namespace ImageTagger
             //end query
 
             result = result.Replace('*', '%');
+            Debug.WriteLine(result);
 
             return result;
         }

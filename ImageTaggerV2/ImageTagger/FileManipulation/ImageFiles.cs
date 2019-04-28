@@ -68,28 +68,20 @@ namespace ImageTagger
 
 
 
-        /// <summary>
-        /// loads with the default randomise setting
-        /// </summary>
-        /// <param name="tagQueryCriteria"></param>
         public void Load(TagQueryCriteria tagQueryCriteria = null, bool newAdditionsOnly = false)
-        {
-            var randomize = SettingsPersistanceUtil.RetreiveSetting("randomizeItems") == "true";
-            Load(randomize, tagQueryCriteria, newAdditionsOnly);
-        }
-
-        public void Load(bool randomize, TagQueryCriteria tagQueryCriteria = null, bool newAdditionsOnly = false)
         {
             FileNames.Clear();
 
-            //tagQueryCriteria = new TagQueryCriteria(new string[] { }, new string[] { }, new string[] { "*red*", "*orange*", "*green*", "*yellow*", "*blue*", "*indigo*", "*violet*"});
+            tagQueryCriteria = tagQueryCriteria ?? new TagQueryCriteria();
             var persistancePath = PersistanceUtil.SourceDirectory;
             //if(!Directory.Exists(persistancePath)) 
             if (newAdditionsOnly)
                 FileNames.Add(NewFiles);
             else
                 FileNames.Add(ImageFileUtil.GetImageFilenames(persistancePath, tagQueryCriteria));
-            if (randomize) FileNames.Shuffle();
+
+            if (tagQueryCriteria.orderDirection == OrderDirection.RANDOM)
+                FileNames.Shuffle();
             watcher.Path = persistancePath;
             watcher.EnableRaisingEvents = true;
             FilesLoaded(null, new EventArgs());
