@@ -65,7 +65,7 @@ namespace ImageTagger
             filterByClauses.Add(FilterBy.NSFW, @" System.Keywords LIKE 'nsfw'");
             filterByClauses.Add(FilterBy.Explicit, @" System.Keywords LIKE 'explicit'");
             filterByClauses.Add(FilterBy.Suggestive, @" System.Keywords LIKE 'suggestive'");
-            filterByClauses.Add(FilterBy.Untagged, @" (System.Keywords = '' OR System.Keywords IS NULL)");
+            filterByClauses.Add(FilterBy.Untagged, @" (System.Keywords IS NULL)");
         }
         public TagQueryCriteria(IEnumerable<string> anyOfThese = null, IEnumerable<string> allOfThese = null, IEnumerable<string> noneOfThese = null, OrderBy orderBy = OrderBy.Date, OrderDirection orderDirection = OrderDirection.DESC, params Filter[] filters)
         {
@@ -101,7 +101,10 @@ namespace ImageTagger
             else
                 foreach (var any in anyOfThese)
                 {
-                    result += $" OR System.Keywords LIKE '{any}'";
+                    if (any.Replace("*", "").Replace("%", "") == "")
+                        result += $"OR {evalsToTrue}";
+                    else
+                        result += $" OR System.Keywords LIKE '{any}'";
                 }
             result += " )";
 
@@ -112,7 +115,10 @@ namespace ImageTagger
             else
                 foreach (var all in allOfThese)
                 {
-                    result += $" AND System.Keywords LIKE '{all}'";
+                    if (all.Replace("*", "").Replace("%", "") == "")
+                        result += $"OR {evalsToTrue}";
+                    else
+                        result += $" AND System.Keywords LIKE '{all}'";
                 }
             result += " )";
 
@@ -123,7 +129,10 @@ namespace ImageTagger
             else
                 foreach (var none in noneOfThese)
                 {
-                    result += $" OR System.Keywords LIKE '{none}'";
+                    if (none.Replace("*", "").Replace("%", "") == "")
+                        result += $"OR {evalsToTrue}";
+                    else
+                        result += $" OR System.Keywords LIKE '{none}'";
                 }
             result += " )";
 

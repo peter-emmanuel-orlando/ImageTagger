@@ -108,6 +108,8 @@ namespace ImageTagger
                     while (r.Read())
                     {
                         result.Add("" + r[0]);
+                        var x = r[1];
+                        var z = r[2];
                     }
                 }
             }
