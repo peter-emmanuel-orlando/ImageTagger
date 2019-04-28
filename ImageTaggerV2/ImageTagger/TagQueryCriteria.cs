@@ -66,14 +66,14 @@ namespace ImageTagger
             filterByClauses.Add(FilterBy.Suggestive, @" System.Keywords LIKE 'suggestive'");
             filterByClauses.Add(FilterBy.Untagged, @" System.Keywords IS NULL");
         }
-        public TagQueryCriteria(IEnumerable<string> anyOfThese = null, IEnumerable<string> allOfThese = null, IEnumerable<string> noneOfThese = null, OrderBy orderBy = OrderBy.Date, OrderDirection orderDirection = OrderDirection.DESC, params Filter[] filter)
+        public TagQueryCriteria(IEnumerable<string> anyOfThese = null, IEnumerable<string> allOfThese = null, IEnumerable<string> noneOfThese = null, OrderBy orderBy = OrderBy.Date, OrderDirection orderDirection = OrderDirection.DESC, params Filter[] filters)
         {
             this.anyOfThese.AddRange(anyOfThese);
             this.allOfThese.AddRange(allOfThese);
             this.noneOfThese.AddRange(noneOfThese);
             this.orderBy = orderBy;
             this.orderDirection = orderDirection;
-            this.filters = filter;//new Filter[] { new Filter (FilterBy.Explicit, true) };//
+            this.filters = filters;//new Filter[] { new Filter (FilterBy.Explicit, true) };//
         }
 
         public bool MatchesCriteria(ImageInfo subject)
@@ -81,7 +81,7 @@ namespace ImageTagger
             throw new System.NotImplementedException();
         }
 
-        public string GetQueryClause()
+        public string GetQueryClause( out bool randomize)
         {
             var evalsToTrue = @"(System.Keywords IS NULL OR System.Keywords IS NOT NULL )";
             var evalsToFalse = @"(System.Keywords IS NULL AND System.Keywords IS NOT NULL )";
@@ -141,11 +141,20 @@ namespace ImageTagger
             }
 
             //order
-            result += $" ORDER BY {orderByClauses[orderBy]} {orderDirection.GetName()}";
-            foreach (OrderBy item in Enum.GetValues(typeof(OrderBy)))
+            randomize = orderDirection == OrderDirection.RANDOM;
+            if (!randomize)
             {
-                result += $", {orderByClauses[item]} ASC";
+                result += $" ORDER BY {orderByClauses[orderBy]} {orderDirection.GetName()}";
+                foreach (OrderBy item in Enum.GetValues(typeof(OrderBy)))
+                {
+                    result += $", {orderByClauses[item]} ASC";
+                }
             }
+
+            //end query
+            //end query
+            //end query
+
             result = result.Replace('*', '%');
 
             return result;

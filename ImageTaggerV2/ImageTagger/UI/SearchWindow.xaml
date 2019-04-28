@@ -167,7 +167,7 @@
                 <Separator/>
                 <DockPanel LastChildFill="False">
                     <Label Content="Order By"/>
-                    <ComboBox x:Name="orderByDisplay" >
+                    <ComboBox x:Name="orderByDisplay" SelectionChanged="OrderByDisplay_SelectionChanged" >
                         <ComboBox.ItemTemplate>
                             <DataTemplate>
                                 <Border BorderBrush="Black" BorderThickness="1">
@@ -176,7 +176,7 @@
                             </DataTemplate>
                         </ComboBox.ItemTemplate>
                     </ComboBox>
-                    <ComboBox x:Name="orderDirectionDisplay" >
+                    <ComboBox x:Name="orderDirectionDisplay" SelectionChanged="OrderDirectionDisplay_SelectionChanged" >
                         <ComboBox.ItemTemplate>
                             <DataTemplate>
                                 <Border BorderBrush="Black" BorderThickness="1">
@@ -185,6 +185,7 @@
                             </DataTemplate>
                         </ComboBox.ItemTemplate>
                     </ComboBox>
+                    <Button x:Name="reRollButton" Content="Re-Roll" Visibility="Collapsed" Click="ReRollButton_Click"/>
                 </DockPanel>
                 
                 <Label Content="Filter Results"/>

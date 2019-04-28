@@ -55,7 +55,9 @@ namespace ImageTagger.UI
             };
 
             orderByDisplay.ItemsSource = Enum.GetNames(typeof(OrderBy)).Select((e) => new { Ordering = e });
+            orderByDisplay.SelectedIndex = 0;
             orderDirectionDisplay.ItemsSource = Enum.GetNames(typeof(OrderDirection)).Select((e) => new { OrderingDirection = e });
+            orderDirectionDisplay.SelectedIndex = 1;
             filtersDisplay.ItemsSource = Enum.GetNames(typeof(FilterBy)).Select((e) => new { FilterName = e, FilterState = FilterState.Allow });
 
             all_AddSearchTagComponent = new AddSearchTagComponent();
@@ -105,12 +107,20 @@ namespace ImageTagger.UI
 
         private void Search(object sender, EventArgs e)
         {
-            var anyTags = any_SearchTagsDisplay.Select(tag => tag.TagName);
-            anyTags = anyTags.Union(new string[] { addAnyTag_TextBox.Text + "*" });
-            var allTags = all_SearchTagsDisplay.Select(tag => tag.TagName);
-            var noneTags = none_SearchTagsDisplay.Select(tag => tag.TagName);
-            currentQueryCriteria = new TagQueryCriteria(anyTags, allTags, noneTags);
-            viewSearchWindow.SetSearch(currentQueryCriteria);
+            App.Current.Dispatcher.BeginInvoke(new Action(() => 
+            {
+                var anyTags = any_SearchTagsDisplay.Select(tag => tag.TagName);
+                anyTags = anyTags.Union(new string[] { addAnyTag_TextBox.Text + "*" });
+                var allTags = all_SearchTagsDisplay.Select(tag => tag.TagName);
+                var noneTags = none_SearchTagsDisplay.Select(tag => tag.TagName);
+                OrderBy orderBy;
+                if (!Enum.TryParse(orderByDisplay.Text.Split('=').LastOrDefault().Replace("}", ""), out orderBy)) orderBy = OrderBy.Date;
+                OrderDirection orderDirection;
+                if (!Enum.TryParse(orderDirectionDisplay.Text.Split('=').LastOrDefault().Replace("}", ""), out orderDirection)) orderDirection = OrderDirection.DESC;
+                var filters = new Filter[] { };
+                currentQueryCriteria = new TagQueryCriteria(anyTags, allTags, noneTags, orderBy, orderDirection, filters);
+                viewSearchWindow.SetSearch(currentQueryCriteria);
+            }), System.Windows.Threading.DispatcherPriority.ApplicationIdle);
         }
 
         private void FilterButton_Click(object sender, RoutedEventArgs e)
@@ -121,6 +131,36 @@ namespace ImageTagger.UI
             var index = filterStates.IndexOf(filterInfo[1]);
             index = (index + 1) % filterStates.Count;
             (btn.Content as TextBlock).Text = $"{filterInfo[0]}: {filterStates[index]}";
+            Search(null, null);
+        }
+
+        private void OrderByDisplay_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (IsLoaded) Search(null, null);
+        }
+
+        private void OrderDirectionDisplay_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            var selected = (e.AddedItems.Count > 0) ? e.AddedItems[0].ToString().Split('=').LastOrDefault().Replace("}", "") : "";
+            if (Enum.TryParse(selected, out OrderDirection orderDirection))
+            {
+                if (orderDirection == OrderDirection.RANDOM)
+                {
+                    orderByDisplay.Visibility = Visibility.Collapsed;
+                    reRollButton.Visibility = Visibility.Visible;
+                }
+                else
+                {
+                    orderByDisplay.Visibility = Visibility.Visible;
+                    reRollButton.Visibility = Visibility.Collapsed;
+                }
+            }
+            if (IsLoaded) Search(null, null);
+        }
+
+        private void ReRollButton_Click(object sender, RoutedEventArgs e)
+        {
+            Search(null, null);
         }
     }
 
