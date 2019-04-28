@@ -54,11 +54,11 @@ namespace ImageTagger.UI
                 SetWindowLong(hwnd, GWL_STYLE, GetWindowLong(hwnd, GWL_STYLE) & ~WS_SYSMENU);
             };
 
-            orderByDisplay.ItemsSource = Enum.GetNames(typeof(OrderBy)).Select((e) => new { Ordering = e });
+            orderByDisplay.ItemsSource = Enum.GetNames(typeof(OrderBy)).Select((e) => new { Ordering = (OrderBy)Enum.Parse(typeof(OrderBy), e) });
             orderByDisplay.SelectedIndex = 0;
-            orderDirectionDisplay.ItemsSource = Enum.GetNames(typeof(OrderDirection)).Select((e) => new { OrderingDirection = e });
+            orderDirectionDisplay.ItemsSource = Enum.GetNames(typeof(OrderDirection)).Select((e) => new { OrderingDirection = (OrderDirection)Enum.Parse(typeof(OrderDirection), e) });
             orderDirectionDisplay.SelectedIndex = 1;
-            filtersDisplay.ItemsSource = Enum.GetNames(typeof(FilterBy)).Select((e) => new { FilterName = e, FilterState = FilterState.Allow });
+            filtersDisplay.ItemsSource = Enum.GetNames(typeof(FilterBy)).Select((e) => new { FilterName = (FilterBy)Enum.Parse(typeof(FilterBy), e), FilterState = FilterState.Allow });
 
             all_AddSearchTagComponent = new AddSearchTagComponent();
             all_SearchTagsDisplay = new SearchTagsDisplay();
@@ -117,10 +117,22 @@ namespace ImageTagger.UI
                 if (!Enum.TryParse(orderByDisplay.Text.Split('=').LastOrDefault().Replace("}", ""), out orderBy)) orderBy = OrderBy.Date;
                 OrderDirection orderDirection;
                 if (!Enum.TryParse(orderDirectionDisplay.Text.Split('=').LastOrDefault().Replace("}", ""), out orderDirection)) orderDirection = OrderDirection.DESC;
-                var filters = new Filter[] { };
-                currentQueryCriteria = new TagQueryCriteria(anyTags, allTags, noneTags, orderBy, orderDirection, filters);
+                var template = new { FilterName = FilterBy.Untagged, FilterState = FilterState.Allow };
+                var filters = new List<Filter>();
+                foreach (var filter in filtersDisplay.Items)
+                {
+                    template = Cast( template, filter);
+
+                }
+                currentQueryCriteria = new TagQueryCriteria(anyTags, allTags, noneTags, orderBy, orderDirection, filters.ToArray());
                 viewSearchWindow.SetSearch(currentQueryCriteria);
             }), System.Windows.Threading.DispatcherPriority.ApplicationIdle);
+        }
+        private static T Cast<T>(T typeHolder, Object x)
+        {
+            // typeHolder above is just for compiler magic
+            // to infer the type to cast x to
+            return (T)x;
         }
 
         private void FilterButton_Click(object sender, RoutedEventArgs e)
