@@ -54,6 +54,8 @@ namespace ImageTagger.UI
                 SetWindowLong(hwnd, GWL_STYLE, GetWindowLong(hwnd, GWL_STYLE) & ~WS_SYSMENU);
             };
 
+            orderByDisplay.ItemsSource = Enum.GetNames(typeof(OrderBy)).Select((e) => new { Ordering = e });//new OrderBy[] { };
+
             all_AddSearchTagComponent = new AddSearchTagComponent();
             all_SearchTagsDisplay = new SearchTagsDisplay();
             all_AddSearchTagComponent.Initialize(this, addAllTag_TextBox, addAllTag_AcceptButton, all_SearchTagsDisplay);

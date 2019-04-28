@@ -161,17 +161,65 @@
                         </ListBox>
 
                     </Grid>
+                </DockPanel>
 
+                <Separator/>
+                <Separator/>
+                <DockPanel LastChildFill="False">
+                    <Label Content="Order By"/>
+                    <ComboBox x:Name="orderByDisplay" >
+                        <ComboBox.ItemTemplate>
+                            <DataTemplate>
+                                <Border BorderBrush="Black" BorderThickness="1">
+                                    <TextBlock Text="{Binding Ordering}" />
+                                </Border>
+                            </DataTemplate>
+                        </ComboBox.ItemTemplate>
+                    </ComboBox>
+                    <ComboBox x:Name="orderDirectionDisplay" >
+                        <ComboBox.ItemTemplate>
+                            <DataTemplate>
+                                <Border BorderBrush="Black" BorderThickness="1">
+                                    <TextBlock Text="{Binding OrderingDirection}" />
+                                </Border>
+                            </DataTemplate>
+                        </ComboBox.ItemTemplate>
+                    </ComboBox>
+                </DockPanel>
+                
+                <Label Content="Filter Results"/>
+                <DockPanel VerticalAlignment="Top" Panel.ZIndex="3" Margin="0,0,0,10">
 
+                    <Grid ScrollViewer.VerticalScrollBarVisibility="Disabled">
+                        <!--<ScrollViewer VerticalScrollBarVisibility="Disabled" HorizontalScrollBarVisibility="Hidden" Background="#33FF8D8D" >
+                            </ScrollViewer>-->
+                        <ListBox x:Name="filtersDisplay" ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Disabled" VerticalContentAlignment="Center" Background="#FF00E8FF" ScrollViewer.CanContentScroll="False">
+                            <!-- listbox.template portion essentially changes the controls to be the same as listbox, but without the scrollviewer in it. -->
+                            <!-- see answer here: https://stackoverflow.com/questions/2976240/how-can-make-scrollviewer-scroll-when-mouse-is-over-any-content -->
+                            <ListBox.Template>
+                                <ControlTemplate TargetType="{x:Type ListBox}">
+                                    <Border BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderBrush}">
+                                        <ItemsPresenter/>
+                                    </Border>
+                                </ControlTemplate>
+                            </ListBox.Template>
+                            <ListBox.ItemsPanel>
+                                <ItemsPanelTemplate >
+                                    <WrapPanel  IsItemsHost="True" ScrollViewer.VerticalScrollBarVisibility="Disabled" />
+                                </ItemsPanelTemplate>
+                            </ListBox.ItemsPanel>
 
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <Border BorderBrush="Black" BorderThickness="1">
+                                        <CheckBox Content="{Binding TagName}" IsChecked="True" Unchecked="CheckBox_None_Unchecked"/>
+                                    </Border>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
 
+                        </ListBox>
 
-
-
-
-
-
-
+                    </Grid>
                 </DockPanel>
 
                 <!--<DockPanel DockPanel.Dock="Top" LastChildFill="False">

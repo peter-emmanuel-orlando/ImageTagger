@@ -1,5 +1,6 @@
 ﻿using Google.Cloud.Vision.V1;
 using Google.Protobuf.Collections;
+using ImageTagger;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -11,9 +12,13 @@ using System.Xml.Serialization;
 
 public static class MyExtensions
 {
+    public static string GetName<T>(this T e) where T : Enum
+    {
+        return Enum.GetName(typeof(T), e);
+    }
     public static void Add<T>(this ObservableCollection<T> col, IEnumerable<T> enumerable)
     {
-        if(enumerable != null)
+        if (enumerable != null)
         {
             foreach (var item in enumerable)
             {
