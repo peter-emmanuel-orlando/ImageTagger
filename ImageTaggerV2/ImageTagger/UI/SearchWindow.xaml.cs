@@ -1,6 +1,8 @@
 ﻿using ImageTagger.UI;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -38,7 +40,16 @@ namespace ImageTagger.UI
         private SearchTagsDisplay none_SearchTagsDisplay { get; }
         public ViewSearchWindow viewSearchWindow { get; }
         private TagQueryCriteria currentQueryCriteria { get; set; } = new TagQueryCriteria();
-
+        private FilterSortDataModel filterSortDataModel { get; } = new FilterSortDataModel();
+        private class FilterSortDataModel
+        {
+            public ObservableCollection<object> OrderByItems { get; } = new ObservableCollection<object>(Enum.GetNames(typeof(OrderBy)).Select((e) => new
+            { Ordering = (OrderBy)Enum.Parse(typeof(OrderBy), e) }));
+            public ObservableCollection<object> OrderDirectionItems { get; } = new ObservableCollection<object>(Enum.GetNames(typeof(OrderDirection)).Select((e) => new
+            { OrderingDirection = (OrderDirection)Enum.Parse(typeof(OrderDirection), e) }));
+            public ObservableCollection<object> FilterByItems { get; } = new ObservableCollection<object>(Enum.GetNames(typeof(FilterBy)).Select((e) => new
+            { FilterName = (FilterBy)Enum.Parse(typeof(FilterBy), e), FilterState = FilterState.Allow }));
+        }
         internal SearchWindow()
         {
             InitializeComponent();
@@ -54,11 +65,11 @@ namespace ImageTagger.UI
                 SetWindowLong(hwnd, GWL_STYLE, GetWindowLong(hwnd, GWL_STYLE) & ~WS_SYSMENU);
             };
 
-            orderByDisplay.ItemsSource = Enum.GetNames(typeof(OrderBy)).Select((e) => new { Ordering = (OrderBy)Enum.Parse(typeof(OrderBy), e) });
+            orderByDisplay.ItemsSource = filterSortDataModel.OrderByItems;
             orderByDisplay.SelectedIndex = 0;
-            orderDirectionDisplay.ItemsSource = Enum.GetNames(typeof(OrderDirection)).Select((e) => new { OrderingDirection = (OrderDirection)Enum.Parse(typeof(OrderDirection), e) });
+            orderDirectionDisplay.ItemsSource = filterSortDataModel.OrderDirectionItems;
             orderDirectionDisplay.SelectedIndex = 1;
-            filtersDisplay.ItemsSource = Enum.GetNames(typeof(FilterBy)).Select((e) => new { FilterName = (FilterBy)Enum.Parse(typeof(FilterBy), e), FilterState = FilterState.Allow });
+            filtersDisplay.ItemsSource = filterSortDataModel.FilterByItems;
 
             all_AddSearchTagComponent = new AddSearchTagComponent();
             all_SearchTagsDisplay = new SearchTagsDisplay();
@@ -113,22 +124,20 @@ namespace ImageTagger.UI
                 anyTags = anyTags.Union(new string[] { addAnyTag_TextBox.Text + "*" });
                 var allTags = all_SearchTagsDisplay.Select(tag => tag.TagName);
                 var noneTags = none_SearchTagsDisplay.Select(tag => tag.TagName);
-                OrderBy orderBy;
-                if (!Enum.TryParse(orderByDisplay.Text.Split('=').LastOrDefault().Replace("}", ""), out orderBy)) orderBy = OrderBy.Date;
-                OrderDirection orderDirection;
-                if (!Enum.TryParse(orderDirectionDisplay.Text.Split('=').LastOrDefault().Replace("}", ""), out orderDirection)) orderDirection = OrderDirection.DESC;
+                var orderBy = Cast(new { Ordering = OrderBy.Name }, orderByDisplay.SelectedItem).Ordering;
+                var orderDirection = Cast(new { OrderingDirection = OrderDirection.RANDOM }, orderDirectionDisplay.SelectedItem).OrderingDirection;
                 var template = new { FilterName = FilterBy.Untagged, FilterState = FilterState.Allow };
                 var filters = new List<Filter>();
                 foreach (var filter in filtersDisplay.Items)
                 {
                     template = Cast( template, filter);
-
+                    filters.Add(new Filter(template.FilterName, template.FilterState));
                 }
                 currentQueryCriteria = new TagQueryCriteria(anyTags, allTags, noneTags, orderBy, orderDirection, filters.ToArray());
                 viewSearchWindow.SetSearch(currentQueryCriteria);
             }), System.Windows.Threading.DispatcherPriority.ApplicationIdle);
         }
-        private static T Cast<T>(T typeHolder, Object x)
+        private static T Cast<T>(T template, Object x)
         {
             // typeHolder above is just for compiler magic
             // to infer the type to cast x to
@@ -138,11 +147,14 @@ namespace ImageTagger.UI
         private void FilterButton_Click(object sender, RoutedEventArgs e)
         {
             var btn = e.OriginalSource as Button;
-            var filterStates = new List<string>(Enum.GetNames(typeof(FilterState)));
-            var filterInfo = (btn.Content as TextBlock).Text.Replace(" ", "").Split(':');
-            var index = filterStates.IndexOf(filterInfo[1]);
+            var filterStates = new List<FilterState>(Enum.GetValues(typeof(FilterState)).Cast<FilterState>());
+            var newContext = new { FilterName = FilterBy.Untagged, FilterState = FilterState.Allow };
+            newContext = Cast(newContext, btn.DataContext);
+            var index = filterStates.IndexOf(newContext.FilterState);
             index = (index + 1) % filterStates.Count;
-            (btn.Content as TextBlock).Text = $"{filterInfo[0]}: {filterStates[index]}";
+            newContext = new { FilterName = newContext.FilterName, FilterState = filterStates[index] };
+             var i = filterSortDataModel.FilterByItems.IndexOf(btn.DataContext);
+            filterSortDataModel.FilterByItems[i] = newContext;
             Search(null, null);
         }
 

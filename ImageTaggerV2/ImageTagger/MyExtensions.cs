@@ -71,6 +71,17 @@ public static class MyExtensions
 
     //-----------------------------------------------------
 
+    public static IEnumerable<R> Select<R>(this IEnumerable enumerable, Func<object, R> transform)
+    {
+        return enumerable.Cast<object>().Select(transform);
+    }
+    public static IEnumerable<R> Select<T, R>(this IEnumerable<T> enumerable, Func<T, R> transform)
+    {
+        foreach (var item in enumerable)
+        {
+            yield return transform(item);
+        }
+    }
     public static void Shuffle<T>(this IList<T> list)
     {
         int n = list.Count;
