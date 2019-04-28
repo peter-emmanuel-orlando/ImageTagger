@@ -211,8 +211,19 @@
 
                             <ListBox.ItemTemplate>
                                 <DataTemplate>
-                                    <Border BorderBrush="Black" BorderThickness="1">
-                                        <CheckBox Content="{Binding TagName}" IsChecked="True" Unchecked="CheckBox_None_Unchecked"/>
+                                    <Border BorderBrush="Black" CornerRadius="1" BorderThickness="1" >
+                                        <Button HorizontalAlignment="Center" VerticalAlignment="Center" Click="FilterButton_Click">
+                                            <Button.Content>
+                                                <TextBlock>
+                                                    <TextBlock.Text>
+                                                        <MultiBinding StringFormat="{}{0}: {1}">
+                                                            <Binding Path="FilterName" />
+                                                            <Binding Path="FilterState" />
+                                                        </MultiBinding>
+                                                    </TextBlock.Text>
+                                                </TextBlock>
+                                            </Button.Content>
+                                        </Button>
                                     </Border>
                                 </DataTemplate>
                             </ListBox.ItemTemplate>

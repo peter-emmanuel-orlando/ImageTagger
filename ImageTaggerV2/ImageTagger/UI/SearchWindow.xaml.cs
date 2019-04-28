@@ -54,7 +54,9 @@ namespace ImageTagger.UI
                 SetWindowLong(hwnd, GWL_STYLE, GetWindowLong(hwnd, GWL_STYLE) & ~WS_SYSMENU);
             };
 
-            orderByDisplay.ItemsSource = Enum.GetNames(typeof(OrderBy)).Select((e) => new { Ordering = e });//new OrderBy[] { };
+            orderByDisplay.ItemsSource = Enum.GetNames(typeof(OrderBy)).Select((e) => new { Ordering = e });
+            orderDirectionDisplay.ItemsSource = Enum.GetNames(typeof(OrderDirection)).Select((e) => new { OrderingDirection = e });
+            filtersDisplay.ItemsSource = Enum.GetNames(typeof(FilterBy)).Select((e) => new { FilterName = e, FilterState = FilterState.Allow });
 
             all_AddSearchTagComponent = new AddSearchTagComponent();
             all_SearchTagsDisplay = new SearchTagsDisplay();
@@ -110,7 +112,16 @@ namespace ImageTagger.UI
             currentQueryCriteria = new TagQueryCriteria(anyTags, allTags, noneTags);
             viewSearchWindow.SetSearch(currentQueryCriteria);
         }
-        
+
+        private void FilterButton_Click(object sender, RoutedEventArgs e)
+        {
+            var btn = e.OriginalSource as Button;
+            var filterStates = new List<string>(Enum.GetNames(typeof(FilterState)));
+            var filterInfo = (btn.Content as TextBlock).Text.Replace(" ", "").Split(':');
+            var index = filterStates.IndexOf(filterInfo[1]);
+            index = (index + 1) % filterStates.Count;
+            (btn.Content as TextBlock).Text = $"{filterInfo[0]}: {filterStates[index]}";
+        }
     }
 
 }

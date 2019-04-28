@@ -23,18 +23,26 @@ namespace ImageTagger
         Suggestive,
         Untagged,
     }
+    public enum FilterState
+    {
+        Allow = 0,
+        Exclusive,
+        Exclude
+    }
 
     public class Filter
     {
         public FilterBy filterBy;
-        public bool IncludeOrExclude;//allow, exclusive, exclude
+        public FilterState FilterState;//allow, exclusive, exclude
 
-        public Filter(FilterBy filterBy, bool includeOrExclude)
+        public Filter(FilterBy filterBy, FilterState filterState)
         {
             this.filterBy = filterBy;
-            IncludeOrExclude = includeOrExclude;
+            FilterState = filterState;
         }
     }
+
+
     public class TagQueryCriteria
     {
         public HashSet<string> anyOfThese { get; set; } = new HashSet<string>();
@@ -126,7 +134,10 @@ namespace ImageTagger
             //filter
             foreach (var filter in filters)
             {
-                result += $" {(filter.IncludeOrExclude? "AND" : "AND NOT")} {filterByClauses[filter.filterBy]}";
+                if (filter.FilterState == FilterState.Exclusive)
+                    result += $" AND {filterByClauses[filter.filterBy]}";
+                if (filter.FilterState == FilterState.Exclude)
+                    result += $" AND NOT {filterByClauses[filter.filterBy]}";
             }
 
             //order
