@@ -13,8 +13,7 @@ namespace ImageTagger.DataModels
     {
         private string tagName = "";
         public string TagName { get=>tagName; set { tagName = FormatUtil.FixTag(value); NotifyPropertyChanged(); } }
-        public static readonly ImageTag NoTagsPlaceholder = new ImageTag("[no tags yet...]");
-
+        
         public ImageTag(string tagName)
         {
             TagName = tagName;

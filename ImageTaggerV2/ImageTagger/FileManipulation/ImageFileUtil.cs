@@ -37,7 +37,7 @@ namespace ImageTagger
                 var tagString = "";
                 foreach (var tag in tags)
                 {
-                    if (tag.TagName != "" && tag.TagName != ImageTag.NoTagsPlaceholder.TagName)
+                    if (tag.TagName != "")
                         tagString += tag.TagName + "; ";
                 }
                 var sFile = ShellFile.FromParsingName(imagePath);
@@ -77,7 +77,7 @@ namespace ImageTagger
                     {
                         foreach (var tagText in tagsList)
                         {
-                            var newTag = new ImageTag(tagText);//perhaps automatically do to lower?
+                            var newTag = new ImageTag(tagText);
                             if (!result.Contains(newTag))
                                 result.Add(newTag);
                         }

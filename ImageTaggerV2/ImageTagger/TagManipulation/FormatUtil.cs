@@ -37,11 +37,12 @@ namespace ImageTagger
 
         public static string FixCategory(string category)
         {
-            return category.ToLower();
+            return category;//.ToLower();
         }
 
         private static string ChangeToSnakeCasing(string tagText)
         {
+            /*
             //doing snake casing
             var tmp = tagText.Select((c, index) =>
             {
@@ -53,14 +54,14 @@ namespace ImageTagger
                     return "" + c;
             }).ToArray();
             tagText =  string.Join("", tmp);
-            tagText = tagText.ToLower();
+            tagText = tagText.ToLower();*/
             return tagText;
             
         }
 
         private static bool IsCharValid(char c)
         {
-            return char.IsLetterOrDigit(c) || c == '-' || c == '_' || c == '{' || c == '}' || c == '[' || c == ']' || c == '"' || c == '!' || c == ':' || c == '.' || c == ',' || c == '*' || c == '%';
+            return true;// char.IsLetterOrDigit(c) || c == '-' || c == '_' || c == '{' || c == '}' || c == '[' || c == ']' || c == '"' || c == '!' || c == ':' || c == '.' || c == ',' || c == '*' || c == '%';
         }
 
         public static bool ContainsInvalidCharacters(string tagText)

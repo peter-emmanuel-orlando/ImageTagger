@@ -121,7 +121,6 @@ namespace ImageTagger.UI
             App.Current.Dispatcher.BeginInvoke(new Action(() => 
             {
                 var anyTags = any_SearchTagsDisplay.Select(tag => tag.TagName);
-                anyTags = anyTags.Union(new string[] { addAnyTag_TextBox.Text + "*" });
                 var allTags = all_SearchTagsDisplay.Select(tag => tag.TagName);
                 var noneTags = none_SearchTagsDisplay.Select(tag => tag.TagName);
                 var orderBy = Cast(new { Ordering = OrderBy.Name }, orderByDisplay.SelectedItem).Ordering;
