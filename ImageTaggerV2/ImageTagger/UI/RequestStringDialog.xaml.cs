@@ -31,9 +31,9 @@ namespace ImageTagger.UI
             this.inputBox.Text = initialVal;
         }
 
-        public static string StartDialog(string initialVal, string requestMessage, string requestLabel, string emptyInputLabel)
+        public static bool StartDialog( out string result, string initialVal, string requestMessage, string requestLabel, string emptyInputLabel)
         {
-            var result = "";
+            result = "";
             var getKeyWindow = new RequestStringDialog( initialVal, requestMessage, requestLabel, emptyInputLabel);
             var success = getKeyWindow.ShowDialog() ?? false;
             if (success)
@@ -41,7 +41,7 @@ namespace ImageTagger.UI
                 result = getKeyWindow.Result;
                 MessageBox.Show($"{requestLabel} is set to {result}");
             }
-            return result;
+            return success;
         }
 
         private void CancelButton_Click(object sender, RoutedEventArgs e)

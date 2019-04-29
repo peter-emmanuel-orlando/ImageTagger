@@ -75,10 +75,12 @@ namespace ImageAnalysisAPI
         public static void SetAPIKeyViaDialog()
         {
             var apiKey = SettingsPersistanceUtil.RetreiveSetting("apiKey");
-            apiKey = RequestStringDialog.StartDialog(apiKey, "provide clarifai api key for suggestions", "clarifai key", "input key here");
-            SettingsPersistanceUtil.RecordSetting("apiKey", apiKey);
-            if(apiKey != "")
-                RefreshAPIKey();
+            if(RequestStringDialog.StartDialog(out apiKey, apiKey, "provide clarifai api key for suggestions", "clarifai key", "input key here"))
+            {
+                SettingsPersistanceUtil.RecordSetting("apiKey", apiKey);
+                if (apiKey != "")
+                    RefreshAPIKey();
+            }
         }
 
         public static bool IsPerformingBatchOperation { get; private set; } = false;
@@ -110,12 +112,17 @@ namespace ImageAnalysisAPI
                 });
                 var splitPaths = new List<List<string>>();
                 splitPaths.Add(new List<string>());
+                long maxfilesize = 9000000;//9mb
+                long splitSize = 0;
                 foreach (var imageFilePath in imageFilePaths)
                 {
                     var i = splitPaths.Count - 1;
-                    if (splitPaths[i].Count >= 8)
+                    var thisFileSize = new FileInfo(imageFilePath).Length;
+                    if (thisFileSize > maxfilesize) continue;
+                    if ((splitPaths[i].Count >= 8) || (splitSize + thisFileSize > maxfilesize))
                     {
                         splitPaths.Add(new List<string>());
+                        splitSize = 0;
                         i++;
                     }
 
@@ -124,6 +131,7 @@ namespace ImageAnalysisAPI
                         App.Current.Dispatcher.Invoke(() => cancelContext.CurrentValue++);
                         continue;
                     }
+                    splitSize += thisFileSize;
                     splitPaths[i].Add(imageFilePath);
                 }
                 foreach (var paths in splitPaths)
@@ -166,7 +174,7 @@ namespace ImageAnalysisAPI
                         await yield.ReturnAsync(result);
                     }
                     Thread.Sleep(1000);//can only make a call every 1 sec
-                    App.Current.Dispatcher.Invoke(() => cancelContext.CurrentValue += 8);
+                    App.Current.Dispatcher.Invoke(() => cancelContext.CurrentValue += paths.Count);
 
                 }
                 App.Current.Dispatcher.Invoke(() => cancelWindow.Close());

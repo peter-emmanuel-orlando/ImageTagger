@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Windows;
 using Google.Cloud.Vision.V1;
 using Google.ColorUtil;
@@ -27,7 +28,6 @@ namespace VisionAPISuggestions
                 Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", authPath);
                 try
                 {
-                    MessageBox.Show(File.ReadAllText(Environment.GetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS")));
                     client = ImageAnnotatorClient.Create();
                 }
                 catch (Exception e)
@@ -43,9 +43,13 @@ namespace VisionAPISuggestions
         public static void SetVisionAuthViaDialog()
         {
             var authJson = (File.Exists(authPath))? File.ReadAllText(authPath) : "";
-            authJson = RequestStringDialog.StartDialog(authJson, "provide vision auth json for suggestions. An authentication token can be retreived from cloud.google.com/vision", "auth json", "paste json here");
-            File.WriteAllText(authPath, authJson);
-            RefreshAuthToken();
+            var success = RequestStringDialog.StartDialog(out string result, authJson, "provide vision auth json for suggestions. An authentication token can be retreived from cloud.google.com/vision", "auth json", "paste json here");
+            if(success && result != "")
+            {
+                File.WriteAllText(authPath, result);
+                Thread.Sleep(1500);//writing doesnt happen immidiantly
+                RefreshAuthToken();
+            }
         }
 
 

@@ -107,9 +107,21 @@ namespace ImageTagger
                 {
                     while (r.Read())
                     {
-                        result.Add("" + r[0]);
-                        var x = r[1];
-                        var z = r[2];
+                        var filepath = $"{r[0]}";
+                        //var x = r[1];
+                        //var y = r[2];
+                        var isJpg = false;
+                        using (var stream = new FileStream(filepath, FileMode.Open))
+                        {
+                            stream.Seek(0, SeekOrigin.Begin);
+                            string bytes = stream.ReadByte().ToString("X2");
+                            bytes += stream.ReadByte().ToString("X2");
+                            isJpg = bytes == "FFD8";
+                            //Debug.WriteLine(bytes + " " + isJpg);
+                        }
+
+                        if(isJpg)
+                            result.Add(filepath);
                     }
                 }
             }
