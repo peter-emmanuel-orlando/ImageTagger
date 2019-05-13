@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:ImageTagger"
         xmlns:System="clr-namespace:System;assembly=mscorlib" xmlns:DataModels="clr-namespace:ImageTagger.DataModels" x:Class="ImageTagger.ViewSearchWindow"
         mc:Ignorable="d"
-        Title="ImageTagger" Height="562.5" Width="1000" WindowStartupLocation="CenterOwner" Icon="/ImageTagger;component/cherryBlossomIcon.ico">
+        Title="ImageTagger" Height="562.5" Width="1000" WindowStartupLocation="CenterOwner" Icon="/ImageTagger;component/cherryBlossomIcon.ico" Background="#FF433E3E" BorderBrush="#FF422525">
     <Grid x:Name="MainPanel" Background="#FFFFF0F0">
         <Grid.ColumnDefinitions>
             <ColumnDefinition/>
@@ -58,8 +58,8 @@
 
                     </Grid>
                 </DockPanel>
-                <Grid Background="#33F2FF00" DockPanel.Dock="Top">
-                    <Image x:Name="mainImageDisplay" Source="{Binding ImgSource}"/>
+                <Grid Background="#FF443252" DockPanel.Dock="Top">
+                    <Image x:Name="mainImageDisplay" Source="{Binding ImgSource}" OpacityMask="Black"/>
                     <Grid x:Name="suggestedTagsGridArea" DockPanel.Dock="Bottom" Panel.ZIndex="2">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="2*"/>
@@ -221,9 +221,9 @@
             <DockPanel>
                 <Slider x:Name="changeThumbnailSizeSlider" DockPanel.Dock="Top" TickPlacement="Both" IsSnapToTickEnabled="True" Maximum="100" SmallChange="10" LargeChange="30" TickFrequency="10" IsManipulationEnabled="True" />
                 <Button x:Name="loadNextPageButton" DockPanel.Dock="Bottom" Content="Load Next Page" />
-                <ScrollViewer x:Name="imageGrid_ScrollViewer" CanContentScroll="True" VirtualizingPanel.IsVirtualizing="True" DockPanel.Dock="Bottom" >
+                <ScrollViewer x:Name="imageGrid_ScrollViewer" CanContentScroll="True" VirtualizingPanel.IsVirtualizing="True" DockPanel.Dock="Bottom" Background="#FF686EB6" >
                     <DockPanel>
-                        <ListBox x:Name="imageGrid" ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Hidden" VerticalContentAlignment="Top" Background="#FF00E8FF" ScrollViewer.CanContentScroll="False" DockPanel.Dock="Bottom">
+                        <ListBox x:Name="imageGrid" ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Hidden" VerticalContentAlignment="Top" Background="#FF376569" ScrollViewer.CanContentScroll="False" DockPanel.Dock="Bottom">
                             <!-- listbox.template portion essentially changes the controls to be the same as listbox, but without the scrollviewer in it. -->
                             <!-- see answer here: https://stackoverflow.com/questions/2976240/how-can-make-scrollviewer-scroll-when-mouse-is-over-any-content -->
                             <ListBox.Template>
@@ -252,7 +252,7 @@
         </Grid>
         <DockPanel LastChildFill="False" Grid.Row="2" Background="#667400FF"/>
         <DockPanel Background="#4CF4FF00">
-            <Menu>
+            <Menu Background="#FF3C0C0C">
                 <MenuItem x:Name="file_MenuItem" Background="#FFF0DBFF" Header="File">
                     <MenuItem x:Name="newWindow_MenuItem"  Header="New Window" Click="NewWindow_MenuItem_Click" >
                         <MenuItem.Icon>

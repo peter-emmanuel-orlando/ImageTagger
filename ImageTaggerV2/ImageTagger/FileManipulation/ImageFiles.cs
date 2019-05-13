@@ -74,7 +74,11 @@ namespace ImageTagger
 
             tagQueryCriteria = tagQueryCriteria ?? new TagQueryCriteria();
             var persistancePath = PersistanceUtil.SourceDirectory;
-            //if(!Directory.Exists(persistancePath)) 
+            if(!Directory.Exists(persistancePath))
+            {
+                persistancePath = Environment.GetFolderPath(Environment.SpecialFolder.MyPictures);
+                PersistanceUtil.ChangeSource(persistancePath);
+            }
             if (newAdditionsOnly)
                 FileNames.Add(NewFiles);
             else

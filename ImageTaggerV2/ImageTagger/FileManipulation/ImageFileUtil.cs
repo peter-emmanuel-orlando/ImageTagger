@@ -17,7 +17,7 @@ namespace ImageTagger
     public static class ImageFileUtil
     {
 
-        public static bool ApplyTagsToImage(ImageInfo imageInfo, IEnumerable<ImageTag> tags) 
+        public static bool ApplyTagsToImage(ImageInfo imageInfo, IEnumerable<ImageTag> tags)
         {
             return ApplyTagsToImage(imageInfo.ImgPath, tags);
         }
@@ -64,7 +64,7 @@ namespace ImageTagger
 
         public static HashSet<ImageTag> GetImageTags(string imagePath)
         {
-            var result = new HashSet<ImageTag>( new ImageTagEqualityComparer());
+            var result = new HashSet<ImageTag>(new ImageTagEqualityComparer());
 
             Debug.WriteLine("tags at: " + imagePath);
             if (File.Exists(imagePath))
@@ -93,10 +93,12 @@ namespace ImageTagger
         public static List<string> GetImageFilenames(string sourcePath = null, TagQueryCriteria tagQueryCriteria = null)
         {
             sourcePath = sourcePath ?? PersistanceUtil.SourceDirectory;
+            if (!Directory.Exists(sourcePath))
+                sourcePath = Environment.GetFolderPath(Environment.SpecialFolder.MyPictures);
             tagQueryCriteria = tagQueryCriteria ?? new TagQueryCriteria();
 
             var result = new List<string>();
-            var query = tagQueryCriteria.GetQueryClause(PersistanceUtil.SourceDirectory, out bool randomize);
+            var query = tagQueryCriteria.GetQueryClause(sourcePath, out bool randomize);
 
             var windowsSearchConnection = @"Provider=Search.CollatorDSO;Extended Properties=""Application=Windows""";
             using (OleDbConnection connection = new OleDbConnection(windowsSearchConnection))
@@ -105,23 +107,29 @@ namespace ImageTagger
                 OleDbCommand command = new OleDbCommand(query, connection);
                 using (var r = command.ExecuteReader())
                 {
-                    while (r.Read())
+                    var cont = true;
+                    while (cont)
                     {
-                        var filepath = $"{r[0]}";
-                        //var x = r[1];
-                        //var y = r[2];
-                        var isJpg = false;
-                        using (var stream = new FileStream(filepath, FileMode.Open))
+                        try
                         {
-                            stream.Seek(0, SeekOrigin.Begin);
-                            string bytes = stream.ReadByte().ToString("X2");
-                            bytes += stream.ReadByte().ToString("X2");
-                            isJpg = bytes == "FFD8";
-                            //Debug.WriteLine(bytes + " " + isJpg);
-                        }
+                            cont = r.Read();
+                            var filepath = $"{r[0]}";
+                            //var x = r[1];
+                            //var y = r[2];
+                            var isJpg = false;
+                            using (var stream = new FileStream(filepath, FileMode.Open))
+                            {
+                                stream.Seek(0, SeekOrigin.Begin);
+                                string bytes = stream.ReadByte().ToString("X2");
+                                bytes += stream.ReadByte().ToString("X2");
+                                isJpg = bytes == "FFD8";
+                                //Debug.WriteLine(bytes + " " + isJpg);
+                            }
 
-                        if(isJpg)
-                            result.Add(filepath);
+                            if (isJpg)
+                                result.Add(filepath);
+                        }
+                        catch (Exception e) { Debug.WriteLine(e); }
                     }
                 }
             }
@@ -140,8 +148,5 @@ namespace ImageTagger
                 result = fbd.SelectedPath;
             return success;
         }
-
-
-
     }
 }

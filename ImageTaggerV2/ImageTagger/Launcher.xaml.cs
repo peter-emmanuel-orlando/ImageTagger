@@ -157,7 +157,7 @@ namespace ImageTagger
                 //Debug.WriteLine(Environment.StackTrace);
                 // close all active threads
                 Environment.Exit(0);
-            }, System.Windows.Threading.DispatcherPriority.ApplicationIdle);
+            }, System.Windows.Threading.DispatcherPriority.SystemIdle);
         }
     }
 }

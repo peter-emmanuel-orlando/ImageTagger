@@ -126,7 +126,7 @@ namespace ImageAnalysisAPI
                         i++;
                     }
 
-                    if (skipAutoTagged && ImageFileUtil.GetImageTags(imageFilePath).Contains(new ImageTag("autoTagged")))
+                    if (skipAutoTagged && ImageFileUtil.GetImageTags(imageFilePath).Any(t => t.TagName.ToLower().Contains("auto") && t.TagName.ToLower().Contains("tagged")))
                     {
                         App.Current.Dispatcher.Invoke(() => cancelContext.CurrentValue++);
                         continue;
