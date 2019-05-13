@@ -7,7 +7,96 @@
         xmlns:System="clr-namespace:System;assembly=mscorlib" xmlns:DataModels="clr-namespace:ImageTagger.DataModels" x:Class="ImageTagger.ViewSearchWindow"
         mc:Ignorable="d"
         Title="ImageTagger" Height="562.5" Width="1000" WindowStartupLocation="CenterOwner" Icon="/ImageTagger;component/cherryBlossomIcon.ico" Background="#FF433E3E" BorderBrush="#FF422525">
+
+
+    <Window.Resources>
+        <!--Scrollbar Thumbs-->
+        <Style x:Key="ScrollThumbs" TargetType="{x:Type Thumb}">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type Thumb}">
+                        <Grid x:Name="Grid">
+                            <Rectangle HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Width="Auto" Height="Auto" Fill="Transparent" />
+                            <Border x:Name="Rectangle1" CornerRadius="5" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Width="Auto" Height="Auto"  Background="{TemplateBinding Background}" />
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="Tag" Value="Horizontal">
+                                <Setter TargetName="Rectangle1" Property="Width" Value="Auto" />
+                                <Setter TargetName="Rectangle1" Property="Height" Value="7" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!--ScrollBars-->
+        <Style x:Key="{x:Type ScrollBar}" TargetType="{x:Type ScrollBar}">
+            <Setter Property="Stylus.IsFlicksEnabled" Value="false" />
+            <Setter Property="Foreground" Value="#8C8C8C" />
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="Width" Value="8" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type ScrollBar}">
+                        <Grid x:Name="GridRoot" Width="8" Background="{TemplateBinding Background}">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="0.00001*" />
+                            </Grid.RowDefinitions>
+
+                            <Track x:Name="PART_Track" Grid.Row="0" IsDirectionReversed="true" Focusable="false">
+                                <Track.Thumb>
+                                    <Thumb x:Name="Thumb" Background="{TemplateBinding Foreground}" Style="{DynamicResource ScrollThumbs}" />
+                                </Track.Thumb>
+                                <Track.IncreaseRepeatButton>
+                                    <RepeatButton x:Name="PageUp" Command="ScrollBar.PageDownCommand" Opacity="0" Focusable="false" />
+                                </Track.IncreaseRepeatButton>
+                                <Track.DecreaseRepeatButton>
+                                    <RepeatButton x:Name="PageDown" Command="ScrollBar.PageUpCommand" Opacity="0" Focusable="false" />
+                                </Track.DecreaseRepeatButton>
+                            </Track>
+                        </Grid>
+
+                        <ControlTemplate.Triggers>
+                            <Trigger SourceName="Thumb" Property="IsMouseOver" Value="true">
+                                <Setter Value="{DynamicResource ButtonSelectBrush}" TargetName="Thumb" Property="Background" />
+                            </Trigger>
+                            <Trigger SourceName="Thumb" Property="IsDragging" Value="true">
+                                <Setter Value="{DynamicResource DarkBrush}" TargetName="Thumb" Property="Background" />
+                            </Trigger>
+
+                            <Trigger Property="IsEnabled" Value="false">
+                                <Setter TargetName="Thumb" Property="Visibility" Value="Collapsed" />
+                            </Trigger>
+                            <Trigger Property="Orientation" Value="Horizontal">
+                                <Setter TargetName="GridRoot" Property="LayoutTransform">
+                                    <Setter.Value>
+                                        <RotateTransform Angle="-90" />
+                                    </Setter.Value>
+                                </Setter>
+                                <Setter TargetName="PART_Track" Property="LayoutTransform">
+                                    <Setter.Value>
+                                        <RotateTransform Angle="-90" />
+                                    </Setter.Value>
+                                </Setter>
+                                <Setter Property="Width" Value="Auto" />
+                                <Setter Property="Height" Value="8" />
+                                <Setter TargetName="Thumb" Property="Tag" Value="Horizontal" />
+                                <Setter TargetName="PageDown" Property="Command" Value="ScrollBar.PageLeftCommand" />
+                                <Setter TargetName="PageUp" Property="Command" Value="ScrollBar.PageRightCommand" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+
+
+
+
     <Grid x:Name="MainPanel" Background="#FFFFF0F0">
+        
         <Grid.ColumnDefinitions>
             <ColumnDefinition/>
         </Grid.ColumnDefinitions>
@@ -22,15 +111,15 @@
                 <ColumnDefinition MinWidth="5"/>
             </Grid.ColumnDefinitions>
             <GridSplitter x:Name="imageGridSplitter" Width="5" Background="#19000000" Grid.Column="1" Panel.ZIndex="9999999" VerticalContentAlignment="Stretch" DragIncrement="0.1" ShowsPreview="True" HorizontalAlignment="Left" Margin="-2.5,0,0,0"/>
-            <DockPanel Background="#FFFEFFEC" Grid.Column="1">
-                <DockPanel Background="#66008CFF" DockPanel.Dock="Top">
+            <DockPanel Grid.Column="1">
+                <DockPanel DockPanel.Dock="Top" Background="#667400FF">
                     <!--<Label Content="Label"/>-->
                     <!--<Button />-->
                     <Grid ScrollViewer.VerticalScrollBarVisibility="Disabled">
                         <Label x:Name="noTagsMessage" Content="[select tags to add or type a new one below]" />
                         <!--<ScrollViewer VerticalScrollBarVisibility="Disabled" HorizontalScrollBarVisibility="Hidden" Background="#33FF8D8D" >
                             </ScrollViewer>-->
-                        <ListBox x:Name="tagsDisplay" ScrollViewer.HorizontalScrollBarVisibility="Hidden" ScrollViewer.VerticalScrollBarVisibility="Disabled" VerticalContentAlignment="Center" Background="#FF00E8FF" ScrollViewer.CanContentScroll="False">
+                        <ListBox x:Name="tagsDisplay" ScrollViewer.HorizontalScrollBarVisibility="Hidden" ScrollViewer.VerticalScrollBarVisibility="Disabled" VerticalContentAlignment="Center" Background="{x:Null}" ScrollViewer.CanContentScroll="False">
                             <!-- listbox.template portion essentially changes the controls to be the same as listbox, but without the scrollviewer in it. -->
                             <!-- see answer here: https://stackoverflow.com/questions/2976240/how-can-make-scrollviewer-scroll-when-mouse-is-over-any-content -->
                             <ListBox.Template>
@@ -219,9 +308,10 @@
                 </Grid>
             </DockPanel>
             <DockPanel>
-                <Slider x:Name="changeThumbnailSizeSlider" DockPanel.Dock="Top" TickPlacement="Both" IsSnapToTickEnabled="True" Maximum="100" SmallChange="10" LargeChange="30" TickFrequency="10" IsManipulationEnabled="True" />
                 <Button x:Name="loadNextPageButton" DockPanel.Dock="Bottom" Content="Load Next Page" />
                 <ScrollViewer x:Name="imageGrid_ScrollViewer" CanContentScroll="True" VirtualizingPanel.IsVirtualizing="True" DockPanel.Dock="Bottom" Background="#FF686EB6" >
+                    
+                    
                     <DockPanel>
                         <ListBox x:Name="imageGrid" ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Hidden" VerticalContentAlignment="Top" Background="#FF376569" ScrollViewer.CanContentScroll="False" DockPanel.Dock="Bottom">
                             <!-- listbox.template portion essentially changes the controls to be the same as listbox, but without the scrollviewer in it. -->
@@ -288,6 +378,10 @@
                             <Image Source="/ImageTagger;component/cherryBlossomIcon.ico" />
                         </MenuItem.Icon>
                     </MenuItem>
+                    
+                    <Border Width="100">
+                        <Slider x:Name="changeThumbnailSizeSlider" DockPanel.Dock="Top" TickPlacement="Both" IsSnapToTickEnabled="True" Maximum="100" SmallChange="10" LargeChange="30" TickFrequency="10" IsManipulationEnabled="True" />
+                    </Border>
                 </MenuItem>
             </Menu>
         </DockPanel>
