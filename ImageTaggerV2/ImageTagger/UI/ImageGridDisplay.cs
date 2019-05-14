@@ -22,9 +22,9 @@ namespace ImageTagger
         private ObservableCollection<ImageInfo> Images { get; } = new ObservableCollection<ImageInfo>();
         private ListBox ImageGrid { get { return main.imageGrid; } }
 
-        private int maxLoadedImages = 40;
+        private int maxLoadedImages = 400;
         private int currentImageOffset = 0;
-        private int currentPage = 0;
+        private int currentChunk = 0;
         private int imagesPerChunk = 25;
 
         private const int minThumbnailSize = 100;
@@ -40,13 +40,14 @@ namespace ImageTagger
             ImageGrid.Loaded += HandleGridLoaded;
             main.ImageFiles.FilesLoaded += HandleFilesLoaded;
             //ImageFiles.ItemChanged += HandleItemChanged;
+            main.loadPrevPageButton.Click += HandleLoadPrevPageButtonClick;
             main.loadNextPageButton.Click += HandleLoadNextPageButtonClick;
             main.changeThumbnailSizeSlider.ValueChanged += HandleThumbnailSizeSliderChangeClick;
             Initialize();
 
             main.PreviewMainWindowUnload += UnsubscribeFromAllEvents;
         }
-        
+
         private void HandleThumbnailSizeSliderChangeClick(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
             Slider s = e.OriginalSource as Slider;
@@ -79,17 +80,8 @@ namespace ImageTagger
             Images.Clear();
             GC.Collect();
             currentImageOffset = 0;
-            currentPage = 0;
+            currentChunk = 0;
             RequestMoreImages();
-        }
-
-        private void SetTagFilter()
-        {
-            // any of these tags match < coded blue
-            // AND
-            // all of these tags match < coded green
-            // AND
-            // none of these tags match < coded orange
         }
 
         private void HandleItemChanged(object sender, ItemChangedEventArgs e)
@@ -101,6 +93,11 @@ namespace ImageTagger
         private void HandleFilesLoaded(object sender, EventArgs e)
         {
             Initialize();
+        }
+
+        private void HandleLoadPrevPageButtonClick(object sender, RoutedEventArgs e)
+        {
+            LoadPrevPage();
         }
 
         private void HandleLoadNextPageButtonClick(object sender, RoutedEventArgs e)
@@ -133,7 +130,7 @@ namespace ImageTagger
 
         private void ScrollViewer_ScrollChanged(object sender, ScrollChangedEventArgs e)
         {
-            if(IsFullyScrolled())
+            if (IsFullyScrolled())
             {
                 RequestMoreImages();
             }
@@ -150,13 +147,14 @@ namespace ImageTagger
             if (result) Debug.WriteLine("At the bottom of the list!");
             return result;
         }
-
         public void RequestMoreImages()
         {
-            if(Images.Count() >= maxLoadedImages)
+            if (Images.Count() >= maxLoadedImages)
             {
-                main.loadNextPageButton.IsEnabled = true;
-                main.loadNextPageButton.Visibility = Visibility.Visible;
+                //HandleLoadNextPageButtonClick(null, null);
+                //main.loadNextPageButton.IsEnabled = true;
+                //main.loadNextPageButton.Visibility = Visibility.Visible;
+                //Keyboard.Focus(main.loadNextPageButton);
             }
             else
             {
@@ -165,18 +163,18 @@ namespace ImageTagger
         }
         private void LoadNextChunk()
         {
-            var startIndex = currentImageOffset + (currentPage * imagesPerChunk);
+            var startIndex = currentImageOffset + (currentChunk * imagesPerChunk);
             var loadUpTo = startIndex + imagesPerChunk;
             loadUpTo = Math.Min(loadUpTo, main.ImageFiles.Count);
-            loadUpTo = Math.Min(loadUpTo, startIndex + imagesPerChunk );
-            
+            loadUpTo = Math.Min(loadUpTo, startIndex + imagesPerChunk);
+
             for (int i = startIndex; i < loadUpTo; i++)
             {
                 var newSquare = new ImageInfo(main.ImageFiles.Get(i));
                 Images.Add(newSquare);
                 newSquare.Load(desiredThumbnailSize + 250);
             }
-            currentPage++;
+            currentChunk++;
 
             var selectedIndex = ImageGrid.SelectedIndex;
             if (selectedIndex == -1 && ImageGrid.Items.Count > 0) selectedIndex = 0;
@@ -188,12 +186,25 @@ namespace ImageTagger
             }
         }
 
+
+        private void LoadPrevPage()
+        {
+            if (currentImageOffset != 0)
+            {
+                currentImageOffset -= maxLoadedImages;
+                if (currentImageOffset < 0) currentImageOffset = 0;
+                currentChunk = 0;
+                Images.Clear();
+                GC.Collect();
+                LoadNextChunk();
+            }
+        }
         private void LoadNextPage()
         {
-            main.loadNextPageButton.IsEnabled = false;
-            main.loadNextPageButton.Visibility = Visibility.Collapsed;
+            //main.loadNextPageButton.IsEnabled = false;
+            //main.loadNextPageButton.Visibility = Visibility.Collapsed;
             currentImageOffset = currentImageOffset + Images.Count();
-            currentPage = 0;
+            currentChunk = 0;
             Images.Clear();
             GC.Collect();
             LoadNextChunk();

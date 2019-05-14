@@ -308,7 +308,14 @@
                 </Grid>
             </DockPanel>
             <DockPanel>
-                <Button x:Name="loadNextPageButton" DockPanel.Dock="Bottom" Content="Load Next Page" />
+                <Grid DockPanel.Dock="Bottom">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition/>
+                        <ColumnDefinition/>
+                    </Grid.ColumnDefinitions>
+                    <Button x:Name="loadPrevPageButton" DockPanel.Dock="Left" Content="Prev" />
+                    <Button x:Name="loadNextPageButton" DockPanel.Dock="Left" Content="Next" Grid.Column="1" Grid.Row="4" />
+                </Grid>
                 <ScrollViewer x:Name="imageGrid_ScrollViewer" CanContentScroll="True" VirtualizingPanel.IsVirtualizing="True" DockPanel.Dock="Bottom" Background="#FF686EB6" >
                     
                     
