@@ -76,6 +76,8 @@ namespace ImageTagger
             main.clearAllTagSuggestions.Click += HandleClearAllSuggestionsClickEvent;
             TagsManager.TagsLoaded += HandleTagsReloadedEvent;
 
+            TagCategories.Add(ReservedTagCategories.Names.Select(n=> new TagCategory(n)));
+
             CloseSuggestionsPanel();
             TagsManager.Load();
         }
