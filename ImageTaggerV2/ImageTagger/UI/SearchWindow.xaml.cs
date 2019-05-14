@@ -18,6 +18,7 @@ using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using System.Windows.Threading;
 
 namespace ImageTagger.UI
 {
@@ -45,8 +46,10 @@ namespace ImageTagger.UI
         {
             public ObservableCollection<object> OrderByItems { get; } = new ObservableCollection<object>(Enum.GetNames(typeof(OrderBy)).Select((e) => new
             { Ordering = (OrderBy)Enum.Parse(typeof(OrderBy), e) }));
-            public ObservableCollection<object> OrderDirectionItems { get; } = new ObservableCollection<object>(Enum.GetNames(typeof(OrderDirection)).Select((e) => new
-            { OrderingDirection = (OrderDirection)Enum.Parse(typeof(OrderDirection), e) }));
+            public ObservableCollection<object> OrderDirectionItems { get; } = new ObservableCollection<object>(Enum.GetNames(typeof(OrderDirection)).Select((e) =>
+            {
+                return new { OrderingDirection = OrderDirection.RANDOM };// (OrderDirection)Enum.Parse(typeof(OrderDirection), e) };
+            }));
             public ObservableCollection<object> FilterByItems { get; } = new ObservableCollection<object>(Enum.GetNames(typeof(FilterBy)).Select((e) =>
             {
                 var filter = (FilterBy)Enum.Parse(typeof(FilterBy), e);
@@ -63,9 +66,6 @@ namespace ImageTagger.UI
 
             viewSearchWindow = new ViewSearchWindow(true);
             viewSearchWindow.Closed += (s, e) => Close();
-            viewSearchWindow.Show();
-            viewSearchWindow.SetSearch();
-            this.Owner = viewSearchWindow;
 
             this.Loaded += (s, e) =>
             {
@@ -101,6 +101,10 @@ namespace ImageTagger.UI
 
 
             ToggleMainPanel();
+
+            Search();
+            viewSearchWindow.Show();
+            this.Owner = viewSearchWindow;
         }
 
         private void ToggleCollapseButton_Click(object sender, RoutedEventArgs e)
@@ -126,24 +130,30 @@ namespace ImageTagger.UI
 
         private void Search(object sender, EventArgs e)
         {
-            App.Current.Dispatcher.BeginInvoke(new Action(() => 
-            {
-                var anyTags = any_SearchTagsDisplay.Select(tag => tag.TagName);
-                var allTags = all_SearchTagsDisplay.Select(tag => tag.TagName);
-                var noneTags = none_SearchTagsDisplay.Select(tag => tag.TagName);
-                var orderBy = Cast(new { Ordering = OrderBy.Name }, orderByDisplay.SelectedItem).Ordering;
-                var orderDirection = Cast(new { OrderingDirection = OrderDirection.RANDOM }, orderDirectionDisplay.SelectedItem).OrderingDirection;
-                var template = new { FilterName = FilterBy.Untagged, FilterState = FilterState.Allow };
-                var filters = new List<Filter>();
-                foreach (var filter in filtersDisplay.Items)
-                {
-                    template = Cast( template, filter);
-                    filters.Add(new Filter(template.FilterName, template.FilterState));
-                }
-                currentQueryCriteria = new TagQueryCriteria(anyTags, allTags, noneTags, orderBy, orderDirection, filters.ToArray());
-                viewSearchWindow.SetSearch(currentQueryCriteria);
-            }), System.Windows.Threading.DispatcherPriority.ApplicationIdle);
+            Search(DispatcherPriority.ApplicationIdle);
         }
+        private void Search(DispatcherPriority priority)
+        {
+            App.Current.Dispatcher.BeginInvoke(new Action(() => {Search();}), priority);
+        }
+        private void Search()
+        {
+            var anyTags = any_SearchTagsDisplay.Select(tag => tag.TagName);
+            var allTags = all_SearchTagsDisplay.Select(tag => tag.TagName);
+            var noneTags = none_SearchTagsDisplay.Select(tag => tag.TagName);
+            var orderBy = Cast(new { Ordering = OrderBy.Name }, orderByDisplay.SelectedItem).Ordering;
+            var orderDirection = Cast(new { OrderingDirection = OrderDirection.RANDOM }, orderDirectionDisplay.SelectedItem).OrderingDirection;
+            var template = new { FilterName = FilterBy.Untagged, FilterState = FilterState.Allow };
+            var filters = new List<Filter>();
+            foreach (var filter in filtersDisplay.Items)
+            {
+                template = Cast(template, filter);
+                filters.Add(new Filter(template.FilterName, template.FilterState));
+            }
+            currentQueryCriteria = new TagQueryCriteria(anyTags, allTags, noneTags, orderBy, orderDirection, filters.ToArray());
+            viewSearchWindow.SetSearch(currentQueryCriteria);
+        }
+
         private static T Cast<T>(T template, Object x)
         {
             // typeHolder above is just for compiler magic
