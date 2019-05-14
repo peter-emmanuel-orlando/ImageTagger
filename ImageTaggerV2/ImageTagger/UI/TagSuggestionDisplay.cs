@@ -263,6 +263,7 @@ namespace ImageTagger
                 TagsManager.GetImageAnalysisTags(mainImgPath, (result) => {
                     foreach (var item in result)
                     {
+                        //if (item.category.ToUpper() != "DATA")
                         AddSuggestions(new TagSuggestion[] { item }, (item.category + "fgfhjgjhg").ToColor() );
                     }
                 });
