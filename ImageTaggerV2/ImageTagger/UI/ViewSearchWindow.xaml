@@ -378,6 +378,14 @@
                             <Image Source="/ImageTagger;component/cherryBlossomIcon.ico" />
                         </MenuItem.Icon>
                     </MenuItem>
+                    <MenuItem  Header="Thumbnail Size" >
+                        <MenuItem.Icon>
+                            <Image Source="/ImageTagger;component/cherryBlossomIcon.ico" />
+                        </MenuItem.Icon>
+                        <Border Width="100">
+                            <Slider x:Name="changeThumbnailSizeSlider" DockPanel.Dock="Top" TickPlacement="Both" IsSnapToTickEnabled="True" Maximum="100" SmallChange="10" LargeChange="30" TickFrequency="10" IsManipulationEnabled="True" />
+                        </Border>
+                    </MenuItem>
                 </MenuItem>
                 <MenuItem x:Name="tools_MenuItem" Background="#FFF0DBFF" Header="Tools">
                     <MenuItem x:Name="batchTag_MenuItem"  Header="Batch Tag" IsEnabled="True" >
@@ -385,10 +393,6 @@
                             <Image Source="/ImageTagger;component/cherryBlossomIcon.ico" />
                         </MenuItem.Icon>
                     </MenuItem>
-                    
-                    <Border Width="100">
-                        <Slider x:Name="changeThumbnailSizeSlider" DockPanel.Dock="Top" TickPlacement="Both" IsSnapToTickEnabled="True" Maximum="100" SmallChange="10" LargeChange="30" TickFrequency="10" IsManipulationEnabled="True" />
-                    </Border>
                 </MenuItem>
             </Menu>
         </DockPanel>

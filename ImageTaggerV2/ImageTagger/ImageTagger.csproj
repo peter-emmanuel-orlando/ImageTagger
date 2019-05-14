@@ -128,6 +128,9 @@
     <Compile Include="UI\SearchWindow.xaml.cs">
       <DependentUpon>SearchWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="UI\SlideShow.xaml.cs">
+      <DependentUpon>SlideShow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="UI\TagSuggestionDisplay.cs" />
     <Compile Include="ThreadSafeRandom.cs" />
     <Compile Include="TagManipulation\VisionApi.cs" />
@@ -140,6 +143,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="UI\EditMyTags.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UI\SlideShow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
