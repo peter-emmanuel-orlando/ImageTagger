@@ -9,9 +9,16 @@ using Google.Cloud.Vision.V1;
 using Google.ColorUtil;
 using ImageTagger;
 using ImageTagger.UI;
+using Newtonsoft.Json;
 
 namespace VisionAPISuggestions
 {
+    public class SimilarImages
+    {
+        public readonly List<string> matching = new List<string>();
+        public readonly List<string> partial = new List<string>();
+        public readonly List<string> similar = new List<string>();
+    }
     public static class VisionApi
     {
         private static ImageAnnotatorClient client;
@@ -100,6 +107,7 @@ namespace VisionAPISuggestions
         private static List<TagSuggestion> ParseAnnotations(AnnotateImageResponse res)
         {
             var result = new HashSet<TagSuggestion>();
+            var similarImgs = new SimilarImages();
             var threshold = Likelihood.Possible;
             //parse all annotations
             #region
@@ -225,11 +233,11 @@ namespace VisionAPISuggestions
                 var isNSFW = false;
                 if (res.SafeSearchAnnotation.Adult.MeetsThreshold(threshold))
                 { result.Add(new TagSuggestion("Explicit",1, "moderationAnnotations")); isNSFW = true; }
-                if (res.SafeSearchAnnotation.Medical.MeetsThreshold(threshold))
+                if (res.SafeSearchAnnotation.Medical.MeetsThreshold(Likelihood.Likely))
                 { result.Add(new TagSuggestion("Medical", 1, "moderationAnnotations")); }
                 if (res.SafeSearchAnnotation.Racy.MeetsThreshold(threshold))
                 { result.Add(new TagSuggestion("Suggestive", 1, "moderationAnnotations")); isNSFW = true; }
-                if (res.SafeSearchAnnotation.Spoof.MeetsThreshold(threshold))
+                if (res.SafeSearchAnnotation.Spoof.MeetsThreshold(Likelihood.Likely))
                 { result.Add(new TagSuggestion("Spoof", 1, "moderationAnnotations")); }
                 if (res.SafeSearchAnnotation.Violence.MeetsThreshold(threshold))
                 { result.Add(new TagSuggestion("Violence", 1, "moderationAnnotations")); isNSFW = true; }
@@ -246,12 +254,15 @@ namespace VisionAPISuggestions
                 {
                     result.Add(new TagSuggestion(annotation.Label, 1, "webAnnotations"));
                 }
+                similarImgs.matching.AddRange(res.WebDetection.FullMatchingImages.Select(i => i.Url).Take(3));
+                similarImgs.partial.AddRange(res.WebDetection.PartialMatchingImages.Select(i => i.Url).Take(3));
+                similarImgs.similar.AddRange(res.WebDetection.VisuallySimilarImages.Select(i => i.Url).Take(5));
             }
             #endregion
 
             //end
             #endregion
-
+            result.Add(new TagSuggestion("DATA:" + JsonConvert.SerializeObject(similarImgs), 1, "DATA"));
             result.Add(new TagSuggestion("autoTagged", 1, "General"));
             return new List<TagSuggestion>(result);
         }

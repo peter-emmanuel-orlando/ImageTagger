@@ -35,14 +35,18 @@ namespace ImageTagger
             try
             {
                 var tagString = "";
+                var tagComments = "";
                 foreach (var tag in tags)
                 {
+                    if (tag.TagName.StartsWith("DATA:"))
+                        tagComments += tag.TagName + " ";
                     if (tag.TagName != "")
                         tagString += tag.TagName + "; ";
                 }
                 var sFile = ShellFile.FromParsingName(imagePath);
                 using (var w = sFile.Properties.GetPropertyWriter())
                 {
+                    w.WriteProperty(SystemProperties.System.Comment, tagComments);
                     w.WriteProperty(SystemProperties.System.Keywords, tagString);
                 }
                 Debug.WriteLine("applied tags to file successfully");

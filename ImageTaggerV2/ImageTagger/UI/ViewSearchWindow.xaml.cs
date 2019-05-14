@@ -60,7 +60,7 @@ namespace ImageTagger
             setDestination_MenuItem.IsEnabled = false;
             setDestination_MenuItem.Visibility = Visibility.Collapsed;
 
-            ImageFiles.Load();
+            //ImageFiles.Load();
 
             ImageDisplay = new MainImageDisplay(this);
             ImageTagsDisplay = new ImageTagsDisplay(this);

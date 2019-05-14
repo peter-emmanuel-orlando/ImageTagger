@@ -47,8 +47,15 @@ namespace ImageTagger.UI
             { Ordering = (OrderBy)Enum.Parse(typeof(OrderBy), e) }));
             public ObservableCollection<object> OrderDirectionItems { get; } = new ObservableCollection<object>(Enum.GetNames(typeof(OrderDirection)).Select((e) => new
             { OrderingDirection = (OrderDirection)Enum.Parse(typeof(OrderDirection), e) }));
-            public ObservableCollection<object> FilterByItems { get; } = new ObservableCollection<object>(Enum.GetNames(typeof(FilterBy)).Select((e) => new
-            { FilterName = (FilterBy)Enum.Parse(typeof(FilterBy), e), FilterState = FilterState.Allow }));
+            public ObservableCollection<object> FilterByItems { get; } = new ObservableCollection<object>(Enum.GetNames(typeof(FilterBy)).Select((e) =>
+            {
+                var filter = (FilterBy)Enum.Parse(typeof(FilterBy), e);
+                var state = FilterState.Allow;
+                if (filter == FilterBy.Explicit || filter == FilterBy.Suggestive || filter == FilterBy.Untagged)
+                    state = FilterState.Exclude;
+                return new { FilterName = filter, FilterState = state };
+            }
+            ));
         }
         internal SearchWindow()
         {
@@ -57,6 +64,7 @@ namespace ImageTagger.UI
             viewSearchWindow = new ViewSearchWindow(true);
             viewSearchWindow.Closed += (s, e) => Close();
             viewSearchWindow.Show();
+            viewSearchWindow.SetSearch();
             this.Owner = viewSearchWindow;
 
             this.Loaded += (s, e) =>
