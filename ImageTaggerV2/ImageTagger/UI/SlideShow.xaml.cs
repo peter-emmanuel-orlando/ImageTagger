@@ -21,6 +21,14 @@ namespace ImageTagger.UI
     /// <summary>
     /// Interaction logic for SlideShow.xaml
     /// </summary>
+    /// features: quick tag hotkey, i.e. pressing 1 taggs "landscape, cololorful, sunset"
+    /// and the different numbers can be bound to different sets of tags
+    /// //quick move to destination. 
+    /// pressing qwerty moves image to one of 6 folders
+    /// //favorite searches
+    /// watch folder for changes
+    /// select multiple images and tag all at once
+    /// right click, show in folder
     public partial class SlideShow : Window
     {
         private ImageFiles ImageFiles { get; }
@@ -29,9 +37,18 @@ namespace ImageTagger.UI
 
 
         private bool isPaused = false;
-        private bool isEnabled = true;
+        private bool isClosed = false;
         private bool resetTimer = false;
-        private int imgDelay = 2000;
+        private int imgDelay;
+        private int ImgDelay
+        {
+            get => imgDelay;
+            set
+            {
+                SettingsPersistanceUtil.RecordSetting("slideshowImgDelay", "" + value);
+                imgDelay = value;
+            }
+        }
         public static int PlaySlideshow(ImageFiles imageFiles, int startIndex = 0)
         {
             var slideShow = new SlideShow(imageFiles, startIndex);
@@ -44,15 +61,19 @@ namespace ImageTagger.UI
             ImageFiles = imageFiles;
             currentIndex = startIndex - 2;//because textchanged will be called
             mainSlideshowImageDisplay.DataContext = mainImageInfo;
-            slideshowSpeed.Text = imgDelay + "";
-            Play();
+            if (!Int32.TryParse(SettingsPersistanceUtil.RetreiveSetting("slideshowImgDelay"), out imgDelay))
+            {
+                ImgDelay = 2000;
+            }
+            slideshowSpeed.Text = ImgDelay + "";
+            Enable();
         }
 
-        private void Play()
+        private void Enable()
         {
             Task.Run(new Action(async () =>
             {
-                while(isEnabled)
+                while(!isClosed)
                 {
                     await App.Current.Dispatcher.InvokeAsync(new Action(() =>
                     {
@@ -60,7 +81,7 @@ namespace ImageTagger.UI
                     }));
                     resetTimer = true;
                     int timer = 0;
-                    while (resetTimer || isPaused || timer < imgDelay)
+                    while (resetTimer || isPaused || timer < ImgDelay)
                     {
                         if(resetTimer)
                         {
@@ -82,7 +103,7 @@ namespace ImageTagger.UI
         protected override void OnClosed(EventArgs e)
         {
             base.OnClosed(e);
-            isEnabled = false;
+            isClosed = true;
         }
 
         private void ChangeImageIndex(int deltaIndex = 1)
@@ -104,12 +125,12 @@ namespace ImageTagger.UI
         {
             if (float.TryParse(slideshowSpeed.Text, out float newDelay))
             {
-                imgDelay = (int)newDelay;
-                if (imgDelay < 500)
-                    imgDelay = 500;
-                ChangeImageIndex();
+                ImgDelay = (int)newDelay;
+                if (ImgDelay < 500)
+                    ImgDelay = 500;
+                //ChangeImageIndex();
             }
-            slideshowSpeed.Text = imgDelay + "";
+            slideshowSpeed.Text = ImgDelay + "";
         }
 
         private void HandleKeyDown(object sender, KeyEventArgs e)

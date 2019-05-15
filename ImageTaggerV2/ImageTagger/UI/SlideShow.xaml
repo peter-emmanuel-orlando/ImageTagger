@@ -5,12 +5,12 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:ImageTagger.UI"
         mc:Ignorable="d"
-        Title="SlideShow" Height="450" Width="800" ShowInTaskbar="False" WindowStartupLocation="CenterScreen" WindowState="Maximized" KeyDown="HandleKeyDown">
+        Title="SlideShow" Height="450" Width="800" WindowStartupLocation="CenterScreen" WindowState="Maximized" KeyDown="HandleKeyDown">
     <Grid Background="#FF443252" KeyDown="HandleKeyDown">
         <DockPanel x:Name="menuPanel" Panel.ZIndex="1" VerticalAlignment="Top" MouseEnter="HandleMouseOverMenuPanel" MouseLeave="HandleMouseOffMenuPanel" Background="#07000000">
             <Menu x:Name="menu" VerticalAlignment="Top" Visibility="Hidden">
                 <MenuItem Header="Settings">
-                    <MenuItem Header="speed">
+                    <MenuItem Header="speed(ms)">
                         <TextBox x:Name="slideshowSpeed" MinWidth="40" TextChanged="SlideshowSpeed_TextChanged" />
                     </MenuItem>
                 </MenuItem>
