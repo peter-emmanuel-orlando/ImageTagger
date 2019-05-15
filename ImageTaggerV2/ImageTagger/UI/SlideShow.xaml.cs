@@ -28,7 +28,8 @@ namespace ImageTagger.UI
         private int currentIndex { get; set; } = 0;
 
 
-        private bool isPlaying = true;
+        private bool isPaused = false;
+        private bool isEnabled = true;
         private bool resetTimer = false;
         private int imgDelay = 2000;
         public static int PlaySlideshow(ImageFiles imageFiles, int startIndex = 0)
@@ -51,31 +52,37 @@ namespace ImageTagger.UI
         {
             Task.Run(new Action(async () =>
             {
-                while(isPlaying)
+                while(isEnabled)
                 {
                     await App.Current.Dispatcher.InvokeAsync(new Action(() =>
                     {
                         ChangeImageIndex();
                     }));
                     resetTimer = true;
-                    while (resetTimer)
+                    int timer = 0;
+                    while (resetTimer || isPaused || timer < imgDelay)
                     {
-                        resetTimer = false;
-                        Thread.Sleep(imgDelay);
+                        if(resetTimer)
+                        {
+                            resetTimer = false;
+                            timer = 0;
+                        }
+                        Thread.Sleep(1);
+                        timer++;
                     }
                 }
             }));
         }
 
-        private void Stop()
+        private void Pause( bool isPaused)
         {
-            isPlaying = false;
+            this.isPaused = isPaused;
         }
 
         protected override void OnClosed(EventArgs e)
         {
             base.OnClosed(e);
-            Stop();
+            isEnabled = false;
         }
 
         private void ChangeImageIndex(int deltaIndex = 1)
@@ -93,16 +100,6 @@ namespace ImageTagger.UI
             }
         }
 
-        private void HandleMouseOverMenuPanel(object sender, MouseEventArgs e)
-        {
-            menu.Visibility = Visibility.Visible;
-        }
-
-        private void HandleMouseOffMenuPanel(object sender, MouseEventArgs e)
-        {
-            menu.Visibility = Visibility.Hidden;
-        }
-
         private void SlideshowSpeed_TextChanged(object sender, TextChangedEventArgs e)
         {
             if (float.TryParse(slideshowSpeed.Text, out float newDelay))
@@ -117,18 +114,62 @@ namespace ImageTagger.UI
 
         private void HandleKeyDown(object sender, KeyEventArgs e)
         {
-            if (e.Key == Key.Right)
+            if (e.Key == Key.Right || e.Key == Key.L)
             {
                 ChangeImageIndex();
                 e.Handled = true;
                 resetTimer = true;
             }
-            else if (e.Key == Key.Left)
+            else if (e.Key == Key.Left || e.Key == Key.J)
             {
                 ChangeImageIndex(-1);
                 e.Handled = true;
                 resetTimer = true;
             }
+            else if (e.Key == Key.K)
+            {
+                e.Handled = true;
+                resetTimer = true;
+                Pause(!isPaused);
+            }
+            else if (e.Key == Key.Escape)
+            {
+                this.Close();
+            }
+        }
+
+
+        private void HandleMouseOverMenuPanel(object sender, MouseEventArgs e)
+        {
+            menu.Visibility = Visibility.Visible;
+        }
+
+        private void HandleMouseOffMenuPanel(object sender, MouseEventArgs e)
+        {
+            menu.Visibility = Visibility.Hidden;
+        }
+        private void HandleMouseOverControlPanel(object sender, MouseEventArgs e)
+        {
+            controlPanel.Visibility = Visibility.Visible;
+        }
+
+        private void HandleMouseOffControlPanel(object sender, MouseEventArgs e)
+        {
+            controlPanel.Visibility = Visibility.Hidden;
+        }
+
+        private void PrevButton_Click(object sender, RoutedEventArgs e)
+        {
+            ChangeImageIndex(-1);
+        }
+        private void PauseButton_Click(object sender, RoutedEventArgs e)
+        {
+            Pause(!isPaused);
+        }
+
+        private void NextButton_Click(object sender, RoutedEventArgs e)
+        {
+            ChangeImageIndex();
         }
     }
 }

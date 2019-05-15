@@ -16,6 +16,13 @@
                 </MenuItem>
             </Menu>
         </DockPanel>
+        <Border Panel.ZIndex="1" VerticalAlignment="Bottom" MouseEnter="HandleMouseOverControlPanel" MouseLeave="HandleMouseOffControlPanel" Background="#07000000">
+            <DockPanel x:Name="controlPanel" Visibility="Hidden" HorizontalAlignment="Center">
+                <Button Content="Prev(J)" HorizontalAlignment="Left" DockPanel.Dock="Left" FontSize="18" Click="PrevButton_Click"/>
+                <Button Content="Pause(K)" HorizontalAlignment="Left" DockPanel.Dock="Left" FontSize="18" Click="PauseButton_Click"/>
+                <Button Content="Next(L)" HorizontalAlignment="Left" DockPanel.Dock="Left" FontSize="18" Click="NextButton_Click"/>
+            </DockPanel>
+        </Border>
         <Image x:Name="mainSlideshowImageDisplay" Source="{Binding ImgSource}" OpacityMask="Black" KeyDown="HandleKeyDown"/>
     </Grid>
 </Window>
