@@ -5,8 +5,17 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:ImageTagger.UI"
         mc:Ignorable="d"
-        Title="SlideShow" Height="450" Width="800" ShowInTaskbar="False" WindowStartupLocation="CenterScreen" WindowState="Maximized">
-    <Grid Background="#FF443252">
-        <Image x:Name="mainSlideshowImageDisplay" Source="{Binding ImgSource}" OpacityMask="Black"/>
+        Title="SlideShow" Height="450" Width="800" ShowInTaskbar="False" WindowStartupLocation="CenterScreen" WindowState="Maximized" KeyDown="HandleKeyDown">
+    <Grid Background="#FF443252" KeyDown="HandleKeyDown">
+        <DockPanel x:Name="menuPanel" Panel.ZIndex="1" VerticalAlignment="Top" MouseEnter="HandleMouseOverMenuPanel" MouseLeave="HandleMouseOffMenuPanel" Background="#07000000">
+            <Menu x:Name="menu" VerticalAlignment="Top" Visibility="Hidden">
+                <MenuItem Header="Settings">
+                    <MenuItem Header="speed">
+                        <TextBox x:Name="slideshowSpeed" MinWidth="40" TextChanged="SlideshowSpeed_TextChanged" />
+                    </MenuItem>
+                </MenuItem>
+            </Menu>
+        </DockPanel>
+        <Image x:Name="mainSlideshowImageDisplay" Source="{Binding ImgSource}" OpacityMask="Black" KeyDown="HandleKeyDown"/>
     </Grid>
 </Window>
