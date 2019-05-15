@@ -46,7 +46,7 @@ namespace ImageTagger.UI
             { Ordering = (OrderBy)Enum.Parse(typeof(OrderBy), e) }));
             public ObservableCollection<object> OrderDirectionItems { get; } = new ObservableCollection<object>(Enum.GetNames(typeof(OrderDirection)).Select((e) =>
             {
-                return new { OrderingDirection = OrderDirection.RANDOM };// (OrderDirection)Enum.Parse(typeof(OrderDirection), e) };
+                return new { OrderingDirection = (OrderDirection)Enum.Parse(typeof(OrderDirection), e) };
             }));
             public ObservableCollection<object> FilterByItems { get; } = new ObservableCollection<object>(Enum.GetNames(typeof(FilterBy)).Select((e) =>
             {
@@ -85,7 +85,7 @@ namespace ImageTagger.UI
             orderByDisplay.ItemsSource = filterSortDataModel.OrderByItems;
             orderByDisplay.SelectedIndex = 0;
             orderDirectionDisplay.ItemsSource = filterSortDataModel.OrderDirectionItems;
-            orderDirectionDisplay.SelectedIndex = 1;
+            orderDirectionDisplay.SelectedIndex = 2;
             filtersDisplay.ItemsSource = filterSortDataModel.FilterByItems;
 
             all_AddSearchTagComponent = new AddSearchTagComponent();
