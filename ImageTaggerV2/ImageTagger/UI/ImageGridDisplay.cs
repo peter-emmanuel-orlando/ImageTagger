@@ -83,6 +83,34 @@ namespace ImageTagger
             currentChunk = 0;
             RequestMoreImages();
         }
+        public void SetImage(int imgIndex)
+        {
+            if (imgIndex > main.ImageFiles.Count)
+                imgIndex = main.ImageFiles.Count;
+            if (currentImageOffset > imgIndex)
+            {
+                currentImageOffset = (int)Math.Floor((float)imgIndex / maxLoadedImages) * maxLoadedImages;
+                currentChunk = 0;
+                Images.Clear();
+                GC.Collect();
+            }
+            var index = imgIndex - currentImageOffset;
+            var numChunks = (int)Math.Ceiling((float)index/imagesPerChunk);
+            for (int i = currentChunk; i < numChunks; i++)
+            {
+                LoadNextChunk();
+            }
+            ImageGrid.SelectedIndex = index;
+            ListBoxItem myListBoxItem = (ListBoxItem)(ImageGrid.ItemContainerGenerator.ContainerFromItem(ImageGrid.Items[index]));
+            if (myListBoxItem != null)
+            {
+                myListBoxItem.Focus();
+                Keyboard.Focus(myListBoxItem);
+                myListBoxItem.BringIntoView();
+                //main.imageGrid_ScrollViewer.sc.ScrollIntoView(myListBoxItem);
+            }
+
+        }
 
         private void HandleItemChanged(object sender, ItemChangedEventArgs e)
         {

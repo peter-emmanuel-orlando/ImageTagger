@@ -393,6 +393,11 @@
                             <Image Source="/ImageTagger;component/cherryBlossomIcon.ico" />
                         </MenuItem.Icon>
                     </MenuItem>
+                    <MenuItem x:Name="slideShow_MenuItem"  Header="Slideshow" IsEnabled="True" Click="SlideShow_MenuItem_Click" >
+                        <MenuItem.Icon>
+                            <Image Source="/ImageTagger;component/cherryBlossomIcon.ico" />
+                        </MenuItem.Icon>
+                    </MenuItem>
                 </MenuItem>
             </Menu>
         </DockPanel>

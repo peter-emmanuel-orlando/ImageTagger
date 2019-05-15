@@ -7,6 +7,6 @@
         mc:Ignorable="d"
         Title="SlideShow" Height="450" Width="800" ShowInTaskbar="False" WindowStartupLocation="CenterScreen" WindowState="Maximized">
     <Grid Background="#FF443252">
-        <Image x:Name="mainImageDisplay" Source="{Binding ImgSource}" OpacityMask="Black"/>
+        <Image x:Name="mainSlideshowImageDisplay" Source="{Binding ImgSource}" OpacityMask="Black"/>
     </Grid>
 </Window>

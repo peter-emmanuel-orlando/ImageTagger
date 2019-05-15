@@ -34,7 +34,7 @@ namespace ImageTagger
             if (success)
             {
                 PersistanceUtil.ChangeSource(result);
-                main.ImageFiles.Load();
+                main.ImageFiles.Load(main.ImageFiles.currentQuery);
             }
         }
 

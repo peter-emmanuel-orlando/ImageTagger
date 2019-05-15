@@ -31,8 +31,6 @@ namespace ImageTagger.UI
         [DllImport("user32.dll")]
         private static extern int SetWindowLong(IntPtr hWnd, int nIndex, int dwNewLong);
 
-
-        private HashSet<string> Result { get; set; } = new HashSet<string>();
         private AddSearchTagComponent all_AddSearchTagComponent { get; }
         private SearchTagsDisplay all_SearchTagsDisplay { get; }
         private AddSearchTagComponent any_AddSearchTagComponent { get; }
@@ -66,6 +64,17 @@ namespace ImageTagger.UI
 
             viewSearchWindow = new ViewSearchWindow(true);
             viewSearchWindow.Closed += (s, e) => Close();
+            viewSearchWindow.StateChanged += (s, e) =>
+            {
+                if (viewSearchWindow.WindowState == WindowState.Maximized)
+                    this.WindowState = WindowState.Normal;
+                else
+                    this.WindowState = viewSearchWindow.WindowState;
+            };
+            viewSearchWindow.IsVisibleChanged += (s, e) =>
+            {
+                this.Visibility = viewSearchWindow.Visibility;
+            };
 
             this.Loaded += (s, e) =>
             {

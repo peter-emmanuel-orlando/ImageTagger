@@ -123,5 +123,14 @@ namespace ImageTagger
                 this.Hide();
             }
         }
+
+        private void SlideShow_MenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            this.Hide();
+            var startIndex = ImageFiles.IndexOf(ImageDisplay.mainImageInfo.ImgPath);
+            var newIndex = SlideShow.PlaySlideshow(ImageFiles, startIndex);
+            ImageGridDisplay.SetImage(newIndex);
+            this.Show();
+        }
     }
 }

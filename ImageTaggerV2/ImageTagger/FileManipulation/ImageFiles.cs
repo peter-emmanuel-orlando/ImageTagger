@@ -25,8 +25,8 @@ namespace ImageTagger
     public class ImageFiles
     {
         private ObservableCollection<string> FileNames { get; } = new ObservableCollection<string>();
-
         public int Count { get { return FileNames.Count; } }
+        public TagQueryCriteria currentQuery { get; private set; } = new TagQueryCriteria();
 
         public List<string> GetAll()
         {
@@ -72,21 +72,21 @@ namespace ImageTagger
         {
             FileNames.Clear();
 
-            tagQueryCriteria = tagQueryCriteria ?? new TagQueryCriteria();
-            var persistancePath = PersistanceUtil.SourceDirectory;
-            if(!Directory.Exists(persistancePath))
+            currentQuery = tagQueryCriteria ?? new TagQueryCriteria();
+            var sourcePath = PersistanceUtil.SourceDirectory;
+            if(!Directory.Exists(sourcePath))
             {
-                persistancePath = Environment.GetFolderPath(Environment.SpecialFolder.MyPictures);
-                PersistanceUtil.ChangeSource(persistancePath);
+                sourcePath = Environment.GetFolderPath(Environment.SpecialFolder.MyPictures);
+                PersistanceUtil.ChangeSource(sourcePath);
             }
             if (newAdditionsOnly)
                 FileNames.Add(NewFiles);
             else
-                FileNames.Add(ImageFileUtil.GetImageFilenames(persistancePath, tagQueryCriteria));
+                FileNames.Add(ImageFileUtil.GetImageFilenames(sourcePath, currentQuery));
 
-            if (tagQueryCriteria.orderDirection == OrderDirection.RANDOM)
+            if (currentQuery.orderDirection == OrderDirection.RANDOM)
                 FileNames.Shuffle();
-            watcher.Path = persistancePath;
+            watcher.Path = sourcePath;
             watcher.EnableRaisingEvents = true;
             FilesLoaded(null, new EventArgs());
         }
