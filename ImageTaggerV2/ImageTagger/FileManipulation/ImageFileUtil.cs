@@ -38,9 +38,9 @@ namespace ImageTagger
                 var tagComments = "";
                 foreach (var tag in tags)
                 {
-                    if (tag.TagName.StartsWith("DATA:"))
+                    if (tag.TagName.ToUpper().StartsWith("DATA:"))
                         tagComments += tag.TagName + " ";
-                    if (tag.TagName != "")
+                    else if (tag.TagName != "")
                         tagString += tag.TagName + "; ";
                 }
                 var sFile = ShellFile.FromParsingName(imagePath);
