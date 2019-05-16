@@ -19,7 +19,8 @@ namespace ImageTagger
         public MainImageDisplay(ViewSearchWindow main)
         {
             this.main = main;
-            ImageDisplay.DataContext = mainImageInfo;
+            //ImageDisplay.DataContext = mainImageInfo;
+            main.mainImagePanel.DataContext = mainImageInfo;
 
             main.PreviewMainWindowUnload += UnsubscribeFromAllEvents;
             main.imageGrid.SelectionChanged += HandleImageGridSelectionChangeEvent;

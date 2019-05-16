@@ -148,7 +148,14 @@
                     </Grid>
                 </DockPanel>
                 <Grid Background="#FF443252" DockPanel.Dock="Top">
-                    <Image x:Name="mainImageDisplay" Source="{Binding ImgSource}" OpacityMask="Black"/>
+                    <Border x:Name="mainImagePanel" Background="#02000000">
+                        <Image x:Name="mainImageDisplay" Source="{Binding ImgSource}" OpacityMask="Black"/>
+                        <Border.ContextMenu>
+                            <ContextMenu>
+                                <MenuItem x:Name="showInFolder_ContextItem" Header="Show in folder" Click="ShowInFolder_ContextItem_Click" Tag="{Binding ImgPath}" />
+                            </ContextMenu>
+                        </Border.ContextMenu>
+                    </Border>
                     <Grid x:Name="suggestedTagsGridArea" DockPanel.Dock="Bottom" Panel.ZIndex="2">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="2*"/>
@@ -338,7 +345,12 @@
                             <ListBox.ItemTemplate>
                                 <DataTemplate>
                                     <Border Height="{Binding DesiredDimensions}" Width="{Binding DesiredDimensions}" Margin="10,10,10,10" Background="Black" BorderBrush="Black" BorderThickness="1" CornerRadius="1">
-                                        <Image Source="{Binding ImgSource}" Stretch="UniformToFill" />
+                                        <Image Source="{Binding ImgSource}" Stretch="UniformToFill"/>
+                                        <Border.ContextMenu>
+                                            <ContextMenu>
+                                                <MenuItem x:Name="showInFolder_ContextItem" Header="Show in folder" Click="ShowInFolder_ContextItem_Click"  Tag="{Binding ImgPath}"/>
+                                            </ContextMenu>
+                                        </Border.ContextMenu>
                                     </Border>
                                 </DataTemplate>
                             </ListBox.ItemTemplate>

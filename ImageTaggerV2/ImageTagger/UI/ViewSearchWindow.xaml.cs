@@ -132,5 +132,11 @@ namespace ImageTagger
             ImageGridDisplay.SetImage(newIndex);
             this.Show();
         }
+
+        private void ShowInFolder_ContextItem_Click(object sender, RoutedEventArgs e)
+        {
+            var imgPath = (e.OriginalSource as MenuItem).Tag.ToString();
+            ExplorerSearchUtil.ShowInFolder(imgPath);
+        }
     }
 }

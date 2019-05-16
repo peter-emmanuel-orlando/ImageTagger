@@ -1,6 +1,5 @@
 ﻿using ImageTagger.DataModels;
 using System;
-using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
@@ -58,7 +57,7 @@ namespace ImageTagger.UI
             InitializeComponent();
             ImageFiles = imageFiles;
             currentIndex = startIndex - 1;
-            mainSlideshowImageDisplay.DataContext = mainImageInfo;
+            mainSlideshowImagePanel.DataContext = mainImageInfo;
             if (!Int32.TryParse(SettingsPersistanceUtil.RetreiveSetting("slideshowImgDelay"), out imgDelay))
             {
                 ImgDelay = 2000;
@@ -71,7 +70,7 @@ namespace ImageTagger.UI
         {
             Task.Run(new Action(async () =>
             {
-                while(!isClosed)
+                while (!isClosed)
                 {
                     await App.Current.Dispatcher.InvokeAsync(new Action(() =>
                     {
@@ -81,7 +80,7 @@ namespace ImageTagger.UI
                     int timer = 0;
                     while (resetTimer || isPaused || timer < ImgDelay)
                     {
-                        if(resetTimer)
+                        if (resetTimer)
                         {
                             resetTimer = false;
                             timer = 0;
@@ -93,7 +92,7 @@ namespace ImageTagger.UI
             }));
         }
 
-        private void Pause( bool isPaused)
+        private void Pause(bool isPaused)
         {
             this.isPaused = isPaused;
         }
@@ -106,7 +105,7 @@ namespace ImageTagger.UI
 
         private void ChangeImageIndex(int deltaIndex = 1)
         {
-            if(ImageFiles.Count > 0)
+            if (ImageFiles.Count > 0)
             {
                 currentIndex = (currentIndex + deltaIndex) % ImageFiles.Count;
                 while (currentIndex < 0)
@@ -193,7 +192,7 @@ namespace ImageTagger.UI
 
         private void ShowInFolder_ContextItem_Click(object sender, RoutedEventArgs e)
         {
-            var imgPath = ImageFiles.Get(currentIndex);
+            var imgPath = (e.OriginalSource as MenuItem).Tag.ToString();
 
             //straight up doesnt scroll to selected on the first call, 2nd call works though
             //ExplorerNavigateUtil.GoTo(imgPath);
@@ -209,18 +208,5 @@ namespace ImageTagger.UI
             // items arnt displayed in their actual directories
             ExplorerSearchUtil.ShowInFolder(imgPath);
         }
-    }
-}
-
-public static class ExplorerNavigateUtil
-{
-    public static void GoTo( string fullPath)
-    {
-        //var root = $"/root,\"{imgPath}\"";
-        //var filename = $"/select,\"{imgPath}\"";
-        //var args = "/e," + root + "," + filename;
-        //args = args.Replace(@"\\", @"\");
-        fullPath = System.IO.Path.GetFullPath(fullPath);
-        var pKeep = Process.Start("Explorer.exe", string.Format("/select,\"{0}\"", fullPath));
     }
 }

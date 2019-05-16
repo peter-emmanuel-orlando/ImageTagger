@@ -110,6 +110,7 @@
     <Compile Include="FileManipulation\ImageFiles.cs" />
     <Compile Include="FileManipulation\ImageFileUtil.cs" />
     <Compile Include="FileManipulation\ExplorerSearchUtil.cs" />
+    <Compile Include="UI\ExplorerNavigateUtil.cs" />
     <Compile Include="UI\ImageGridDisplay.cs" />
     <Compile Include="ImageInfo.cs" />
     <Compile Include="ImageTag.cs" />
