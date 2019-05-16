@@ -138,5 +138,10 @@ namespace ImageTagger
             var imgPath = (e.OriginalSource as MenuItem).Tag.ToString();
             ExplorerSearchUtil.ShowInFolder(imgPath);
         }
+
+        private void FormatTagsMenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            FormatUtil.FixAllTagsInFiles(ImageFiles);
+        }
     }
 }

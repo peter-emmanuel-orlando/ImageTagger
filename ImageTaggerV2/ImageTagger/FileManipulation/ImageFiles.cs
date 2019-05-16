@@ -1,5 +1,6 @@
 ﻿using ImageTagger.DataModels;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
@@ -22,7 +23,7 @@ namespace ImageTagger
     }
     */
 
-    public class ImageFiles
+    public class ImageFiles : IEnumerable<string>
     {
         private ObservableCollection<string> FileNames { get; } = new ObservableCollection<string>();
         public int Count { get { return FileNames.Count; } }
@@ -55,6 +56,10 @@ namespace ImageTagger
             return FileNames.Contains(filePath);
         }
 
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return FileNames.GetEnumerator();
+        }
         public IEnumerator<string> GetEnumerator()
         {
             return FileNames.GetEnumerator();

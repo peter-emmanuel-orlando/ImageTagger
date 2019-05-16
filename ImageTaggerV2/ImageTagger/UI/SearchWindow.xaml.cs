@@ -145,14 +145,10 @@ namespace ImageTagger.UI
 
         private void Search(object sender, EventArgs e)
         {
-            Search(DispatcherPriority.ApplicationIdle);
-        }
-        private void Search(DispatcherPriority priority)
-        {
-            App.Current.Dispatcher.BeginInvoke(new Action(() => {DelayedSearch();}), priority);
+            DelayedSearch();
         }
 
-        private const int delayLength = 500;//in ms
+        private const int delayLength = 333;//in ms
         int remainingDelay;
         bool isInSearch = false;
         private void DelayedSearch()
@@ -162,6 +158,7 @@ namespace ImageTagger.UI
             else
             {
                 isInSearch = true;
+                viewSearchWindow.IsEnabled = false;
                 Task.Run(() =>
                 {
                     while (remainingDelay > 0)
@@ -171,7 +168,7 @@ namespace ImageTagger.UI
                     }
                     remainingDelay = delayLength;
                     isInSearch = false;
-                    App.Current.Dispatcher.Invoke(Search);
+                    App.Current.Dispatcher.Invoke(()=> { Search(); viewSearchWindow.IsEnabled = true;});
                 });
             }
         }

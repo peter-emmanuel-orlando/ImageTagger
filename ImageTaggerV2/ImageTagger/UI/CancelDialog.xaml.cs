@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -21,13 +22,25 @@ namespace ImageTagger.UI
     /// </summary>
     public partial class CancelDialog : Window
     {
-        public CancelDialog(CancelDialogDataContext context)
+        private CancellationToken cToken = new CancellationToken();
+        public CancelDialog()
         {
             InitializeComponent();
+        }
+        public CancelDialog(CancelDialogDataContext context) : this()
+        {
+            SetContext(context);
+        }
+        public void SetContext(CancelDialogDataContext context)
+        {
             this.Closed += context.OnClosed;
             cancelButton.Click += context.OnCancel;
             progressBar.DataContext = context;
             progressText.DataContext = context;
+            if(!IsLoaded)
+                Loaded += (s,e)=> Task.Run(context.PerformAction, cToken );
+            else
+                Task.Run(context.PerformAction, cToken);
         }
         
     }
@@ -37,6 +50,7 @@ namespace ImageTagger.UI
         private int currentValue = 0;
         private RoutedEventHandler onCancel = delegate { };
         private EventHandler onClosed = delegate { };
+        private Action performAction = delegate { };
 
 
         public int MaxValue { get => maxValue; set { maxValue = value; NotifyPropertyChanged(); } }
@@ -44,6 +58,7 @@ namespace ImageTagger.UI
 
         public RoutedEventHandler OnCancel { get => onCancel; set { onCancel = value; NotifyPropertyChanged(); } }
         public EventHandler OnClosed { get => onClosed; set { onClosed = value; NotifyPropertyChanged(); } }
+        public Action PerformAction { get => performAction; set { performAction = value; NotifyPropertyChanged(); } }
 
         public event PropertyChangedEventHandler PropertyChanged;
         private void NotifyPropertyChanged([CallerMemberName] String propertyName = "")

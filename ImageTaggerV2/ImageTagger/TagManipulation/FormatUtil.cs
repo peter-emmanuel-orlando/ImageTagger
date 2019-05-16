@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ImageTagger.UI;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -21,21 +22,52 @@ namespace ImageTagger
         //rules:
         //  Allowed chars: letters, numbers, dash and underscore
         //  Possible  cases: CamelCase, pascalCase, kebab-case, snake_case
-        public static string FixTag(string tagText, TagCasing casingFormat = TagCasing.SnakeCase)
+        public static string FixTag(string tagText)//, TagCasing casingFormat = TagCasing.SnakeCase)
         {
-            return FixTag(tagText, casingFormat, out _);
+            return TmpFix(tagText);
+            //return FixTag(tagText, casingFormat, out _);
         }
+        /*
         public static string FixTag( string tagText, TagCasing casingFormat, out List<char> rejectedChars)
         {
             var result = FilterChars(tagText, out rejectedChars);
             result = ChangeToSnakeCasing(result);
             return result;
         }
-
+        */
+        public static void FixAllTagsInFiles(ImageFiles imageFiles)//, TagCasing casingFormat = TagCasing.SnakeCase)
+        {
+            var cancel = false;
+            var cancelContext = new CancelDialogDataContext();
+            var cancelDialog = new CancelDialog();
+            cancelContext.CurrentValue = 0;
+            cancelContext.MaxValue = imageFiles.Count;
+            cancelContext.PerformAction = () =>
+            {
+                foreach (var filePath in imageFiles)
+                {
+                    if (cancel) break;
+                    var cleaned = ImageFileUtil.GetImageTags(filePath);
+                    ImageFileUtil.ApplyTagsToImage(filePath, cleaned);
+                    cancelContext.CurrentValue++;
+                }
+            };
+            cancelContext.OnCancel = (s, e) => { cancel = true; cancelDialog.Close(); };
+            cancelContext.OnClosed = (s, e) => { cancel = true; cancelDialog.Close(); };
+            cancelDialog.SetContext(cancelContext);
+            cancelDialog.ShowDialog();
+        }
 
         public static string FixCategory(string category)
         {
-            return category;//.ToLower();
+            return category.ToLower();
+        }
+        private static string TmpFix(string tagText)
+        {
+
+            tagText = tagText.ToLower();
+            tagText = FilterChars(tagText, out _);
+            return tagText;
         }
 
         private static string ChangeToSnakeCasing(string tagText)
@@ -59,7 +91,10 @@ namespace ImageTagger
 
         private static bool IsCharValid(char c)
         {
-            return true;// char.IsLetterOrDigit(c) || c == '-' || c == '_' || c == '{' || c == '}' || c == '[' || c == ']' || c == '"' || c == '!' || c == ':' || c == '.' || c == ',' || c == '*' || c == '%';
+            var result = char.IsLetterOrDigit(c) || c == '{' || c == '}' || c == '[' || c == ']' || c == '"' || c == '!' || c == ':' || c == '.' || c == ',' || c == '*' || c == '%';
+            //if snake case result || c == '_';
+            // if kebab case || c == '-';
+            return result;
         }
 
         public static bool ContainsInvalidCharacters(string tagText)

@@ -411,7 +411,7 @@
                             <Image Source="/ImageTagger;component/cherryBlossomIcon.ico" />
                         </MenuItem.Icon>
                     </MenuItem>
-                    <MenuItem x:Name="formatTagsButton"  Header="Format Tags" IsEnabled="True" >
+                    <MenuItem x:Name="formatTagsMenuItem"  Header="Format Tags" IsEnabled="True" Click="FormatTagsMenuItem_Click" >
                         <MenuItem.Icon>
                             <Image Source="/ImageTagger;component/cherryBlossomIcon.ico" />
                         </MenuItem.Icon>

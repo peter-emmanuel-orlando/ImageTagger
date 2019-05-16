@@ -4,7 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:ImageTagger.UI"
-        mc:Ignorable="d" Topmost="True" SizeToContent="WidthAndHeight" >
+        mc:Ignorable="d" Topmost="True" SizeToContent="WidthAndHeight" MinWidth="200">
     <DockPanel HorizontalAlignment="Center" VerticalAlignment="Center" Margin="20">
         <TextBlock x:Name="progressText" DockPanel.Dock="Top">
             <TextBlock.Text>
