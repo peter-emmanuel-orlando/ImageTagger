@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -59,7 +60,7 @@ namespace ImageTagger.UI
         {
             InitializeComponent();
             ImageFiles = imageFiles;
-            currentIndex = startIndex - 2;//because textchanged will be called
+            currentIndex = startIndex - 1;
             mainSlideshowImageDisplay.DataContext = mainImageInfo;
             if (!Int32.TryParse(SettingsPersistanceUtil.RetreiveSetting("slideshowImgDelay"), out imgDelay))
             {
@@ -191,6 +192,66 @@ namespace ImageTagger.UI
         private void NextButton_Click(object sender, RoutedEventArgs e)
         {
             ChangeImageIndex();
+        }
+
+        private void ShowInFolder_ContextItem_Click(object sender, RoutedEventArgs e)
+        {
+            string genericSearch =
+               @"<?xml version=""1.0""?>
+
+                <persistedQuery version = ""1.0"" >
+                    <viewInfo viewMode=""icons"" iconSize=""96"" stackIconSize=""0"" displayName=""Search Results in Subfolders"" autoListFlags=""0"">
+                    </viewInfo>
+                    <query>
+	                    <conditions>
+		                    ConditionsPlaceHolder
+                        </conditions>
+                        <kindList>
+                            <kind name = ""item"" />
+                        </kindList >
+                        <scope >
+                            <include path=""PathPlaceHolder"" nonRecursive=""false""/>
+                        </scope>
+                    </query>
+                </persistedQuery>
+            ";
+            string genericEqualityTestCondition =
+               @"
+                                <condition 
+                                    type=""leafCondition""
+                                    property=""System.FileName"" 
+                                    operator=""eq""
+                                    value=""PlaceHolder""
+                                />";
+            string genericOrConditionContainer =
+            @"  
+                            <condition type=""orCondition"">
+                                PlaceHolder
+                            </condition>
+            ";
+
+            List<string> selectedFiles = new List<string>(new string[] { ImageFiles.Get(currentIndex) });
+
+            var rootDirectory = selectedFiles[0];
+            foreach (var path in selectedFiles)
+            {
+                rootDirectory = string.Concat(rootDirectory.TakeWhile((thisChar, index) => thisChar == path[index]));
+            }
+
+            var searchMSContent = genericSearch;
+            searchMSContent = searchMSContent.Replace("PathPlaceHolder", rootDirectory);
+            searchMSContent = searchMSContent.Replace("ConditionsPlaceHolder", genericOrConditionContainer);
+
+            var conditionsString = "";
+            foreach (var fileName in selectedFiles)
+            {
+                conditionsString += genericEqualityTestCondition.Replace("PlaceHolder", fileName) + "\n\r";
+            }
+            searchMSContent = searchMSContent.Replace("PlaceHolder", conditionsString);
+
+            var filename = Directory.GetCurrentDirectory();
+            File.WriteAllText(filename, searchMSContent);
+            Process.Start(filename);
         }
     }
 }

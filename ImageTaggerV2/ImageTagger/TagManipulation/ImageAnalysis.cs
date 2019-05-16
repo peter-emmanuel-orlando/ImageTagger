@@ -163,6 +163,8 @@ namespace ImageAnalysisAPI
                                 result[path].Add(new TagSuggestion(new ImageTag("autoTagged"), 1, "general"));
                             else
                                 result.Add(path, new List<TagSuggestion>(new TagSuggestion[] { new TagSuggestion(new ImageTag("autoTagged"), 1, "general") }));
+
+                            result[path].AddRange(ImageFileUtil.GetImageTags(path).Select(tag=>new TagSuggestion(tag, 1, "preexisting")));
                         }
                     }
                     catch (Exception e)

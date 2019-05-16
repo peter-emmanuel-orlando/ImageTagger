@@ -23,6 +23,12 @@
                 <Button Content="Next(L)" HorizontalAlignment="Left" DockPanel.Dock="Left" FontSize="18" Click="NextButton_Click"/>
             </DockPanel>
         </Border>
-        <Image x:Name="mainSlideshowImageDisplay" Source="{Binding ImgSource}" OpacityMask="Black" KeyDown="HandleKeyDown"/>
+        <Image x:Name="mainSlideshowImageDisplay" Source="{Binding ImgSource}" OpacityMask="Black" KeyDown="HandleKeyDown">
+            <Image.ContextMenu>
+                <ContextMenu>
+                    <MenuItem x:Name="showInFolder_ContextItem" Header="Show in folder" Click="ShowInFolder_ContextItem_Click" />
+                </ContextMenu>
+            </Image.ContextMenu>
+        </Image>
     </Grid>
 </Window>
