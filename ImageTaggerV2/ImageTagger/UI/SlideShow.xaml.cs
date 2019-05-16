@@ -1,9 +1,7 @@
 ﻿using ImageTagger.DataModels;
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
-using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -14,7 +12,6 @@ using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 using System.Windows.Threading;
 
 namespace ImageTagger.UI
@@ -196,62 +193,34 @@ namespace ImageTagger.UI
 
         private void ShowInFolder_ContextItem_Click(object sender, RoutedEventArgs e)
         {
-            string genericSearch =
-               @"<?xml version=""1.0""?>
+            var imgPath = ImageFiles.Get(currentIndex);
 
-                <persistedQuery version = ""1.0"" >
-                    <viewInfo viewMode=""icons"" iconSize=""96"" stackIconSize=""0"" displayName=""Search Results in Subfolders"" autoListFlags=""0"">
-                    </viewInfo>
-                    <query>
-	                    <conditions>
-		                    ConditionsPlaceHolder
-                        </conditions>
-                        <kindList>
-                            <kind name = ""item"" />
-                        </kindList >
-                        <scope >
-                            <include path=""PathPlaceHolder"" nonRecursive=""false""/>
-                        </scope>
-                    </query>
-                </persistedQuery>
-            ";
-            string genericEqualityTestCondition =
-               @"
-                                <condition 
-                                    type=""leafCondition""
-                                    property=""System.FileName"" 
-                                    operator=""eq""
-                                    value=""PlaceHolder""
-                                />";
-            string genericOrConditionContainer =
-            @"  
-                            <condition type=""orCondition"">
-                                PlaceHolder
-                            </condition>
-            ";
+            //straight up doesnt scroll to selected on the first call, 2nd call works though
+            //ExplorerNavigateUtil.GoTo(imgPath);
 
-            List<string> selectedFiles = new List<string>(new string[] { ImageFiles.Get(currentIndex) });
+            //some one elses solution i dont understand external code much
+            //files in different folders will cause multiple windows to open
+            //doesnt scroll to selected
+            //h ttps://gist.github.com/vbfox/551626
+            //ShowSelectedInExplorer.FileOrFolder(ImageFiles.Get(currentIndex));
 
-            var rootDirectory = selectedFiles[0];
-            foreach (var path in selectedFiles)
-            {
-                rootDirectory = string.Concat(rootDirectory.TakeWhile((thisChar, index) => thisChar == path[index]));
-            }
-
-            var searchMSContent = genericSearch;
-            searchMSContent = searchMSContent.Replace("PathPlaceHolder", rootDirectory);
-            searchMSContent = searchMSContent.Replace("ConditionsPlaceHolder", genericOrConditionContainer);
-
-            var conditionsString = "";
-            foreach (var fileName in selectedFiles)
-            {
-                conditionsString += genericEqualityTestCondition.Replace("PlaceHolder", fileName) + "\n\r";
-            }
-            searchMSContent = searchMSContent.Replace("PlaceHolder", conditionsString);
-
-            var filename = Directory.GetCurrentDirectory();
-            File.WriteAllText(filename, searchMSContent);
-            Process.Start(filename);
+            //uses search-ms
+            //opens 1 window
+            // items arnt displayed in their actual directories
+            ExplorerSearchUtil.ShowInFolder(imgPath);
         }
+    }
+}
+
+public static class ExplorerNavigateUtil
+{
+    public static void GoTo( string fullPath)
+    {
+        //var root = $"/root,\"{imgPath}\"";
+        //var filename = $"/select,\"{imgPath}\"";
+        //var args = "/e," + root + "," + filename;
+        //args = args.Replace(@"\\", @"\");
+        fullPath = System.IO.Path.GetFullPath(fullPath);
+        var pKeep = Process.Start("Explorer.exe", string.Format("/select,\"{0}\"", fullPath));
     }
 }
