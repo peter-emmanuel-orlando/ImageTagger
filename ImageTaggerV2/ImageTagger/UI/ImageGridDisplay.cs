@@ -148,7 +148,7 @@ namespace ImageTagger
         {
             if (e.AddedItems.Count > 0)
             {
-                var newImageInfo = (e.AddedItems[0] as ImageInfo);
+                var newImageInfo = (e.AddedItems.Last() as ImageInfo);
                 newImageInfo.Load();
                 //Debug.WriteLine("selected: " + newImageInfo.ImgPath);
                 //main.ImageDisplay.ChangeImage(newImageInfo);

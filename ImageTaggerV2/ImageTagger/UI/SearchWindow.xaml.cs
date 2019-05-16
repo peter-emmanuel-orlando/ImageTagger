@@ -191,7 +191,7 @@ namespace ImageTagger.UI
 
         private void OrderDirectionDisplay_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            var selected = (e.AddedItems.Count > 0) ? e.AddedItems[0].ToString().Split('=').LastOrDefault().Replace("}", "") : "";
+            var selected = (e.AddedItems.Count > 0) ? e.AddedItems.Last().ToString().Split('=').LastOrDefault().Replace("}", "") : "";
             if (Enum.TryParse(selected, out OrderDirection orderDirection))
             {
                 if (orderDirection == OrderDirection.RANDOM)

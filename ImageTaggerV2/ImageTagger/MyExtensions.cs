@@ -16,6 +16,16 @@ public static class MyExtensions
     {
         return Enum.GetName(typeof(T), e);
     }
+    public static T Last<T>(this IList<T> list)
+    {
+        if (list.Count == 0) throw new System.ArgumentException("there is no last element of an empty collection!");
+        return list[list.Count - 1];
+    }
+    public static object Last(this IList list)
+    {
+        if (list.Count == 0) throw new System.ArgumentException("there is no last element of an empty collection!");
+        return list[list.Count - 1];
+    }
     public static void Add<T>(this ObservableCollection<T> col, IEnumerable<T> enumerable)
     {
         if (enumerable != null)

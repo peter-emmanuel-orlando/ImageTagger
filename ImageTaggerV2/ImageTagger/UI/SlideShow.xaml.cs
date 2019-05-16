@@ -25,7 +25,7 @@ namespace ImageTagger.UI
     /// //favorite searches
     /// watch folder for changes
     /// select multiple images and tag all at once
-    /// right click, show in folder
+    /// right click, show in folder <-- done
     public partial class SlideShow : Window
     {
         private ImageFiles ImageFiles { get; }

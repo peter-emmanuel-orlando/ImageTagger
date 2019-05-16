@@ -3,6 +3,7 @@ using ImageTagger.DataModels;
 using System;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
+using System.Linq;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Threading;
@@ -37,9 +38,14 @@ namespace ImageTagger
         {
             if (e.AddedItems.Count > 0)
             {
-                var newImageInfo = (e.AddedItems[0] as ImageInfo);
+                var newImageInfo = (e.AddedItems.Last() as ImageInfo);
                 //Debug.WriteLine("selected: " + newImageInfo.ImgPath);
                 //if (!newImageInfo.IsLoaded) newImageInfo.Load();// App.Current.Dispatcher.BeginInvoke( new Action( newImageInfo.Load), DispatcherPriority.Loaded);
+                ChangeImage(newImageInfo);
+            }
+            else if(main.imageGrid.SelectedItems.Count > 0)
+            {
+                var newImageInfo = (main.imageGrid.SelectedItems.Last() as ImageInfo);
                 ChangeImage(newImageInfo);
             }
         }
