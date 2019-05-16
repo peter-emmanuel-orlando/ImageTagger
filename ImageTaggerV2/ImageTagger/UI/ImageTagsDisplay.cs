@@ -21,7 +21,6 @@ namespace ImageTagger
 
         private ObservableCollection<ImageTag> mainImageTags { get; } = new ObservableCollection<ImageTag>();
         public IEnumerable<ImageTag> Tags { get { return mainImageTags; } }
-        public ImageInfo TagSource { get; private set; }
 
         public ImageTagsDisplay(ViewSearchWindow main)
         {
@@ -63,20 +62,22 @@ namespace ImageTagger
 
         private void HandleImageGridSelectionChangeEvent(object sender, SelectionChangedEventArgs e)
         {
-            if (e.AddedItems.Count > 0)
-            {
-                var newImageInfo = (e.AddedItems.Last() as ImageInfo);
-                //Debug.WriteLine("selected: " + newImageInfo.ImgPath);
-
-                ChangeImageTags(newImageInfo);
-            }
+            ChangeImageTags();
         }
 
-        private void ChangeImageTags(ImageInfo newInfo)
+        private void ChangeImageTags()
         {
-            TagSource = newInfo;
+            HashSet<ImageTag> tags = null;
+            foreach (var selected in main.imageGrid.SelectedItems.Cast<ImageInfo>())
+            {
+                var newTags = ImageFileUtil.GetImageTags(selected.ImgPath);
+                if (tags == null)
+                    tags = newTags;
+                else
+                    tags.IntersectWith(newTags);
+            }
             mainImageTags.Clear();
-            mainImageTags.Add(ImageFileUtil.GetImageTags(newInfo.ImgPath));
+            mainImageTags.Add(tags);
         }
 
         private void TagsDisplay_LostFocus(object sender, RoutedEventArgs e)
@@ -137,17 +138,6 @@ namespace ImageTagger
         {
             mainImageTags.Remove(tag);
         }
-
-        public void Clear()
-        {
-            mainImageTags.Clear();
-        }
-
-        public void Refresh()
-        {
-            TagSource = TagSource;
-        }
-
     }
 
     public partial class ViewSearchWindow
@@ -164,6 +154,10 @@ namespace ImageTagger
             {
                 var item = TagSuggestionDisplay.SuggestedTagGridItems[suggestionIndex];
                 item.IsSelected = !item.IsSelected;
+            }
+            foreach (var selected in imageGrid.SelectedItems.Cast<ImageInfo>())
+            {
+                ImageTagsDisplay.Remove(new ImageTag(tagName));
             }
         }
     }
