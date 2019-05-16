@@ -101,9 +101,8 @@ namespace ImageTagger
             main.clearAllTagSuggestions.IsEnabled = true;
             main.clearAllTagSuggestions.Visibility = Visibility.Visible;
 
-            prevTags = main.ImageTagsDisplay.Tags;
-            main.ImageTagsDisplay.Add(SuggestedTagGridItems.Cast<ImageTag>());
-            main.ImageTagsDisplay.ApplyTagsToMainImage();
+            prevTags = ImageFileUtil.GetImageTags(((ImageInfo)(main.imageGrid.SelectedItem)).ImgPath);
+            main.ImageTagsDisplay.AddToAll(SuggestedTagGridItems.Cast<ImageTag>());
             foreach (var item in SuggestedTagGridItems)
             {
                 item.IsSelected = true;
@@ -118,9 +117,8 @@ namespace ImageTagger
             main.clearAllTagSuggestions.IsEnabled = false;
             main.clearAllTagSuggestions.Visibility = Visibility.Collapsed;
             var btn = e.OriginalSource as Button;
-            main.ImageTagsDisplay.Remove(SuggestedTagGridItems.Cast<ImageTag>());
-            main.ImageTagsDisplay.Add(prevTags);
-            main.ImageTagsDisplay.ApplyTagsToMainImage();
+            main.ImageTagsDisplay.RemoveFromAll(SuggestedTagGridItems.Cast<ImageTag>());
+            main.ImageTagsDisplay.AddToAll(prevTags);
             foreach (var item in SuggestedTagGridItems)
             {
                 item.IsSelected = false;
@@ -144,7 +142,22 @@ namespace ImageTagger
 
         private void HandleGridSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            ChangeSuggestions();
+            if( main.imageGrid.SelectedItems.Count > 1)
+            {
+                if(!isDormant)
+                    CloseSuggestionsPanel();
+                main.reloadTagSuggestions.IsEnabled = false;
+                main.reloadTagSuggestions.Visibility = Visibility.Collapsed;
+            }
+            else
+            {
+                if (isDormant)
+                {
+                    main.reloadTagSuggestions.IsEnabled = true;
+                    main.reloadTagSuggestions.Visibility = Visibility.Visible;
+                }
+                ChangeSuggestions();
+            }
         }
 
         private void HandleChangeSuggestionsClickEvent(object sender, RoutedEventArgs e)
@@ -316,16 +329,15 @@ namespace ImageTagger
             var isSelected = (bool)btn.Tag;
             if (isSelected)
             {
-                ImageTagsDisplay.Remove(tagName);
+                ImageTagsDisplay.RemoveFromAll(tagName);
                 item.IsSelected = false;
             }
             else
             {
-                ImageTagsDisplay.Add(new ImageTag(tagName));
+                ImageTagsDisplay.AddToAll(new ImageTag(tagName));
                 item.IsSelected = true;
 
             }
-            ImageTagsDisplay.ApplyTagsToMainImage();
         }
 
 

@@ -107,8 +107,7 @@ namespace ImageTagger
                     item.IsSelected = true;
                 }
 
-                ImageTagsDisplay.Add(new ImageTag(currentText));
-                ImageTagsDisplay.ApplyTagsToMainImage();
+                ImageTagsDisplay.AddToAll(new ImageTag(currentText));
                 AddNewTag_TextBox.Clear();
             }
         }

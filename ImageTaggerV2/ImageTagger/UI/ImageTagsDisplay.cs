@@ -16,19 +16,15 @@ namespace ImageTagger
     {
         //need to make rules for tags
         ViewSearchWindow main { get; }
-        public ListBox TagsDisplay { get { return main.tagsDisplay; } }
-        public MainImageDisplay ImageDisplay { get { return main.ImageDisplay; } }
 
-        private ObservableCollection<ImageTag> mainImageTags { get; } = new ObservableCollection<ImageTag>();
-        public IEnumerable<ImageTag> Tags { get { return mainImageTags; } }
+        private ObservableCollection<ImageTag> selectedImageTags { get; } = new ObservableCollection<ImageTag>();
+        public IEnumerable<ImageTag> SelectedImageTags { get { return selectedImageTags; } }
 
         public ImageTagsDisplay(ViewSearchWindow main)
         {
             this.main = main;
-            TagsDisplay.ItemsSource = mainImageTags;
-            TagsDisplay.KeyDown += TagsDisplay_KeyDown;
-            TagsDisplay.LostFocus += TagsDisplay_LostFocus;
-            mainImageTags.CollectionChanged += HandleCollectionChanged;
+            main.tagsDisplay.ItemsSource = selectedImageTags;
+            selectedImageTags.CollectionChanged += HandleCollectionChanged;
             main.imageGrid.SelectionChanged += HandleImageGridSelectionChangeEvent;
 
             main.PreviewMainWindowUnload += UnsubscribeFromAllEvents;
@@ -38,34 +34,24 @@ namespace ImageTagger
         {
             main.PreviewMainWindowUnload -= UnsubscribeFromAllEvents;
             // unsubscribe from anything else here
-            TagsDisplay.KeyDown -= TagsDisplay_KeyDown;
-            TagsDisplay.LostFocus -= TagsDisplay_LostFocus;
-            mainImageTags.CollectionChanged -= HandleCollectionChanged;
+            selectedImageTags.CollectionChanged -= HandleCollectionChanged;
             main.imageGrid.SelectionChanged -= HandleImageGridSelectionChangeEvent;
         }
 
         private void HandleCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
-            if (mainImageTags.Count == 0)
+            if (selectedImageTags.Count == 0)
                 main.noTagsMessage.Opacity = 1;
             else
                 main.noTagsMessage.Opacity = 0;
         }
 
-        private void TagsDisplay_KeyDown(object sender, KeyEventArgs e)
-        {
-            if (e.Key == Key.Enter)
-            {
-                ApplyTagsToMainImage();
-            }
-        }
-
         private void HandleImageGridSelectionChangeEvent(object sender, SelectionChangedEventArgs e)
         {
-            ChangeImageTags();
+            ChangeSelectedImageTags();
         }
 
-        private void ChangeImageTags()
+        private void ChangeSelectedImageTags()
         {
             HashSet<ImageTag> tags = null;
             foreach (var selected in main.imageGrid.SelectedItems.Cast<ImageInfo>())
@@ -76,67 +62,64 @@ namespace ImageTagger
                 else
                     tags.IntersectWith(newTags);
             }
-            mainImageTags.Clear();
-            mainImageTags.Add(tags);
+            selectedImageTags.Clear();
+            selectedImageTags.Add(tags);
         }
 
-        private void TagsDisplay_LostFocus(object sender, RoutedEventArgs e)
-        {
-            ApplyTagsToMainImage();
-        }
-
-        public void ApplyTagsToMainImage()
-        {
-            var success = ImageFileUtil.ApplyTagsToImage(ImageDisplay.mainImageInfo, Tags);
-            if(mainImageTags.Count > 0 && success && PersistanceUtil.DestinationDirectory != PersistanceUtil.SourceDirectory)
-            {
-                //todo: fix destination
-                //main.ImageFiles.MoveToDestination(ImageDisplay.mainImageInfo, PersistanceUtil.DestinationDirectory);
-            }
-        }
-
-        public void Add(IEnumerable<ImageTag> items)
+        public void AddToAll(IEnumerable<ImageTag> items)
         {
             foreach (var item in items)
             {
-                Add(item);
+                AddToAll(item);
             }
         }
-        public bool Add(ImageTag item)
+        public void AddToAll(ImageTag tag)
         {
-            var success = false;
-            if (!item.IsEmpty() && !mainImageTags.Contains(item))
+            if (!tag.IsEmpty() && !selectedImageTags.Contains(tag))
             {
-                success = true;
-                mainImageTags.Add(item);
+                selectedImageTags.Add(tag);
+                foreach (var selected in main.imageGrid.SelectedItems.Cast<ImageInfo>())
+                {
+                    var current = ImageFileUtil.GetImageTags(selected.ImgPath);
+                    current.Add(tag);
+                    ImageFileUtil.ApplyTagsToImage(selected, current);
+                }
             }
-            return success;
         }
         
-        public bool Contains(string tagName)
+        public bool AllContain(string tagName)
         {
-            return Contains(new ImageTag(tagName));
+            return AllContain(new ImageTag(tagName));
         }
 
-        public bool Contains(ImageTag tag)
+        public bool AllContain(ImageTag tag)
         {
-            return mainImageTags.Contains(tag);
+            return selectedImageTags.Contains(tag);
         }
 
-        public void Remove(IEnumerable<ImageTag> items)
+        public void RemoveFromAll(IEnumerable<ImageTag> items)
         {
             foreach (var item in items)
             {
-                Remove(item);
+                RemoveFromAll(item);
             }
         }
-        public void Remove(string tagName)
+        public void RemoveFromAll(string tagName)
         {
-            Remove(new ImageTag(tagName));
+            RemoveFromAll(new ImageTag(tagName));
         }
-        public void Remove(ImageTag tag)
+        public void RemoveFromAll(ImageTag tag)
         {
-            mainImageTags.Remove(tag);
+            if (!tag.IsEmpty() && selectedImageTags.Contains(tag))
+            {
+                selectedImageTags.Remove(tag);
+                foreach (var selected in main.imageGrid.SelectedItems.Cast<ImageInfo>())
+                {
+                    var current = ImageFileUtil.GetImageTags(selected.ImgPath);
+                    current.Remove(tag);
+                    ImageFileUtil.ApplyTagsToImage(selected, current);
+                }
+            }
         }
     }
 
@@ -146,7 +129,7 @@ namespace ImageTagger
         {
             string tagName = (e.OriginalSource as CheckBox).Content + "";
             Debug.WriteLine(tagName);
-            ImageTagsDisplay.Remove(tagName);
+            ImageTagsDisplay.RemoveFromAll(tagName);
             addNewTag_TextBox.Text = tagName;
             addNewTag_TextBox.Focus();
             var suggestionIndex = TagSuggestionDisplay.SuggestedTagGridItems.IndexOf(new SuggestedTagGridItem(tagName, 0, 0, ""));
@@ -154,10 +137,6 @@ namespace ImageTagger
             {
                 var item = TagSuggestionDisplay.SuggestedTagGridItems[suggestionIndex];
                 item.IsSelected = !item.IsSelected;
-            }
-            foreach (var selected in imageGrid.SelectedItems.Cast<ImageInfo>())
-            {
-                ImageTagsDisplay.Remove(new ImageTag(tagName));
             }
         }
     }
