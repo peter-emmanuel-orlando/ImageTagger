@@ -148,14 +148,15 @@
                     </Grid>
                 </DockPanel>
                 <Grid Background="#FF443252" DockPanel.Dock="Top">
-                    <Border x:Name="mainImagePanel" Background="#02000000">
-                        <Image x:Name="mainImageDisplay" Source="{Binding ImgSource}" OpacityMask="Black"/>
-                        <Border.ContextMenu>
+                    <Grid x:Name="mainImagePanel" Background="#02000000">
+                        <Image x:Name="mainImageDisplay" Source="{Binding ImgSource}" OpacityMask="Black" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        <TextBlock x:Name="multipleImagesIndicator" Text="MULTIPLE IMAGES" FontSize="50" FontWeight="Bold" FontStyle="Italic" Opacity="0.275" Visibility="Hidden"/>
+                        <Grid.ContextMenu>
                             <ContextMenu>
                                 <MenuItem x:Name="showInFolder_ContextItem" Header="Show in folder" Click="ShowInFolder_ContextItem_Click" Tag="{Binding ImgPath}" />
                             </ContextMenu>
-                        </Border.ContextMenu>
-                    </Border>
+                        </Grid.ContextMenu>
+                    </Grid>
                     <Grid x:Name="suggestedTagsGridArea" DockPanel.Dock="Bottom" Panel.ZIndex="2">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="2*"/>

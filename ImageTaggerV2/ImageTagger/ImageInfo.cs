@@ -36,8 +36,6 @@ namespace ImageTagger.DataModels
         }
         private int desiredDimensions = 100;
         public int DesiredDimensions { get => desiredDimensions.Clamp(0, int.MaxValue); set { desiredDimensions = value; NotifyPropertyChanged(); } }
-        private HashSet<ImageTag> imgTags = new HashSet<ImageTag>(new ImageTagEqualityComparer());
-        //public HashSet<ImageTag> ImgTags { get => imgTags; set { imgTags = value; NotifyPropertyChanged(); } }
         private BitmapImage imgSource;
         public BitmapImage ImgSource { get => imgSource; private set { imgSource = value; NotifyPropertyChanged(); } }
         public bool IsLoaded { get => ImgSource != null; }

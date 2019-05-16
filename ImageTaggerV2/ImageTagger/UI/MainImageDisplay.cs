@@ -4,6 +4,7 @@ using System;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Threading;
@@ -48,6 +49,11 @@ namespace ImageTagger
                 var newImageInfo = (main.imageGrid.SelectedItems.Last() as ImageInfo);
                 ChangeImage(newImageInfo);
             }
+
+            if(main.imageGrid.SelectedItems.Count > 1)
+                main.multipleImagesIndicator.Visibility = Visibility.Visible;
+            else
+                main.multipleImagesIndicator.Visibility = Visibility.Hidden;
         }
 
         private void ChangeImage(ImageInfo newInfo)
