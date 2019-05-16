@@ -76,6 +76,12 @@ namespace ImageTagger.UI
                 this.Visibility = viewSearchWindow.Visibility;
             };
 
+            viewSearchWindow.ImageFiles.FilesLoaded += (s, e) =>
+            {
+                Title = Title.Split('[')[0];
+                Title += $"[results: {viewSearchWindow.ImageFiles.Count} images in query]";
+            };
+
             this.Loaded += (s, e) =>
             {
                 var hwnd = new WindowInteropHelper(this).Handle;
@@ -143,7 +149,31 @@ namespace ImageTagger.UI
         }
         private void Search(DispatcherPriority priority)
         {
-            App.Current.Dispatcher.BeginInvoke(new Action(() => {Search();}), priority);
+            App.Current.Dispatcher.BeginInvoke(new Action(() => {DelayedSearch();}), priority);
+        }
+
+        private const int delayLength = 500;//in ms
+        int remainingDelay;
+        bool isInSearch = false;
+        private void DelayedSearch()
+        {
+            if(isInSearch)
+                remainingDelay = delayLength;
+            else
+            {
+                isInSearch = true;
+                Task.Run(() =>
+                {
+                    while (remainingDelay > 0)
+                    {
+                        Thread.Sleep(1);
+                        remainingDelay--;
+                    }
+                    remainingDelay = delayLength;
+                    isInSearch = false;
+                    App.Current.Dispatcher.Invoke(Search);
+                });
+            }
         }
         private void Search()
         {

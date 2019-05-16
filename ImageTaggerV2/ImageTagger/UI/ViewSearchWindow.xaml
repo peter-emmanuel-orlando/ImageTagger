@@ -401,12 +401,17 @@
                     </MenuItem>
                 </MenuItem>
                 <MenuItem x:Name="tools_MenuItem" Background="#FFF0DBFF" Header="Tools">
+                    <MenuItem x:Name="slideShow_MenuItem"  Header="Slideshow" IsEnabled="True" Click="SlideShow_MenuItem_Click" >
+                        <MenuItem.Icon>
+                            <Image Source="/ImageTagger;component/cherryBlossomIcon.ico" />
+                        </MenuItem.Icon>
+                    </MenuItem>
                     <MenuItem x:Name="batchTag_MenuItem"  Header="Batch Tag" IsEnabled="True" >
                         <MenuItem.Icon>
                             <Image Source="/ImageTagger;component/cherryBlossomIcon.ico" />
                         </MenuItem.Icon>
                     </MenuItem>
-                    <MenuItem x:Name="slideShow_MenuItem"  Header="Slideshow" IsEnabled="True" Click="SlideShow_MenuItem_Click" >
+                    <MenuItem x:Name="formatTagsButton"  Header="Format Tags" IsEnabled="True" >
                         <MenuItem.Icon>
                             <Image Source="/ImageTagger;component/cherryBlossomIcon.ico" />
                         </MenuItem.Icon>
