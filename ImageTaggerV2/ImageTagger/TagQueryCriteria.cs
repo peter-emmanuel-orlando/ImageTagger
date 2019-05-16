@@ -23,6 +23,7 @@ namespace ImageTagger
         Explicit,
         Suggestive,
         Untagged,
+        Meme,
     }
     public enum FilterState
     {
@@ -66,6 +67,7 @@ namespace ImageTagger
             filterByClauses.Add(FilterBy.Explicit, @" System.Keywords LIKE 'explicit'");
             filterByClauses.Add(FilterBy.Suggestive, @" System.Keywords LIKE 'suggestive'");
             filterByClauses.Add(FilterBy.Untagged, @" (System.Keywords IS NULL)");
+            filterByClauses.Add(FilterBy.Meme, @" System.Keywords LIKE 'spoof'");
         }
         public TagQueryCriteria(IEnumerable<string> anyOfThese = null, IEnumerable<string> allOfThese = null, IEnumerable<string> noneOfThese = null, OrderBy orderBy = OrderBy.Date, OrderDirection orderDirection = OrderDirection.DESC, params Filter[] filters)
         {

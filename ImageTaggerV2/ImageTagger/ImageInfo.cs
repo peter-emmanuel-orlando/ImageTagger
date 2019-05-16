@@ -46,19 +46,26 @@ namespace ImageTagger.DataModels
         }
 
         private bool isLoading = false;
+        private int pixelDimensions = 0;
         /// <summary>
         /// dimension of -1 will set to maxResolution
         /// </summary>
         /// <param name="pixelDimensions"></param>
         /// <param name="priority"></param>
-        public void Load( int pixelDimensions = -1, DispatcherPriority priority = DispatcherPriority.ApplicationIdle)
+        public void Load( int pixelDimensions = -1, DispatcherPriority priority = DispatcherPriority.ContextIdle)
         {
             if(ImgPath != null)
             {
+                if (pixelDimensions == this.pixelDimensions && IsLoaded)
+                    return;
+
                 isLoading = true;
+                var prevPixelDimensions = this.pixelDimensions;
                 //ImgTags = ImageFileUtil.GetImageTags(ImgPath);
                 App.Current.Dispatcher.BeginInvoke(priority, new Action(() =>
                 {
+                    if (pixelDimensions == this.pixelDimensions && IsLoaded)
+                        return;
                     FileStream stream = null;
                     try
                     {
@@ -77,8 +84,9 @@ namespace ImageTagger.DataModels
                         {
                             ImgSource = imgBitMap;
                         }
+                        this.pixelDimensions = pixelDimensions;
                     }
-                    catch (Exception) { }
+                    catch (Exception e) { Debug.WriteLine(e); this.pixelDimensions = prevPixelDimensions; }
                     finally
                     {
                         if (stream != null)
@@ -104,6 +112,7 @@ namespace ImageTagger.DataModels
             ImgPath = other.ImgPath;
             ImgSource = other.ImgSource;
             //ImgTags = other.ImgTags;
+            this.pixelDimensions = -int.MaxValue;
             this.Load(pixelDimensions, priority);
         }
 

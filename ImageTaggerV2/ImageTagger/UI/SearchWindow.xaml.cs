@@ -52,7 +52,7 @@ namespace ImageTagger.UI
             {
                 var filter = (FilterBy)Enum.Parse(typeof(FilterBy), e);
                 var state = FilterState.Allow;
-                if (filter == FilterBy.Explicit || filter == FilterBy.Suggestive || filter == FilterBy.Untagged)
+                if (filter == FilterBy.Explicit || filter == FilterBy.Suggestive || filter == FilterBy.Untagged || filter == FilterBy.Meme)
                     state = FilterState.Exclude;
                 return new { FilterName = filter, FilterState = state };
             }

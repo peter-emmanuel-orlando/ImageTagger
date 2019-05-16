@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Media;
 using System.Windows.Threading;
 using Debug = System.Diagnostics.Debug;
 
@@ -22,7 +23,7 @@ namespace ImageTagger
         private ObservableCollection<ImageInfo> Images { get; } = new ObservableCollection<ImageInfo>();
         private ListBox ImageGrid { get { return main.imageGrid; } }
 
-        private int maxLoadedImages = 400;
+        private int maxLoadedSquares = 800;
         private int currentImageOffset = 0;
         private int currentChunk = 0;
         private int imagesPerChunk = 25;
@@ -78,6 +79,7 @@ namespace ImageTagger
                 image.Unload();
             }
             Images.Clear();
+            loadedImages = 0;
             GC.Collect();
             currentImageOffset = 0;
             currentChunk = 0;
@@ -89,8 +91,11 @@ namespace ImageTagger
                 imgIndex = main.ImageFiles.Count;
             if (currentImageOffset > imgIndex)
             {
-                currentImageOffset = (int)Math.Floor((float)imgIndex / maxLoadedImages) * maxLoadedImages;
+                currentImageOffset = (int)Math.Floor((float)imgIndex / maxLoadedSquares) * maxLoadedSquares;
                 currentChunk = 0;
+                foreach (var image in Images)
+                    image.Unload();
+                loadedImages = 0;
                 Images.Clear();
                 GC.Collect();
             }
@@ -149,6 +154,9 @@ namespace ImageTagger
             if (e.AddedItems.Count > 0)
             {
                 var newImageInfo = (e.AddedItems.Last() as ImageInfo);
+                if(!newImageInfo.IsLoaded)
+                    loadedImages ++;
+
                 newImageInfo.Load();
                 //Debug.WriteLine("selected: " + newImageInfo.ImgPath);
                 //main.ImageDisplay.ChangeImage(newImageInfo);
@@ -161,6 +169,101 @@ namespace ImageTagger
             if (IsFullyScrolled())
             {
                 RequestMoreImages();
+            }
+            else
+            {
+                //requesting more will trigger scrolling
+                //LoadVisible();
+                LoadOnScreen();
+            }
+        }
+
+        int maxLoadedImages = 333;
+        int loadedImages = 0;
+        private void LoadOnScreen()
+        {
+            //if (ImageGrid.Items.Count == 0) return;
+            //var anItem = (ListBoxItem)(ImageGrid.ItemContainerGenerator.ContainerFromItem(ImageGrid.Items[0]));
+            //var itemSize = anItem.he
+            var viewer = main.imageGrid_ScrollViewer;
+            var itemSize = desiredThumbnailSize + 22;//padding and margin
+            var viewerWidth = viewer.ViewportWidth;
+            var viewerHeight = viewer.ViewportHeight;
+            var columns = Math.Floor(viewerWidth/ itemSize);
+            var prevRows = Math.Floor(viewer.VerticalOffset / itemSize);
+            var visibleRows = Math.Ceiling(viewerHeight / itemSize);
+            var visibleItemsStartIndex = (int)(prevRows * columns);
+            var visibleItemsEndIndex = (int)(visibleItemsStartIndex + (visibleRows * columns));
+
+            var margin = (int)Math.Ceiling(visibleRows*columns / 2f);
+            visibleItemsStartIndex -= margin;
+            visibleItemsEndIndex += margin;
+
+            if (visibleItemsStartIndex < 0) visibleItemsStartIndex = 0;
+            if (visibleItemsEndIndex > Images.Count - 1) visibleItemsEndIndex = Images.Count - 1;
+
+            var loadedImages = Images.Count(i => i.IsLoaded);
+            for (int i = 0; i < visibleItemsStartIndex; i++)
+            {
+                if (loadedImages <= maxLoadedImages)
+                    break;
+                else if (Images[i].IsLoaded)
+                {
+                    loadedImages--;
+                    Images[i].Unload();
+                }
+            }
+            for (int i = visibleItemsStartIndex; i <= visibleItemsEndIndex; i++)
+            {
+                if (!Images[i].IsLoaded)
+                {
+                    Images[i].Load(desiredThumbnailSize + 250, DispatcherPriority.Send);
+                    loadedImages++;
+                }
+            }
+            for (int i = visibleItemsEndIndex + 1; i < Images.Count; i++)
+            {
+                if (loadedImages <= maxLoadedImages)
+                    break;
+                else if (Images[i].IsLoaded)
+                {
+                    loadedImages--;
+                    Images[i].Unload();
+                }
+            }
+        }
+        private void LoadVisible()
+        {
+            foreach (var item in ImageGrid.Items.Cast<ImageInfo>())
+            {
+                var sViewer = main.imageGrid_ScrollViewer;
+                var gridItem = (ListBoxItem)ImageGrid.ItemContainerGenerator.ContainerFromItem(item);
+                if (gridItem != null)
+                {
+                    GeneralTransform childTransform = gridItem.TransformToAncestor(sViewer);
+                    Rect rectangle = childTransform.TransformBounds(new Rect(new Point(0, 0), gridItem.RenderSize));
+                    //Check if the elements Rect intersects with that of the scrollviewer's
+                    Rect result = Rect.Intersect(new Rect(new Point(0, 0), sViewer.RenderSize), rectangle);
+                    //if result is Empty then the element is not in view
+                    if (result == Rect.Empty)
+                    {
+                        //not visible
+                        if (item.IsLoaded)
+                        {
+                            loadedImages--;
+                            item.Unload();
+                        }
+                    }
+                    else
+                    {
+                        //obj is partially Or completely visible
+                        if (!item.IsLoaded)
+                        {
+                            item.Load(desiredThumbnailSize + 250);
+                            loadedImages++;
+                        }
+                    }
+                }
             }
         }
 
@@ -177,7 +280,7 @@ namespace ImageTagger
         }
         public void RequestMoreImages()
         {
-            if (Images.Count() >= maxLoadedImages)
+            if (Images.Count() >= maxLoadedSquares)
             {
                 //HandleLoadNextPageButtonClick(null, null);
                 //main.loadNextPageButton.IsEnabled = true;
@@ -200,6 +303,7 @@ namespace ImageTagger
             {
                 var newSquare = new ImageInfo(main.ImageFiles.Get(i));
                 Images.Add(newSquare);
+                loadedImages++;
                 newSquare.Load(desiredThumbnailSize + 250);
             }
             currentChunk++;
@@ -219,9 +323,12 @@ namespace ImageTagger
         {
             if (currentImageOffset != 0)
             {
-                currentImageOffset -= maxLoadedImages;
+                currentImageOffset -= maxLoadedSquares;
                 if (currentImageOffset < 0) currentImageOffset = 0;
                 currentChunk = 0;
+                foreach (var image in Images)
+                    image.Unload();
+                loadedImages = 0;
                 Images.Clear();
                 GC.Collect();
                 LoadNextChunk();
@@ -233,6 +340,9 @@ namespace ImageTagger
             //main.loadNextPageButton.Visibility = Visibility.Collapsed;
             currentImageOffset = currentImageOffset + Images.Count();
             currentChunk = 0;
+            foreach (var image in Images)
+                image.Unload();
+            loadedImages = 0;
             Images.Clear();
             GC.Collect();
             LoadNextChunk();
