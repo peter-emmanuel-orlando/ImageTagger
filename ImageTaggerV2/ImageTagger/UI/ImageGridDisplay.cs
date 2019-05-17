@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Data.OleDb;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -176,9 +177,7 @@ namespace ImageTagger
         int maxLoadedImages = 333;
         private void LoadOnScreen()
         {
-            //if (ImageGrid.Items.Count == 0) return;
-            //var anItem = (ListBoxItem)(ImageGrid.ItemContainerGenerator.ContainerFromItem(ImageGrid.Items[0]));
-            //var itemSize = anItem.he
+            if (ImageGrid.Items.Count == 0) return;
             var viewer = main.imageGrid_ScrollViewer;
             var itemSize = desiredThumbnailSize + 22;//padding and margin
             var viewerWidth = viewer.ViewportWidth;
@@ -211,17 +210,18 @@ namespace ImageTagger
                 }
             }
             */
-            var mem = GC.GetTotalMemory(false);
-            if ( mem > 700000000) //loadedImages > maxLoadedImages)
+            var mem = Process.GetCurrentProcess().PrivateMemorySize64;// GC.GetTotalMemory(false);
+            if ( mem > 700000000 || loadedImages > maxLoadedImages)//0.7gb
             {
-                for (int i = 0; i < visibleItemsStartIndex; i++)
+                for (int i = 0; i < visibleItemsStartIndex - margin; i++)
                 {
                     Images[i].Unload();
                 }
-                for (int i = visibleItemsEndIndex+1; i < Images.Count; i++)
+                for (int i = visibleItemsEndIndex+1+margin; i < Images.Count; i++)
                 {
                     Images[i].Unload();
                 }
+                GC.Collect();
             }
             //'request load' is a stack data structure, meaning lifo
             //last load preceeding margin

@@ -48,37 +48,40 @@ namespace ImageTagger.DataModels
         }
 
         private bool isLoading = false;
-        private int pixelDimensions = 0;
+        public int PixelDimensions { get; private set; } = 0;
         public void Load(int pixelDimensions = -1, DispatcherPriority priority = DispatcherPriority.SystemIdle)
         {
             if (ImgPath != null)
             {
-                if (pixelDimensions == this.pixelDimensions && IsLoaded)
+                if (pixelDimensions == this.PixelDimensions && IsLoaded)
                     return;
 
-                var prevPixelDimensions = this.pixelDimensions;
+                var prevPixelDimensions = this.PixelDimensions;
+                var timestamp = DateTime.Now.Ticks;
                 App.Current.Dispatcher.BeginInvoke(priority, new Action(() =>
                 {
-                    if (pixelDimensions == this.pixelDimensions && IsLoaded)
+                    if (pixelDimensions == this.PixelDimensions && IsLoaded)
                         return;
                     else
                     {
                         isLoading = true;
-                        _Load(pixelDimensions);
+                        _Load(pixelDimensions, timestamp);
                     }
                 }));
             }
         }
 
-
-        private void _Load(int pixelDimensions = -1)
+        private long mostRecentLoad = 0;
+        private void _Load(int pixelDimensions, long timestamp)
         {
+            if (timestamp < mostRecentLoad)//if this request is older than the most recent request, return
+                ;// return;
+
             if (ImgPath != null)
             {
-                if (pixelDimensions == this.pixelDimensions && IsLoaded)
+                if (pixelDimensions == this.PixelDimensions && IsLoaded)
                     return;
-
-                var prevPixelDimensions = this.pixelDimensions;
+                var prevPixelDimensions = this.PixelDimensions;
                 FileStream stream = null;
                 try
                 {
@@ -98,12 +101,13 @@ namespace ImageTagger.DataModels
                     {
                         ImgSource = imgBitMap;
                     }
-                    this.pixelDimensions = pixelDimensions;
+                    this.PixelDimensions = pixelDimensions;
+                    mostRecentLoad = timestamp;
                 }
                 catch (Exception e)
                 {
                     Debug.WriteLine(e);
-                    this.pixelDimensions = prevPixelDimensions;
+                    this.PixelDimensions = prevPixelDimensions;
                 }
                 finally
                 {
@@ -121,21 +125,28 @@ namespace ImageTagger.DataModels
         {
             if (ImgPath != null)
             {
-                if (pixelDimensions == this.pixelDimensions && IsLoaded)
+                if (pixelDimensions == this.PixelDimensions && IsLoaded)
                     return;
 
-                var prevPixelDimensions = this.pixelDimensions;
+                var prevPixelDimensions = this.PixelDimensions;
+                var timestamp = DateTime.Now.Ticks;
                 ProcessRequest(() =>
                 {
                     if (ImgPath != null)
                     {
-                        if (pixelDimensions == this.pixelDimensions && IsLoaded)
+                        var mem = 0;// Process.GetCurrentProcess().PrivateMemorySize64;// GC.GetTotalMemory(false);
+                        if (pixelDimensions == this.PixelDimensions && IsLoaded)
                             return;
-                        else {
+                        else if (mem > 700000000)
+                        {
+                            pixelDimensions = 150;
+                        }
+                        else
+                        {
                             isLoading = true;
-                            App.Current.Dispatcher.Invoke(() => _Load(pixelDimensions), DispatcherPriority.ApplicationIdle);
+                            App.Current.Dispatcher.Invoke(() => _Load(pixelDimensions, timestamp), DispatcherPriority.ApplicationIdle);
+                        }
                     }
-                }
                 });
             }
         }
@@ -172,7 +183,7 @@ namespace ImageTagger.DataModels
             ImgPath = other.ImgPath;
             ImgSource = other.ImgSource;
             //ImgTags = other.ImgTags;
-            this.pixelDimensions = -int.MaxValue;
+            this.PixelDimensions = -int.MaxValue;
             this.Load(pixelDimensions, priority);
         }
 
