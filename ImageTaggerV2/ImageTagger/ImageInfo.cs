@@ -74,8 +74,8 @@ namespace ImageTagger.DataModels
         private long mostRecentLoad = 0;
         private void _Load(int pixelDimensions, long timestamp)
         {
-            if (timestamp < mostRecentLoad)//if this request is older than the most recent request, return
-                ;// return;
+            if (timestamp <= mostRecentLoad || !isLoading)//if this request is older than the most recent request, return
+                return;
 
             if (ImgPath != null)
             {

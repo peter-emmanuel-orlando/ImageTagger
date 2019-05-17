@@ -188,7 +188,7 @@ namespace ImageTagger
             var visibleItemsStartIndex = (int)(prevRows * columns).Clamp(0, Images.Count - 1);
             var visibleItemsEndIndex = (int)(visibleItemsStartIndex + (visibleRows * columns)).Clamp(0, Images.Count - 1);
 
-            var margin = (int)Math.Ceiling(visibleRows*columns / 2f);
+            var margin = 0;// (int)Math.Ceiling(visibleRows*columns / 2f);
             //visibleItemsStartIndex -= margin;
             //visibleItemsEndIndex += margin;
 
