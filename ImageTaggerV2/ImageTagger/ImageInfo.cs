@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Net.Cache;
 using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
@@ -47,59 +49,117 @@ namespace ImageTagger.DataModels
 
         private bool isLoading = false;
         private int pixelDimensions = 0;
-        /// <summary>
-        /// dimension of -1 will set to maxResolution
-        /// </summary>
-        /// <param name="pixelDimensions"></param>
-        /// <param name="priority"></param>
-        public void Load( int pixelDimensions = -1, DispatcherPriority priority = DispatcherPriority.ContextIdle)
+        public void Load(int pixelDimensions = -1, DispatcherPriority priority = DispatcherPriority.SystemIdle)
         {
-            if(ImgPath != null)
+            if (ImgPath != null)
             {
                 if (pixelDimensions == this.pixelDimensions && IsLoaded)
                     return;
 
-                isLoading = true;
                 var prevPixelDimensions = this.pixelDimensions;
-                //ImgTags = ImageFileUtil.GetImageTags(ImgPath);
                 App.Current.Dispatcher.BeginInvoke(priority, new Action(() =>
                 {
                     if (pixelDimensions == this.pixelDimensions && IsLoaded)
                         return;
-                    FileStream stream = null;
-                    try
+                    else
                     {
-                        stream = File.OpenRead(ImgPath);
-                        var imgBitMap = new BitmapImage();
-
-                        imgBitMap.BeginInit();
-                        imgBitMap.StreamSource = stream;
-                        imgBitMap.CacheOption = BitmapCacheOption.OnLoad;
-                        if (pixelDimensions >= 0)
-                            imgBitMap.DecodePixelWidth = pixelDimensions;
-                        imgBitMap.EndInit();
-
-                        imgBitMap.Freeze();
-                        if (isLoading)
-                        {
-                            ImgSource = imgBitMap;
-                        }
-                        this.pixelDimensions = pixelDimensions;
-                    }
-                    catch (Exception e) { Debug.WriteLine(e); this.pixelDimensions = prevPixelDimensions; }
-                    finally
-                    {
-                        if (stream != null)
-                        {
-                            stream.Close();
-                            stream.Dispose();
-                        }
-                        isLoading = false;
+                        isLoading = true;
+                        _Load(pixelDimensions);
                     }
                 }));
             }
         }
 
+
+        private void _Load(int pixelDimensions = -1)
+        {
+            if (ImgPath != null)
+            {
+                if (pixelDimensions == this.pixelDimensions && IsLoaded)
+                    return;
+
+                var prevPixelDimensions = this.pixelDimensions;
+                FileStream stream = null;
+                try
+                {
+                    isLoading = true;
+                    stream = File.OpenRead(ImgPath);
+                    var imgBitMap = new BitmapImage();
+
+                    imgBitMap.BeginInit();
+                    imgBitMap.StreamSource = stream;
+                    imgBitMap.CacheOption = BitmapCacheOption.OnLoad;
+                    if (pixelDimensions >= 0)
+                        imgBitMap.DecodePixelWidth = pixelDimensions;
+                    imgBitMap.EndInit();
+
+                    imgBitMap.Freeze();
+                    if (isLoading)
+                    {
+                        ImgSource = imgBitMap;
+                    }
+                    this.pixelDimensions = pixelDimensions;
+                }
+                catch (Exception e)
+                {
+                    Debug.WriteLine(e);
+                    this.pixelDimensions = prevPixelDimensions;
+                }
+                finally
+                {
+                    if (stream != null)
+                    {
+                        stream.Close();
+                        stream.Dispose();
+                    }
+                    isLoading = false;
+                }
+            }
+        }
+
+        public void RequestLoad(int pixelDimensions = -1)
+        {
+            if (ImgPath != null)
+            {
+                if (pixelDimensions == this.pixelDimensions && IsLoaded)
+                    return;
+
+                var prevPixelDimensions = this.pixelDimensions;
+                ProcessRequest(() =>
+                {
+                    if (ImgPath != null)
+                    {
+                        if (pixelDimensions == this.pixelDimensions && IsLoaded)
+                            return;
+                        else {
+                            isLoading = true;
+                            App.Current.Dispatcher.Invoke(() => _Load(pixelDimensions), DispatcherPriority.ApplicationIdle);
+                    }
+                }
+                });
+            }
+        }
+
+
+        private static bool isInProgress = false;
+        private static readonly Stack<Action> toProcess = new Stack<Action>();
+        private static void ProcessRequest(Action a)
+        {
+            toProcess.Push(a);
+            if (!isInProgress)
+            {
+                isInProgress = true;
+                Task.Run(async () =>
+                {
+                    while (toProcess.Count > 0)
+                    {
+                        var current = toProcess.Pop();
+                        await App.Current.Dispatcher.InvokeAsync(current);
+                    }
+                    isInProgress = false;
+                });
+            }
+        }
         public void Unload()
         {
             isLoading = false;
@@ -125,7 +185,7 @@ namespace ImageTagger.DataModels
 
         public override int GetHashCode()
         {
-            return base.GetHashCode() -1090012821 + EqualityComparer<string>.Default.GetHashCode(ImgPath);
+            return base.GetHashCode() - 1090012821 + EqualityComparer<string>.Default.GetHashCode(ImgPath);
         }
 
 
