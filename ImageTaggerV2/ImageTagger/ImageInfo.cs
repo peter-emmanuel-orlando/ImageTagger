@@ -182,8 +182,9 @@ namespace ImageTagger.DataModels
         public void CloneFrom(ImageInfo other, int pixelDimensions = -1, DispatcherPriority priority = DispatcherPriority.ApplicationIdle)
         {
             ImgPath = other.ImgPath;
-            ImgSource = other.ImgSource;
-            mostRecentLoad = 0;
+            //ImgSource = other.ImgSource;
+            //pixelDimensions = int.MinValue;
+            //mostRecentLoad = 0;
             isLoading = false;
             this.Load(pixelDimensions, priority);
         }

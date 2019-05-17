@@ -64,7 +64,7 @@ namespace ImageTagger
         }
         private static string TmpFix(string tagText)
         {
-
+            if (tagText.ToUpper().StartsWith("DATA")) return tagText;
             tagText = tagText.ToLower();
             tagText = FilterChars(tagText, out _);
             return tagText;
