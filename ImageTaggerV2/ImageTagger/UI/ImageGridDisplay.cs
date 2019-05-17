@@ -180,15 +180,15 @@ namespace ImageTagger
             if (ImageGrid.Items.Count == 0) return;
             var viewer = main.imageGrid_ScrollViewer;
             var itemSize = desiredThumbnailSize + 22;//padding and margin
-            var viewerWidth = viewer.ViewportWidth;
+            var viewerWidth = viewer.ViewportWidth - 8;//scrollbar
             var viewerHeight = viewer.ViewportHeight;
             var columns = Math.Floor(viewerWidth/ itemSize);
-            var prevRows = Math.Floor(viewer.VerticalOffset / itemSize);
+            var prevRows = Math.Floor(viewer.ContentVerticalOffset / itemSize);
             var visibleRows = Math.Ceiling(viewerHeight / itemSize);
             var visibleItemsStartIndex = (int)(prevRows * columns).Clamp(0, Images.Count - 1);
             var visibleItemsEndIndex = (int)(visibleItemsStartIndex + (visibleRows * columns)).Clamp(0, Images.Count - 1);
 
-            var margin = 0;// (int)Math.Ceiling(visibleRows*columns / 2f);
+            var margin = (int)Math.Ceiling(visibleRows*columns / 2f);
             //visibleItemsStartIndex -= margin;
             //visibleItemsEndIndex += margin;
 
@@ -211,23 +211,29 @@ namespace ImageTagger
             }
             */
             var mem = Process.GetCurrentProcess().PrivateMemorySize64;// GC.GetTotalMemory(false);
-            if ( mem > 700000000 || loadedImages > maxLoadedImages)//0.7gb
+            if ( mem > 700000000 && loadedImages > maxLoadedImages)//0.7gb
             {
+                const int unloadedRez = 15;
                 for (int i = 0; i < visibleItemsStartIndex - margin; i++)
                 {
-                    Images[i].Unload();
+                    //Images[i].Unload();
+                    if(Images[i].PixelDimensions != unloadedRez)
+                        Images[i].RequestLoad(unloadedRez);
                 }
                 for (int i = visibleItemsEndIndex+1+margin; i < Images.Count; i++)
                 {
-                    Images[i].Unload();
+                    //Images[i].Unload();
+                    if (Images[i].PixelDimensions != unloadedRez)
+                        Images[i].RequestLoad(unloadedRez);
                 }
-                GC.Collect();
+                if(mem > 900000000)
+                    GC.Collect();
             }
             //'request load' is a stack data structure, meaning lifo
             //last load preceeding margin
             for (int i = visibleItemsStartIndex; i >= (visibleItemsStartIndex - margin).Clamp(0, Images.Count -1); i--)
             {
-                if (!Images[i].IsLoaded)
+                if (true)//!Images[i].IsLoaded)
                 {
                     Images[i].RequestLoad(desiredThumbnailSize + 250);
                 }
@@ -235,7 +241,7 @@ namespace ImageTagger
             //then load proceeding margin
             for (int i = (visibleItemsEndIndex + margin).Clamp(0, Images.Count-1); i >= visibleItemsEndIndex; i--)
             {
-                if (!Images[i].IsLoaded)
+                if (true)//!Images[i].IsLoaded)
                 {
                     Images[i].RequestLoad(desiredThumbnailSize + 250);
                 }
@@ -243,7 +249,7 @@ namespace ImageTagger
             //first visible images
             for (int i = visibleItemsEndIndex; i >= visibleItemsStartIndex; i--)
             {
-                if (!Images[i].IsLoaded)
+                if (true)//!Images[i].IsLoaded)
                 {
                     Images[i].RequestLoad(desiredThumbnailSize + 250);
                 }

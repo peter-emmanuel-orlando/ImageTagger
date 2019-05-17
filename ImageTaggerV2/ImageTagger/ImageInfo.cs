@@ -17,9 +17,9 @@ namespace ImageTagger.DataModels
     {
         public ImageInfo()
         {
-
+            Unload();
         }
-        public ImageInfo(String imgPath)
+        public ImageInfo(String imgPath) : this()
         {
             ImgPath = imgPath; //Path.Combine(Environment.CurrentDirectory, "Bilder", "sas.png");
         }
@@ -174,16 +174,17 @@ namespace ImageTagger.DataModels
         public void Unload()
         {
             isLoading = false;
-            //ImgTags = null;
+            mostRecentLoad = 0;
             ImgSource = null;
+            RequestLoad(150);
         }
 
         public void CloneFrom(ImageInfo other, int pixelDimensions = -1, DispatcherPriority priority = DispatcherPriority.ApplicationIdle)
         {
             ImgPath = other.ImgPath;
             ImgSource = other.ImgSource;
-            //ImgTags = other.ImgTags;
-            this.PixelDimensions = -int.MaxValue;
+            mostRecentLoad = 0;
+            isLoading = false;
             this.Load(pixelDimensions, priority);
         }
 
