@@ -11,7 +11,7 @@
             <Menu x:Name="menu" VerticalAlignment="Top" Visibility="Hidden">
                 <MenuItem Header="Settings">
                     <MenuItem Header="speed(ms)">
-                        <TextBox x:Name="slideshowSpeed" MinWidth="40" TextChanged="SlideshowSpeed_TextChanged" />
+                        <TextBox x:Name="slideshowSpeed" MinWidth="40" TextChanged="SlideshowSpeed_TextChanged" LostFocus="SlideshowSpeed_LostFocus" />
                     </MenuItem>
                 </MenuItem>
             </Menu>

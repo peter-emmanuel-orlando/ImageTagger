@@ -119,16 +119,28 @@ namespace ImageTagger.UI
             }
         }
 
+        int? prevTextChange = null;
         private void SlideshowSpeed_TextChanged(object sender, TextChangedEventArgs e)
         {
-            if (float.TryParse(slideshowSpeed.Text, out float newDelay))
+            if (UInt32.TryParse(slideshowSpeed.Text, out uint newDelay))
             {
-                ImgDelay = (int)newDelay;
-                if (ImgDelay < 500)
-                    ImgDelay = 500;
-                //ChangeImageIndex();
+                slideshowSpeed.Text = newDelay + "";
             }
-            slideshowSpeed.Text = ImgDelay + "";
+            else 
+                slideshowSpeed.Text = (prevTextChange ?? ImgDelay)+ "";
+
+            prevTextChange = Int32.Parse(slideshowSpeed.Text);
+        }
+
+        private void SlideshowSpeed_LostFocus(object sender, RoutedEventArgs e)
+        {
+
+            ImgDelay = (int)UInt32.Parse(slideshowSpeed.Text);
+            if (ImgDelay < 500)
+            {
+                ImgDelay = 500;
+                slideshowSpeed.Text = ImgDelay + "";
+            }
         }
 
         private void HandleKeyDown(object sender, KeyEventArgs e)
