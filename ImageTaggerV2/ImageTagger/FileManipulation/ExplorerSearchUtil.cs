@@ -1,7 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 
 namespace ImageTagger.UI
 {
@@ -42,14 +44,18 @@ namespace ImageTagger.UI
             ";
 
 
-        public static void ShowInFolder( params string[] selectedFiles)
+        public static Process ShowInFolder( params string[] selectedFiles)
         {
-            ShowInFolder((IEnumerable<string>)selectedFiles);
+            return ShowInFolder(ProcessWindowStyle.Maximized, selectedFiles);
         }
-        public static void ShowInFolder(IEnumerable<string> selectedFiles)
+        public static Process ShowInFolder(ProcessWindowStyle windowStyle = ProcessWindowStyle.Maximized, params string[] selectedFiles)
+        {
+            return ShowInFolder((IEnumerable<string>)selectedFiles, windowStyle);
+        }
+        public static Process ShowInFolder(IEnumerable<string> selectedFiles, ProcessWindowStyle windowStyle = ProcessWindowStyle.Maximized)
         {
             if (selectedFiles == null || !selectedFiles.Any())
-                return;
+                return null;
 
             var rootDirectory = System.IO.Path.GetDirectoryName(selectedFiles.First());
             foreach (var path in selectedFiles)
@@ -71,7 +77,23 @@ namespace ImageTagger.UI
 
             var filename = Directory.GetCurrentDirectory() + @"\search.search-ms";
             File.WriteAllText(filename, searchMSContent);
-            Process.Start(filename);
+            Process search = new Process();
+            search.StartInfo.WindowStyle = windowStyle;
+            search.StartInfo.FileName = filename;
+            search.Start();
+            return search;
         }
+        public static void MoveWindow(Process windowProcess, int x, int y, int width, int height, bool repaint)
+        {
+            try
+            {
+                MoveWindow(windowProcess.MainWindowHandle, x, y, width, height, repaint);
+            }
+            catch (Exception e) { Debug.WriteLine(e); }
+        }
+
+        [DllImport("user32.dll", SetLastError = true)]
+        private static extern bool MoveWindow(IntPtr hWnd, int X, int Y, int nWidth, int nHeight, bool bRepaint);
+
     }
 }

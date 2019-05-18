@@ -66,11 +66,25 @@ namespace ImageTagger
             }
         }
 
+        public static string GetImageComments(string imagePath)
+        {
+            var result = "";
+            if (File.Exists(imagePath))
+            {
+                try
+                {
+                    var sFile = ShellFile.FromParsingName(imagePath);
+                    var tagsList = sFile.Properties.System.Comment;
+                }
+                catch (Exception e) { throw e; }
+            }
+            return result;
+        }
         public static HashSet<ImageTag> GetImageTags(string imagePath)
         {
             var result = new HashSet<ImageTag>(new ImageTagEqualityComparer());
 
-            Debug.WriteLine("tags at: " + imagePath);
+            //Debug.WriteLine("tags at: " + imagePath);
             if (File.Exists(imagePath))
             {
                 try

@@ -23,6 +23,7 @@ using System.ComponentModel;
 using ImageTagger.UI;
 using ImageTagger.DataModels;
 using System.Collections.Async;
+using VisionAPISuggestions;
 
 namespace ImageTagger
 {
@@ -142,6 +143,15 @@ namespace ImageTagger
         private void FormatTagsMenuItem_Click(object sender, RoutedEventArgs e)
         {
             FormatUtil.FixAllTagsInFiles(ImageFiles);
+        }
+
+        private void SearchOnGoogle_ContextItem_Click(object sender, RoutedEventArgs e)
+        {
+            var path = ((ImageInfo)imageGrid.SelectedItems.Last()).ImgPath;
+            var s = System.Diagnostics.Process.Start($"www.images.google.com/");
+            Thread.Sleep(1000);
+            var p = ExplorerSearchUtil.ShowInFolder(System.Diagnostics.ProcessWindowStyle.Normal, path);
+            //ExplorerSearchUtil.MoveWindow(p, 0, 0, 300, 300, true);
         }
     }
 }

@@ -13,12 +13,6 @@ using Newtonsoft.Json;
 
 namespace VisionAPISuggestions
 {
-    public class SimilarImages
-    {
-        public readonly List<string> matching = new List<string>();
-        public readonly List<string> partial = new List<string>();
-        public readonly List<string> similar = new List<string>();
-    }
     public static class VisionApi
     {
         private static ImageAnnotatorClient client;

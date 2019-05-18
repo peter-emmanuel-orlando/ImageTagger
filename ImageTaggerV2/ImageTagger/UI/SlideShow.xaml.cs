@@ -18,15 +18,19 @@ namespace ImageTagger.UI
     /// <summary>
     /// Interaction logic for SlideShow.xaml
     /// </summary>
-    /// features: quick tag hotkey, i.e. pressing 1 taggs "landscape, cololorful, sunset"
-    /// and the different numbers can be bound to different sets of tags
+    /// features: 
+    ///  //quick tag hotkey, i.e. pressing 1 taggs "landscape, cololorful, sunset"
+    ///     and the different numbers can be bound to different sets of tags
     /// //quick move to destination. 
-    /// pressing qwerty moves image to one of 6 folders
+    ///     pressing qwerty moves image to one of 6 folders
     /// //favorite searches
     /// watch folder for changes
     /// select multiple images and tag all at once
     /// right click, show in folder <-- done
     /// search google from image
+    /// show similar images in folder (HARD)
+    /// show similar images from google(cache this in image metadata)
+    /// show higher rez version of image(cache this in image metadata)
     public partial class SlideShow : Window
     {
         private ImageFiles ImageFiles { get; }
