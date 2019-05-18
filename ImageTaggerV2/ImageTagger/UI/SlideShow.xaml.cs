@@ -26,6 +26,7 @@ namespace ImageTagger.UI
     /// watch folder for changes
     /// select multiple images and tag all at once
     /// right click, show in folder <-- done
+    /// search google from image
     public partial class SlideShow : Window
     {
         private ImageFiles ImageFiles { get; }

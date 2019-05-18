@@ -74,7 +74,7 @@ namespace ImageTagger.DataModels
         private long mostRecentLoad = 0;
         private void _Load(int pixelDimensions, long timestamp)
         {
-            if (timestamp <= mostRecentLoad || !isLoading)//if this request is older than the most recent request, return
+            if (timestamp < mostRecentLoad || !isLoading)//if this request is older than the most recent request, return
                 return;
 
             if (ImgPath != null)
@@ -176,7 +176,7 @@ namespace ImageTagger.DataModels
             isLoading = false;
             mostRecentLoad = 0;
             ImgSource = null;
-            RequestLoad(150);
+            //RequestLoad(150);
         }
 
         public void CloneFrom(ImageInfo other, int pixelDimensions = -1, DispatcherPriority priority = DispatcherPriority.ApplicationIdle)
