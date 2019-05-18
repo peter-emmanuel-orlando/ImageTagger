@@ -225,5 +225,23 @@ namespace ImageTagger.UI
             // items arnt displayed in their actual directories
             ExplorerSearchUtil.ShowInFolder(imgPath);
         }
+        private void SearchOnGoogle_ContextItem_Click(object sender, RoutedEventArgs e)
+        {
+            var path = mainImageInfo.ImgPath;
+            var s = System.Diagnostics.Process.Start($"www.images.google.com/");
+            Thread.Sleep(1000);
+            ExplorerSearchUtil.ShowInFolder(System.Diagnostics.ProcessWindowStyle.Normal, path);
+        }
+
+        private void MainSlideshowImagePanel_ContextMenuOpening(object sender, ContextMenuEventArgs e)
+        {
+            ((FrameworkElement)sender).Tag = isPaused;
+            Pause(true);
+        }
+
+        private void MainSlideshowImagePanel_ContextMenuClosing(object sender, ContextMenuEventArgs e)
+        {
+            Pause((bool)((FrameworkElement)sender).Tag);
+        }
     }
 }

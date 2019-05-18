@@ -24,6 +24,7 @@ using ImageTagger.UI;
 using ImageTagger.DataModels;
 using System.Collections.Async;
 using VisionAPISuggestions;
+using System.Diagnostics;
 
 namespace ImageTagger
 {
@@ -138,6 +139,7 @@ namespace ImageTagger
         {
             var imgPath = (e.OriginalSource as MenuItem).Tag.ToString();
             ExplorerSearchUtil.ShowInFolder(imgPath);
+            
         }
 
         private void FormatTagsMenuItem_Click(object sender, RoutedEventArgs e)
@@ -150,7 +152,32 @@ namespace ImageTagger
             var path = ((ImageInfo)imageGrid.SelectedItems.Last()).ImgPath;
             var s = System.Diagnostics.Process.Start($"www.images.google.com/");
             Thread.Sleep(1000);
-            var p = ExplorerSearchUtil.ShowInFolder(System.Diagnostics.ProcessWindowStyle.Normal, path);
+            ExplorerSearchUtil.ShowInFolder(System.Diagnostics.ProcessWindowStyle.Normal, path);
+            /*
+            System.Diagnostics.Process[] procs = System.Diagnostics.Process.GetProcessesByName("EXPLORER");
+            foreach (System.Diagnostics.Process proc in procs)
+            {
+                if (proc.StartInfo.Arguments.IndexOf("GTGTGT") > -1)
+                    proc.Kill();
+            }
+            StringBuilder sb = new StringBuilder();
+            foreach (Process p in Process.GetProcesses("."))
+            {
+                try
+                {
+                    if (p.MainWindowTitle.Length > 0)
+                    {
+                        Debug.Write("\r\n");
+                        Debug.Write("\r\n Window Title:" + p.MainWindowTitle.ToString());
+                        Debug.Write("\r\n Process Name:" + p.ProcessName.ToString());
+                        Debug.Write("\r\n Window Handle:" + p.MainWindowHandle.ToString());
+                        Debug.Write("\r\n Memory Allocation:" + p.PrivateMemorySize64.ToString());
+                    }
+                }
+                catch { }
+            }
+            Debug.WriteLine(sb);
+            */
             //ExplorerSearchUtil.MoveWindow(p, 0, 0, 300, 300, true);
         }
     }

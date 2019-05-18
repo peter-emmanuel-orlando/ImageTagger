@@ -75,10 +75,11 @@ namespace ImageTagger.UI
             }
             searchMSContent = searchMSContent.Replace("PlaceHolder", conditionsString);
 
-            var filename = Directory.GetCurrentDirectory() + @"\search.search-ms";
+            var filename = Directory.GetCurrentDirectory() + @"\showInFolderSearch.search-ms";
             File.WriteAllText(filename, searchMSContent);
             Process search = new Process();
             search.StartInfo.WindowStyle = windowStyle;
+            search.StartInfo.Arguments = "GTGTGT";
             search.StartInfo.FileName = filename;
             search.Start();
             return search;
