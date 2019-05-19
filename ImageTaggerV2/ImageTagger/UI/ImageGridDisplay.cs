@@ -324,8 +324,9 @@ namespace ImageTagger
             var loadUpTo = startIndex + imagesPerChunk;
             loadUpTo = Math.Min(loadUpTo, main.ImageFiles.Count);
             loadUpTo = Math.Min(loadUpTo, startIndex + imagesPerChunk);
-            
-            for (int i = loadUpTo-1; i >= startIndex; i--)
+
+            //for (int i = loadUpTo-1; i >= startIndex; i--)
+            for (int i = startIndex; i < loadUpTo; i++)
             {
                 var newSquare = new ImageInfo(main.ImageFiles.Get(i));
                 Images.Add(newSquare);
