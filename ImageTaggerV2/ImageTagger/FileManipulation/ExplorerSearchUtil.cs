@@ -62,6 +62,15 @@ namespace ImageTagger.UI
             {
                 //var otherDirectory = System.IO.Path.GetDirectoryName(path); //not neccessary
                 rootDirectory = string.Concat(rootDirectory.TakeWhile((thisChar, index) => thisChar == path[index]));
+                var remaining = path.Replace(rootDirectory, "");
+                if (!remaining.StartsWith("/") && !remaining.StartsWith(@"\"))
+                {
+                    //could just split at "/" then split at "\"
+                    while(rootDirectory.Length > 0 && rootDirectory.Last() != '/' && rootDirectory.Last() != '\\' )
+                    {
+                        rootDirectory = rootDirectory.Remove(rootDirectory.Length - 1);
+                    }
+                }
             }
 
             var searchMSContent = genericSearch;

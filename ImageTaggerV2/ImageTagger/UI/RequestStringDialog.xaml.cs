@@ -33,14 +33,19 @@ namespace ImageTagger.UI
 
         public static bool StartDialog( out string result, string initialVal, string requestMessage, string requestLabel, string emptyInputLabel)
         {
-            result = "";
-            var getKeyWindow = new RequestStringDialog( initialVal, requestMessage, requestLabel, emptyInputLabel);
-            var success = getKeyWindow.ShowDialog() ?? false;
-            if (success)
+            var newResult = "";
+            var success = false;
+            App.Current.Dispatcher.Invoke(() =>
             {
-                result = getKeyWindow.Result;
-                MessageBox.Show($"{requestLabel} is set to {result}");
-            }
+                var getKeyWindow = new RequestStringDialog(initialVal, requestMessage, requestLabel, emptyInputLabel);
+                success = getKeyWindow.ShowDialog() ?? false;
+                if (success)
+                {
+                    newResult = getKeyWindow.Result;
+                    MessageBox.Show($"{requestLabel} is set to {newResult}");
+                }
+            });
+            result = newResult;
             return success;
         }
 

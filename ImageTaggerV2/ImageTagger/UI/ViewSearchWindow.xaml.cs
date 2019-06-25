@@ -137,8 +137,16 @@ namespace ImageTagger
 
         private void ShowInFolder_ContextItem_Click(object sender, RoutedEventArgs e)
         {
-            var imgPath = (e.OriginalSource as MenuItem).Tag.ToString();
-            ExplorerSearchUtil.ShowInFolder(imgPath);
+            var selected = imageGrid.SelectedItems.Select(item => { return ((ImageInfo)item).ImgPath; }).ToArray();
+            if(selected.Length > 1)
+            {
+                ExplorerSearchUtil.ShowInFolder(selected);
+            }
+            else
+            {
+                var imgPath = (e.OriginalSource as MenuItem).Tag.ToString();
+                ExplorerSearchUtil.ShowInFolder(imgPath);
+            }
             
         }
 
