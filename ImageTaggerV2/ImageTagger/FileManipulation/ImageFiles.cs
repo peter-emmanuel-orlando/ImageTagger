@@ -78,11 +78,11 @@ namespace ImageTagger
             FileNames.Clear();
 
             currentQuery = tagQueryCriteria ?? new TagQueryCriteria();
-            var sourcePath = PersistanceUtil.SourceDirectory;
+            var sourcePath = PersistanceUtil.RetreiveSetting(Setting.SourceDirectory);
             if(!Directory.Exists(sourcePath))
             {
                 sourcePath = Environment.GetFolderPath(Environment.SpecialFolder.MyPictures);
-                PersistanceUtil.ChangeSource(sourcePath);
+                PersistanceUtil.RecordSetting(Setting.SourceDirectory, sourcePath);
             }
             if (newAdditionsOnly)
                 FileNames.Add(NewFiles);

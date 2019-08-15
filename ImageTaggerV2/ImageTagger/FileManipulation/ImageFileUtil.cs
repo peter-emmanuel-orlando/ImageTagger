@@ -14,7 +14,7 @@ using WinForms = System.Windows.Forms;
 
 namespace ImageTagger
 {
-    public static class ImageFileUtil
+	public static class ImageFileUtil
     {
 
         public static bool ApplyTagsToImage(ImageInfo imageInfo, IEnumerable<ImageTag> tags)
@@ -110,7 +110,7 @@ namespace ImageTagger
 
         public static List<string> GetImageFilenames(string sourcePath = null, TagQueryCriteria tagQueryCriteria = null)
         {
-            sourcePath = sourcePath ?? PersistanceUtil.SourceDirectory;
+            sourcePath = sourcePath ?? PersistanceUtil.RetreiveSetting(Setting.SourceDirectory);
             if (!Directory.Exists(sourcePath))
                 sourcePath = Environment.GetFolderPath(Environment.SpecialFolder.MyPictures);
             tagQueryCriteria = tagQueryCriteria ?? new TagQueryCriteria();
@@ -118,45 +118,86 @@ namespace ImageTagger
             var result = new List<string>();
             var query = tagQueryCriteria.GetQueryClause(sourcePath, out bool randomize);
 
-            var windowsSearchConnection = @"Provider=Search.CollatorDSO;Extended Properties=""Application=Windows""";
-            using (OleDbConnection connection = new OleDbConnection(windowsSearchConnection))
+            var windowsSearchConnection = @"Provider=Search.CollatorDSO.1;Extended Properties=""Application=Windows""";
+			using (OleDbConnection connection = new OleDbConnection(windowsSearchConnection))
             {
                 connection.Open();
-                OleDbCommand command = new OleDbCommand(query, connection);
-                using (var r = command.ExecuteReader())
-                {
-                    var cont = true;
-                    while (cont)
-                    {
-                        try
-                        {
-                            cont = r.Read();
-                            var filepath = $"{r[0]}";
-                            //var x = r[1];
-                            //var y = r[2];
-                            var isJpg = false;
-                            using (var stream = new FileStream(filepath, FileMode.Open))
-                            {
-                                stream.Seek(0, SeekOrigin.Begin);
-                                string bytes = stream.ReadByte().ToString("X2");
-                                bytes += stream.ReadByte().ToString("X2");
-                                isJpg = bytes == "FFD8";
-                                //Debug.WriteLine(bytes + " " + isJpg);
-                            }
+				var command = new OleDbCommand(query, connection);
+				try
+				{
+					using (var r = command.ExecuteReader())
+					{
+						var cont = true;
+						while (cont)
+						{
+							try
+							{
+								cont = r.Read();
+								var filepath = $"{r[0]}";
 
-                            if (isJpg)
-                                result.Add(filepath);
-                        }
-                        catch (Exception e) { Debug.WriteLine(e); }
-                    }
-                }
+								if (IsJpg(filepath))
+									result.Add(filepath);
+							}
+							catch (Exception e) { Debug.WriteLine(e); }
+						}
+					}
+				}
+				catch (Exception e)
+				{
+					Debug.WriteLine(e);
+					foreach (var fileName in Directory.GetFiles(sourcePath, "*.*", SearchOption.AllDirectories))
+					{
+						if (IsJpg(fileName) && MatchesCriteria(fileName, tagQueryCriteria))
+							result.Add(fileName);
+					}
+				}
+				finally
+				{
+					connection.Close();
+				}
             }
             if (randomize) result.Shuffle();
 
             return result;
         }
 
-        public static bool GetDirectoryFromDialog(out string result, string initialLocation = "")
+		private static bool MatchesCriteria(string imgPath, TagQueryCriteria criteria)
+		{
+			var tags = GetImageTags(imgPath).Select(t => t.TagName);
+			var success = true;
+			var anyFound = false;
+
+			foreach (var tag in tags)
+			{
+				anyFound |= criteria.anyOfThese.Contains(tag);
+
+				success &= criteria.allOfThese.Count == 0 || criteria.allOfThese.Contains(tag)
+					&& !criteria.noneOfThese.Contains(tag);
+
+				if (!success) break;
+			}
+			success &= (anyFound || criteria.anyOfThese.Count == 0);
+
+			return success;
+		}
+		private static bool IsJpg(string filepath)
+		{
+			//var x = r[1];
+			//var y = r[2];
+			var isJpg = false;
+			using (var stream = new FileStream(filepath, FileMode.Open))
+			{
+				stream.Seek(0, SeekOrigin.Begin);
+				string bytes = stream.ReadByte().ToString("X2");
+				bytes += stream.ReadByte().ToString("X2");
+				isJpg = bytes == "FFD8";
+				//Debug.WriteLine(bytes + " " + isJpg);
+			}
+
+			return isJpg;
+		}
+
+		public static bool GetDirectoryFromDialog(out string result, string initialLocation = "")
         {
             result = initialLocation;
             var fbd = new WinForms.FolderBrowserDialog();

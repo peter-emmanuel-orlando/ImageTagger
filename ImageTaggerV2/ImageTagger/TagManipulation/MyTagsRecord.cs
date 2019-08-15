@@ -16,11 +16,11 @@ namespace ImageTagger.TagManipulation.Internal
         {
             get
             {
-                var result = SettingsPersistanceUtil.RetreiveSetting("TagsRecordDirectory");
-                if(result == "")
+                var result = PersistanceUtil.RetreiveSetting(Setting.TagsRecordDirectory);
+                if(!Directory.Exists(result))
                 {
-                    result = SettingsPersistanceUtil.SettingsPersistanceDirectory;
-                    SettingsPersistanceUtil.RecordSetting("TagsRecordDirectory", result);
+                    result = PersistanceUtil.SettingsPersistanceDirectory;
+                    PersistanceUtil.RecordSetting(Setting.TagsRecordDirectory, result);
                 }
                 return result;
             }

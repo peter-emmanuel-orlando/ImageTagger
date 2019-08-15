@@ -164,7 +164,7 @@ namespace ImageTagger
             }
             OnPreviewTagsLoaded(null, new EventArgs());
             loadState = LoadState.Loading;
-            await LoadTagsFromFileAsynch(PersistanceUtil.SourceDirectory);
+            await LoadTagsFromFileAsynch(PersistanceUtil.RetreiveSetting(Setting.SourceDirectory));
             loadState = LoadState.Loaded;
             OnTagsLoaded(null, new EventArgs());
         }

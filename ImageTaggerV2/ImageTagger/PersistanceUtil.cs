@@ -8,19 +8,29 @@ using Newtonsoft.Json.Linq;
 
 namespace ImageTagger
 {
-    public static class SettingsPersistanceUtil
+	public enum Setting
+	{
+		SourceDirectory,
+		DestinationDirectory,
+		TagsRecordDirectory,
+		ApiKey,
+		SlideshowImgDelay,
+	}
+    public static class PersistanceUtil
     {
-        private static Dictionary<string, string> ledger { get; set; } = new Dictionary<string, string>();
+        private static Dictionary<Setting, string> ledger { get; set; } = new Dictionary<Setting, string>();
         public static string SettingsPersistanceDirectory { get { return Directory.GetCurrentDirectory(); } }
         private const string settingsFileExtension = ".tsettings";
         private const string defaultSettingsFilename = "lastSession";
+        private static string DefaultImageDirectory { get { return Environment.GetFolderPath(Environment.SpecialFolder.MyPictures); } }
 
-        static SettingsPersistanceUtil()
+
+        static PersistanceUtil()
         {
             var filename = Path.Combine(SettingsPersistanceDirectory, defaultSettingsFilename + settingsFileExtension);
             if (!File.Exists(filename))
             {
-                var newSettingsFile = JsonConvert.SerializeObject(new Dictionary<string, string>());
+                var newSettingsFile = JsonConvert.SerializeObject(new Dictionary<Setting, string>());
                 File.WriteAllText(filename, "");
             }
 
@@ -28,7 +38,7 @@ namespace ImageTagger
         }
 
 
-        public static void RecordSetting(string setting, string value)
+        public static void RecordSetting(Setting setting, string value)
         {
             if (value == "" || value == null)
                 EraseSetting(setting);
@@ -40,7 +50,7 @@ namespace ImageTagger
             Persist();
         }
 
-        public static void EraseSetting(string setting)
+        public static void EraseSetting(Setting setting)
         {
             if (HasSetting(setting))
                 ledger.Remove(setting);
@@ -48,12 +58,12 @@ namespace ImageTagger
             Persist();
         }
 
-        public static bool HasSetting(string setting)
+        public static bool HasSetting(Setting setting)
         {
             return ledger.ContainsKey(setting);
         }
 
-        public static string RetreiveSetting(string setting)
+        public static string RetreiveSetting(Setting setting)
         {
             if (HasSetting(setting))
                 return ledger[setting];
@@ -71,7 +81,7 @@ namespace ImageTagger
             Debug.WriteLine( "saved settings to " + filename);
         }
 
-        public static bool Load()
+        private static bool Load()
         {
             var success = false;
 
@@ -83,11 +93,15 @@ namespace ImageTagger
                 fs = new FileStream(filename, FileMode.OpenOrCreate);
                 file = new StreamReader(fs);
                 var fileString = file.ReadToEnd();
-                ledger = JsonConvert.DeserializeObject<Dictionary<string, string>>(fileString);
-                if (ledger == null) ledger = new Dictionary<string, string>();
+                ledger = JsonConvert.DeserializeObject<Dictionary<Setting, string>>(fileString);
+                if (ledger == null) ledger = new Dictionary<Setting, string>();
                 Debug.WriteLine("successfully loaded settings.\n" + fileString);
                 success = true;
-            }
+				if (!Directory.Exists(RetreiveSetting(Setting.DestinationDirectory)))
+					RecordSetting(Setting.DestinationDirectory, DefaultImageDirectory);
+				if (!Directory.Exists(RetreiveSetting(Setting.SourceDirectory)))
+					RecordSetting(Setting.SourceDirectory, DefaultImageDirectory);
+			}
             catch (Exception e)
             {
                 Debug.WriteLine(e);

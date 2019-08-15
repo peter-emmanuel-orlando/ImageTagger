@@ -47,7 +47,7 @@ namespace ImageTagger.UI
             get => imgDelay;
             set
             {
-                SettingsPersistanceUtil.RecordSetting("slideshowImgDelay", "" + value);
+                PersistanceUtil.RecordSetting(Setting.SlideshowImgDelay, "" + value);
                 imgDelay = value;
             }
         }
@@ -63,7 +63,7 @@ namespace ImageTagger.UI
             ImageFiles = imageFiles;
             currentIndex = startIndex - 1;
             mainSlideshowImagePanel.DataContext = mainImageInfo;
-            if (!Int32.TryParse(SettingsPersistanceUtil.RetreiveSetting("slideshowImgDelay"), out imgDelay))
+            if (!Int32.TryParse(PersistanceUtil.RetreiveSetting(Setting.SlideshowImgDelay), out imgDelay))
             {
                 ImgDelay = 2000;
             }

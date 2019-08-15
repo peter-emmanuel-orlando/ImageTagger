@@ -30,21 +30,20 @@ namespace ImageTagger
         private void SetSource_MenuItem_Click(object sender, RoutedEventArgs e)
         {
             var result = "";
-            var success = ImageFileUtil.GetDirectoryFromDialog(out result, PersistanceUtil.SourceDirectory);
+            var success = ImageFileUtil.GetDirectoryFromDialog(out result, PersistanceUtil.RetreiveSetting(Setting.SourceDirectory));
             if (success)
             {
-                PersistanceUtil.ChangeSource(result);
+                PersistanceUtil.RecordSetting(Setting.SourceDirectory, result);
                 main.ImageFiles.Load(main.ImageFiles.currentQuery);
             }
         }
 
         private void SetDestination_MenuItem_Click(object sender, RoutedEventArgs e)
         {
-            var result = "";
-            var success = ImageFileUtil.GetDirectoryFromDialog(out result, PersistanceUtil.DestinationDirectory);
+            var success = ImageFileUtil.GetDirectoryFromDialog(out string result, PersistanceUtil.RetreiveSetting(Setting.DestinationDirectory));
             if (success)
             {
-                PersistanceUtil.ChangeDestination(result);
+				PersistanceUtil.RecordSetting(Setting.DestinationDirectory, result);
             }
         }
 

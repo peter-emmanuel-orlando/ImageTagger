@@ -117,9 +117,7 @@ namespace ImageTagger
 
             SetUpNotificationIcon();
             nIcon.Visible = true;
-
-            PersistanceUtil.LoadLocations();
-
+			
             var newWindow = OpenNewWindow();
             var v = Environment.GetCommandLineArgs();
             foreach (var item in v)

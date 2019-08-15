@@ -57,7 +57,7 @@ namespace ImageAnalysisAPI
 
         public static void RefreshAPIKey()
         { 
-            var apiKey = SettingsPersistanceUtil.RetreiveSetting("apiKey");
+            var apiKey = PersistanceUtil.RetreiveSetting(Setting.ApiKey);
 
             if (apiKey == "")
                 SetAPIKeyViaDialog();
@@ -74,10 +74,10 @@ namespace ImageAnalysisAPI
 
         public static void SetAPIKeyViaDialog()
         {
-            var apiKey = SettingsPersistanceUtil.RetreiveSetting("apiKey");
+            var apiKey = PersistanceUtil.RetreiveSetting(Setting.ApiKey);
             if(RequestStringDialog.StartDialog(out apiKey, apiKey, "provide clarifai api key for suggestions", "clarifai key", "input key here"))
             {
-                SettingsPersistanceUtil.RecordSetting("apiKey", apiKey);
+                PersistanceUtil.RecordSetting(Setting.ApiKey, apiKey);
                 if (apiKey != "")
                     RefreshAPIKey();
             }
