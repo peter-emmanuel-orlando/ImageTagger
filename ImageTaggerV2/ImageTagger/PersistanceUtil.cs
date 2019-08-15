@@ -97,10 +97,6 @@ namespace ImageTagger
                 if (ledger == null) ledger = new Dictionary<Setting, string>();
                 Debug.WriteLine("successfully loaded settings.\n" + fileString);
                 success = true;
-				if (!Directory.Exists(RetreiveSetting(Setting.DestinationDirectory)))
-					RecordSetting(Setting.DestinationDirectory, DefaultImageDirectory);
-				if (!Directory.Exists(RetreiveSetting(Setting.SourceDirectory)))
-					RecordSetting(Setting.SourceDirectory, DefaultImageDirectory);
 			}
             catch (Exception e)
             {
@@ -110,7 +106,12 @@ namespace ImageTagger
             {
                 file?.Close();
                 fs?.Close();
-            }
+
+				if (!Directory.Exists(RetreiveSetting(Setting.DestinationDirectory)))
+					RecordSetting(Setting.DestinationDirectory, DefaultImageDirectory);
+				if (!Directory.Exists(RetreiveSetting(Setting.SourceDirectory)))
+					RecordSetting(Setting.SourceDirectory, DefaultImageDirectory);
+			}
             return success;
         }
 

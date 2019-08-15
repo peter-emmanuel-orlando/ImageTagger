@@ -35,6 +35,10 @@ namespace ImageTagger.UI
         {
             this.Closed += context.OnClosed;
             cancelButton.Click += context.OnCancel;
+			context.PropertyChanged += (s, e)=>
+			{
+				if (context.Closed) this.Close();
+			};
             progressBar.DataContext = context;
             progressText.DataContext = context;
             if(!IsLoaded)
@@ -42,8 +46,12 @@ namespace ImageTagger.UI
             else
                 Task.Run(context.PerformAction, cToken);
         }
-        
-    }
+
+		private void Context_PropertyChanged(object sender, PropertyChangedEventArgs e)
+		{
+			throw new NotImplementedException();
+		}
+	}
     public class CancelDialogDataContext: INotifyPropertyChanged
     {
         private int maxValue = 0;
@@ -51,6 +59,9 @@ namespace ImageTagger.UI
         private RoutedEventHandler onCancel = delegate { };
         private EventHandler onClosed = delegate { };
         private Action performAction = delegate { };
+
+		private bool _closed = false;
+		public bool Closed { get => _closed; private set { _closed = value; NotifyPropertyChanged(); } }
 
 
         public int MaxValue { get => maxValue; set { maxValue = value; NotifyPropertyChanged(); } }
@@ -65,6 +76,12 @@ namespace ImageTagger.UI
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
+
+		public void Close()
+		{
+			Closed = true;
+		}
+
     }
 
 

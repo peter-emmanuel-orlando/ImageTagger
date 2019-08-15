@@ -1,5 +1,6 @@
 ﻿
 using ImageTagger.DataModels;
+using ImageTagger.UI;
 using Microsoft.WindowsAPICodePack.Shell;
 using Microsoft.WindowsAPICodePack.Shell.PropertySystem;
 using System;
@@ -128,6 +129,12 @@ namespace ImageTagger
 					using (var r = command.ExecuteReader())
 					{
 						var cont = true;
+						var context = new CancelDialogDataContext();
+						var dialogue = new CancelDialog(context);
+						context.OnCancel = (n, m) => cont = false;
+						context.OnClosed = (n, m) => context.OnCancel(n, null);
+
+						dialogue.Show();
 						while (cont)
 						{
 							try
@@ -139,17 +146,34 @@ namespace ImageTagger
 									result.Add(filepath);
 							}
 							catch (Exception e) { Debug.WriteLine(e); }
+							finally { dialogue.Close(); }
 						}
 					}
 				}
 				catch (Exception e)
 				{
 					Debug.WriteLine(e);
-					foreach (var fileName in Directory.GetFiles(sourcePath, "*.*", SearchOption.AllDirectories))
+					var dialogue = new CancelDialog();
+					var context = new CancelDialogDataContext();
+					int i;
+					var files = Directory.GetFiles(sourcePath, "*.*", SearchOption.AllDirectories);
+					context.MaxValue = files.Length;
+					context.PerformAction = () =>
 					{
-						if (IsJpg(fileName) && MatchesCriteria(fileName, tagQueryCriteria))
-							result.Add(fileName);
-					}
+						for (i = 0; i < files.Length; i++)
+						{
+							var fileName = files[i];
+							if (IsJpg(fileName) && MatchesCriteria(fileName, tagQueryCriteria))
+								result.Add(fileName);
+
+							context.CurrentValue++;
+						}
+					};
+					context.OnCancel = (n, m) => { i = files.Length; dialogue.Close(); };
+					context.OnClosed = (n, m) => context.OnCancel(n, null);
+
+					dialogue.SetContext(context);
+					dialogue.ShowDialog();
 				}
 				finally
 				{
